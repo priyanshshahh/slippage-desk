@@ -7,3 +7,6 @@ data/*.jsonl
 .DS_Store
 node_modules/
 .next/
+bin/alpaca
+bin/LICENSE
+bin/README.md

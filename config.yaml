@@ -69,3 +69,13 @@ llm:
   enabled: true
   max_size_multiplier: 1.0
   min_size_multiplier: 0.0
+
+execution_quality:
+  # The agent scores its own fills and refuses buckets where it has
+  # historically surrendered too much of the theoretical credit.
+  enabled: true
+  # Veto a bucket whose shrunk capture ratio falls below this.
+  min_capture_ratio: 0.60
+  # Do not veto until the bucket has at least this many scored fills, so
+  # the cold start explores rather than locking itself out.
+  min_samples_to_veto: 3

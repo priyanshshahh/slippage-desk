@@ -10,9 +10,10 @@ per-candidate ones, and sizing runs last.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, time
+from datetime import date, datetime, time
 from zoneinfo import ZoneInfo
 
+from engine.execution_quality import ExecutionMemory, bucket_key
 from engine.strategy import Spread
 
 
@@ -140,6 +141,46 @@ def candidate_gates(spread: Spread, state: PortfolioState, cfg: dict) -> list[Ve
     return v
 
 
+def execution_gate(
+    spread: Spread,
+    memory: ExecutionMemory,
+    cfg: dict,
+    now: datetime,
+    asof: date | None = None,
+) -> Verdict:
+    """Veto buckets where this agent's own fills have been poor.
+
+    This is the feedback loop: past execution quality, measured by the
+    agent on itself, constrains future entries. A bucket is only ever
+    vetoed once it has enough scored fills to justify the judgement.
+    """
+    eq = cfg.get("execution_quality", {})
+    if not eq.get("enabled", False):
+        return Verdict("execution_quality", True, "disabled")
+
+    key = bucket_key(
+        spread.underlying,
+        spread.expiry.toordinal() - (asof or date.today()).toordinal(),
+        spread.short_delta,
+        now,
+    )
+    capture = memory.capture(key)
+    n = memory.samples(key)
+    floor = float(eq.get("min_capture_ratio", 0.55))
+    min_n = int(eq.get("min_samples_to_veto", 3))
+
+    if n < min_n:
+        return Verdict(
+            "execution_quality", True,
+            f"{key} capture {capture:.2f} on {n} fills, below {min_n} "
+            "samples so still exploring",
+        )
+    return Verdict(
+        "execution_quality", capture >= floor,
+        f"{key} capture {capture:.2f} on {n} fills vs floor {floor}",
+    )
+
+
 def size_position(spread: Spread, state: PortfolioState, cfg: dict) -> tuple[int, Verdict]:
     """Contracts to trade, capped by both per-trade and portfolio risk."""
     risk = cfg["risk"]
@@ -160,9 +201,17 @@ def size_position(spread: Spread, state: PortfolioState, cfg: dict) -> tuple[int
     )
 
 
-def evaluate(spread: Spread, state: PortfolioState, cfg: dict) -> Decision:
+def evaluate(
+    spread: Spread,
+    state: PortfolioState,
+    cfg: dict,
+    memory: ExecutionMemory | None = None,
+) -> Decision:
     """Run the full stack. Order is cheap-to-expensive, sizing last."""
     verdicts = account_gates(state, cfg) + candidate_gates(spread, state, cfg)
+    if memory is not None:
+        now = state.now_et or datetime.now(ZoneInfo(cfg['schedule']['timezone']))
+        verdicts.append(execution_gate(spread, memory, cfg, now))
     if not all(v.allowed for v in verdicts):
         # Still record a sizing verdict so the log shows the whole picture.
         n, sv = size_position(spread, state, cfg)
