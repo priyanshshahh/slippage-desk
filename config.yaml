@@ -1,0 +1,71 @@
+# Strategy configuration. Every risk number lives here, not in code,
+# so the deterministic gates are auditable in one place.
+
+account:
+  # Hard expectation for the judging account. Preflight refuses to run if
+  # starting equity is materially different from this.
+  expected_starting_equity: 100000
+  # Trading halts entirely if equity falls below this fraction of the start.
+  equity_floor_pct: 0.90
+
+universe:
+  # Deep, penny-wide, daily-expiring underlyings. Liquidity is the whole
+  # reason for this shortlist: fill quality dominates edge on a 4 day horizon.
+  symbols: [SPY, QQQ]
+
+entry:
+  min_dte: 0
+  max_dte: 2
+  # Target absolute delta for the SHORT leg. Lower delta = higher win rate,
+  # smaller credit. 0.12-0.18 is the income sweet spot.
+  short_delta_target: 0.15
+  short_delta_min: 0.10
+  short_delta_max: 0.22
+  # Distance between short and long strike, in dollars.
+  spread_width: 5.0
+  # Reject the trade unless credit is at least this fraction of the width.
+  # Below this the risk/reward does not justify the tail.
+  min_credit_to_width: 0.15
+  # Reject if the quoted bid/ask on either leg is wider than this fraction
+  # of the mid. Wide markets eat the entire edge on entry plus exit.
+  max_rel_spread: 0.35
+  # Reject any contract with open interest or volume below these.
+  min_open_interest: 100
+  min_volume: 10
+
+risk:
+  # Maximum loss on any single spread, as a fraction of current equity.
+  max_loss_per_trade_pct: 0.005      # 0.5% => $500 on $100k
+  # Total defined risk across all open positions.
+  max_portfolio_risk_pct: 0.03       # 3%   => $3,000 on $100k
+  max_concurrent_positions: 6
+  max_new_trades_per_day: 4
+  # Realized + unrealized loss on the day that halts all new entries.
+  daily_loss_limit_pct: 0.02         # 2%   => $2,000 on $100k
+  # Never hold more than this many spreads on one underlying.
+  max_positions_per_symbol: 3
+
+exit:
+  # Buy back the spread once this fraction of the credit has decayed.
+  profit_take_pct: 0.50
+  # Cut when the spread's debit reaches this multiple of the credit taken in.
+  stop_loss_multiple: 2.0
+  # Force close any position expiring today at this time, to avoid pin risk
+  # and assignment. Times are US/Eastern.
+  force_close_time: "15:45"
+
+schedule:
+  timezone: America/New_York
+  # No new positions opened outside this window.
+  entry_start: "10:00"
+  entry_stop: "15:30"
+  # How often the autonomous loop wakes up, in seconds.
+  poll_seconds: 60
+
+llm:
+  # The model layer has strictly negative authority: it may VETO a candidate
+  # or SHRINK its size. It can never create a trade, widen risk, or overrule
+  # a deterministic gate. This is enforced in code, not by prompt.
+  enabled: true
+  max_size_multiplier: 1.0
+  min_size_multiplier: 0.0
