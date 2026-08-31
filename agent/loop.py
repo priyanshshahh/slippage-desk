@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 
 from agent import model, positions
 from agent.positions import OpenSpread
-from engine import assignment, chain, cli, execute, journal, mcp
+from engine import assignment, chain, cli, execute, invariants, journal, mcp
 from engine.config import load_config
 from engine.execution_quality import ExecutionMemory, bucket_key
 from engine.risk import PortfolioState, account_gates, apply_model_opinion, evaluate
@@ -414,7 +414,22 @@ def poll_once(cfg: dict, memory: ExecutionMemory, dry_run: bool) -> None:
         f"market {'open' if state.market_open else 'closed'}"
     )
 
+    # Check the agent's own books against the broker before acting on them.
+    # Every risk bug here has been internal state quietly disagreeing with
+    # reality, so this runs on live state rather than waiting for someone to
+    # imagine the right fixture.
+    violations = invariants.check(positions.load(), legs, state, cfg)
+    blocking = [v for v in violations if v.severity == "block"]
+    for v in violations:
+        _log(f"  ** INVARIANT {v.severity.upper()}: {v.name}: {v.detail}")
+
+    # Exits always run. A broken book is a reason to stop opening risk, never
+    # a reason to stop managing what is already open.
     manage_exits(cfg, now_et, dry_run)
+
+    if blocking:
+        _log(f"  no entries: {len(blocking)} invariant violation(s) unresolved")
+        return
 
     if state.market_open:
         scan_entries(cfg, state, memory, now_et, dry_run)

@@ -18,6 +18,7 @@ from zoneinfo import ZoneInfo
 
 from agent import loop, model, positions
 from engine.assignment import ExDivCalendar, assignment_gate, detect_assignment
+from engine import invariants
 from agent.positions import OpenSpread
 from engine.config import load_config
 from engine.risk import PortfolioState, evaluate
@@ -321,6 +322,82 @@ def test_advisor_live(cfg: dict) -> None:
         print("        (advisor unreachable right now; agent would veto, which is correct)")
 
 
+def test_repeated_strike_accumulates(cfg: dict) -> None:
+    """The bug that cost money: the same strike traded twice overwrote.
+
+    The original adoption test adopted one spread and passed. Production
+    traded QQQ 721 eight times, each overwriting the last, so the ledger read
+    1x while the broker held 8x and open_risk was understated by ~$2,700.
+    """
+    print("\n--- same strike traded repeatedly ---")
+    expiry = date.today() + timedelta(days=2)
+    short, long_ = occ("QQQ", expiry, "C", 721), occ("QQQ", expiry, "C", 726)
+
+    def book(qty: int):
+        return [
+            {"symbol": short, "qty": str(qty), "side": "short",
+             "asset_class": "us_option", "avg_entry_price": "1.00"},
+            {"symbol": long_, "qty": str(qty), "side": "long",
+             "asset_class": "us_option", "avg_entry_price": "0.25"},
+        ]
+
+    loop.adopt_unknown(book(1))
+    assert positions.load()[0].contracts == 1
+    print("  first fill  -> ledger 1x")
+
+    # The broker now reports eight. The ledger must follow the broker.
+    legs = loop._option_legs(book(8))
+    positions.reconcile({s for s, _, _ in legs},
+                        {sym: int(abs(q)) for sym, q, _ in legs if q < 0})
+    held = positions.load()[0]
+    assert held.contracts == 8, f"ledger says {held.contracts}x, broker says 8x"
+    print(f"  broker 8x   -> ledger corrected to {held.contracts}x, "
+          f"risk ${held.risk:,.0f}")
+
+    state = PortfolioState(
+        equity=100_000, starting_equity=100_000, day_pnl=0.0,
+        open_positions=1, open_risk=held.risk,
+        positions_by_symbol={"QQQ": 1}, risk_by_symbol={"QQQ": held.risk},
+        now_et=datetime.now(ET).replace(hour=11, minute=15),
+    )
+    vs = invariants.check(positions.load(), legs, state, cfg)
+    assert not [v for v in vs if v.severity == "block"], [v.detail for v in vs]
+    print("  [ok ] invariants clean once the ledger agrees with the broker")
+
+    # And a ledger that disagrees must be caught, not tolerated.
+    held.contracts = 1
+    positions.save([held])
+    vs = invariants.check(positions.load(), legs, state, cfg)
+    names = {v.name for v in vs}
+    assert "ledger_qty_mismatch" in names, names
+    print(f"  [ok ] disagreement caught: {sorted(names)}")
+
+
+def test_concentration_is_dollars(cfg: dict) -> None:
+    """Row counts cannot bound concentration. Eight contracts, one row."""
+    print("\n--- concentration measured in dollars, not rows ---")
+    chain = liquid(synth_chain(), float(cfg["entry"]["max_rel_spread"]))
+    spread = build_candidates(chain, cfg)[0]
+
+    cap_share = float(cfg["risk"]["max_symbol_risk_share"])
+    port = float(cfg["risk"]["max_portfolio_risk_pct"])
+    sym_cap = 100_000 * port * cap_share
+
+    # One row, but holding most of the underlying's budget already.
+    state = PortfolioState(
+        equity=100_000, starting_equity=100_000, day_pnl=0.0,
+        open_positions=1, open_risk=sym_cap,
+        positions_by_symbol={"SPY": 1},
+        risk_by_symbol={"SPY": sym_cap},
+        now_et=datetime.now(ET).replace(hour=11, minute=15),
+    )
+    d = evaluate(spread, state, cfg)
+    assert "symbol_concentration" in d.blocked_by, (
+        f"one row at ${sym_cap:,.0f} should block; blocked_by={d.blocked_by}")
+    print(f"  [ok ] 1 row holding ${sym_cap:,.0f} blocks the next spread")
+    print(f"        (old rule read '1/3 in SPY' and allowed it)")
+
+
 def test_limit_pricing() -> None:
     print("\n--- execution-quality pricing ---")
     mid, worst = 1.20, 1.00
@@ -347,6 +424,8 @@ def main() -> int:
         test_adoption()
         test_reconcile()
         test_multi_expiry_pairing(cfg)
+        test_repeated_strike_accumulates(cfg)
+        test_concentration_is_dollars(cfg)
         test_assignment_risk(cfg)
         test_assignment_detection()
         test_advisor_fails_closed(cfg)
