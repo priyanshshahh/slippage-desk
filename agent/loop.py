@@ -54,7 +54,21 @@ def _option_legs(broker_positions: list[dict]) -> list[tuple[str, float, float]]
     return legs
 
 
-def adopt_unknown(broker_positions: list[dict]) -> list[OpenSpread]:
+def _mid_for(short_symbol: str) -> float | None:
+    """The mid the gates priced a candidate at, from the journal.
+
+    Adoption learns the credit actually received from the broker. Scoring
+    execution quality needs the theoretical it was measured against, and
+    that only exists in the decision that proposed the trade.
+    """
+    for row in reversed(journal.load()):
+        if row.get("short_symbol") == short_symbol:
+            return float(row["credit_mid"])
+    return None
+
+
+def adopt_unknown(broker_positions: list[dict],
+                  memory: ExecutionMemory | None = None) -> list[OpenSpread]:
     """Pick up spreads the broker has but the ledger does not.
 
     This is what makes an entry order that filled after we stopped waiting
@@ -105,6 +119,22 @@ def adopt_unknown(broker_positions: list[dict]) -> list[OpenSpread]:
             positions.add(spread)
             adopted.append(spread)
             covers.remove(cover)
+
+            # Score the fill. Without this an order that rested and filled
+            # later is managed correctly but never scored, and the whole
+            # execution-quality loop stays empty precisely when it matters.
+            mid = _mid_for(sym)
+            if memory is not None and mid and credit > 0:
+                dte = max(0, (expiry - date.today()).days)
+                key = bucket_key(root, dte, 0.25,
+                                 datetime.now(ZoneInfo("America/New_York")))
+                spread.bucket = key
+                positions.remove(sym)
+                positions.add(spread)
+                memory.record_submission(key)
+                capture = memory.record_fill(key, mid, credit)
+                _log(f"  scored adopted fill: captured {capture:.1%} of mid "
+                     f"({credit:.2f} vs {mid:.2f}) in {key}")
     return adopted
 
 
@@ -364,7 +394,7 @@ def poll_once(cfg: dict, memory: ExecutionMemory, dry_run: bool) -> None:
     for hit in assignment.detect_assignment(broker, cfg["universe"]["symbols"]):
         _log(f"  ** ASSIGNED: {hit} - defined risk no longer holds, flatten it")
 
-    for taken in adopt_unknown(broker):
+    for taken in adopt_unknown(broker, memory):
         _log(f"  adopted from broker: {taken.underlying} {taken.kind} "
              f"{taken.contracts}x at {taken.entry_credit:.2f}")
 

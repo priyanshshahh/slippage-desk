@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-08-31T18:03:02.423493+00:00",
+  "generated_at": "2026-08-31T17:51:46.567228+00:00",
   "claim": "The agent measures the fraction of theoretical credit it actually captures, per (underlying, tenor, delta, time-of-day) bucket, and refuses buckets whose shrunk capture ratio falls below the configured floor.",
   "config": {
     "min_capture_ratio": 0.6,
     "min_samples_to_veto": 3
   },
   "totals": {
-    "candidates_considered": 135,
-    "orders_filled": 3,
+    "candidates_considered": 45,
+    "orders_filled": 1,
     "vetoed_by_execution_gate": 0,
-    "theoretical_credit_usd": 233.0,
-    "captured_credit_usd": 228.0,
-    "given_up_to_execution_usd": 5.0,
-    "aggregate_capture_ratio": 0.9785
+    "theoretical_credit_usd": 81.5,
+    "captured_credit_usd": 75.0,
+    "given_up_to_execution_usd": 6.5,
+    "aggregate_capture_ratio": 0.9202
   },
   "buckets": [
     {
@@ -27,11 +27,11 @@
     },
     {
       "bucket": "QQQ:dte2:d0.25:midday",
-      "submitted": 3,
-      "filled": 1,
-      "samples": 1,
-      "raw_capture": 0.9677,
-      "shrunk_capture": 0.8892,
+      "submitted": 1,
+      "filled": 0,
+      "samples": 0,
+      "raw_capture": null,
+      "shrunk_capture": 0.85,
       "fill_rate": 0.5,
       "aggressiveness": 0.5
     },
@@ -70,24 +70,6 @@
   "broker_verification": {
     "note": "Sourced from Alpaca's own activity log and portfolio history, not from this repository's bookkeeping. Reproducible by anyone holding the paper account ID.",
     "fill_activities": [
-      {
-        "symbol": "QQQ260902C00721000",
-        "side": "sell_short",
-        "qty": "1",
-        "price": "1.02",
-        "transaction_time": "2026-08-31T18:02:52.457143Z",
-        "order_id": "2ac21361-20fd-42b9-af59-15bfe7949b94",
-        "fill_group": "20260831140252457"
-      },
-      {
-        "symbol": "QQQ260902C00726000",
-        "side": "buy",
-        "qty": "1",
-        "price": "0.25",
-        "transaction_time": "2026-08-31T18:02:52.457147Z",
-        "order_id": "87a06087-add0-4b2f-9c31-5884cfd98334",
-        "fill_group": "20260831140252457"
-      },
       {
         "symbol": "QQQ260902C00726000",
         "side": "buy",
@@ -143,23 +125,11 @@
         "fill_group": "20260831134249497"
       }
     ],
-    "paired_spreads": 3,
-    "broker_net_credit_usd": 228.0,
-    "broker_theoretical_usd": 233.0,
-    "broker_capture_ratio": 0.9785,
+    "paired_spreads": 1,
+    "broker_net_credit_usd": 75.0,
+    "broker_theoretical_usd": 81.5,
+    "broker_capture_ratio": 0.9202,
     "spreads": [
-      {
-        "fill_group": "20260831134249497",
-        "short": "SPY260902C00770000",
-        "short_price": "0.85",
-        "long": "SPY260902C00776000",
-        "long_price": "0.09",
-        "contracts": 1,
-        "credit_received": 0.76,
-        "credit_at_mid": 0.76,
-        "capture_ratio": 1.0,
-        "at": "2026-08-31T17:42:49.49736Z"
-      },
       {
         "fill_group": "20260831134743138",
         "short": "QQQ260902C00721000",
@@ -168,24 +138,19 @@
         "long_price": "0.24",
         "contracts": 1,
         "credit_received": 0.75,
-        "credit_at_mid": 0.785,
-        "capture_ratio": 0.9554,
+        "credit_at_mid": 0.815,
+        "capture_ratio": 0.9202,
         "at": "2026-08-31T17:47:43.138412Z"
-      },
-      {
-        "fill_group": "20260831140252457",
-        "short": "QQQ260902C00721000",
-        "short_price": "1.02",
-        "long": "QQQ260902C00726000",
-        "long_price": "0.25",
-        "contracts": 1,
-        "credit_received": 0.77,
-        "credit_at_mid": 0.785,
-        "capture_ratio": 0.9809,
-        "at": "2026-08-31T18:02:52.457143Z"
       }
     ],
-    "excluded_non_agent_fills": [],
+    "excluded_non_agent_fills": [
+      {
+        "short": "SPY260902C00770000",
+        "credit_received": 0.76,
+        "at": "2026-08-31T17:42:49.49736Z",
+        "why": "no matching decision in the journal, not an agent trade"
+      }
+    ],
     "agrees_with_journal": null
   },
   "equity_curve": [
@@ -355,5 +320,5 @@
       "pl": -100000
     }
   ],
-  "sha256": "8bbe5a1e371749d14e79e83f2e42b1b4230926b0da784bb4ccb8d7721d550f7f"
+  "sha256": "5e36b88c60e735c258bab65c8f6ebc6fb3cb7fc081208766af87e531cfb90490"
 }

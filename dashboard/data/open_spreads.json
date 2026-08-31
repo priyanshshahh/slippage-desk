@@ -8,7 +8,7 @@
     "contracts": 1,
     "entry_credit": 0.75,
     "max_loss_per_contract": 425.0,
-    "bucket": "QQQ:dte2:d0.25:midday",
+    "bucket": "adopted",
     "opened_at": "2026-08-31T13:48:09.312256-04:00",
     "order_id": ""
   }

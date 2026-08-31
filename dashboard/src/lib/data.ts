@@ -1,11 +1,32 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+// Written by scripts/snapshot-data.mjs at build time. A static import is
+// always bundled; a runtime file read in a serverless function is not.
+import snapshot from "./snapshot.json";
+
 // The dashboard is a read-only view of what the agent already wrote. It
 // reaches into the repo's data directory rather than duplicating any of
 // the engine's logic, so it can never disagree with the agent about what
 // happened.
-const DATA_DIR = path.join(process.cwd(), "..", "data");
+// Bundled snapshot first (what a deploy has), then the live sibling
+// directory the agent writes to on a developer machine.
+const DATA_DIRS = [
+  path.join(process.cwd(), "data"),
+  path.join(process.cwd(), "..", "data"),
+];
+
+async function readFrom(file: string): Promise<string> {
+  let lastErr: unknown;
+  for (const dir of DATA_DIRS) {
+    try {
+      return await readFile(path.join(dir, file), "utf8");
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
+}
 
 export type Verdict = { gate: string; allowed: boolean; detail: string };
 
@@ -61,7 +82,7 @@ export type Bucket = {
 
 async function readJson<T>(file: string, fallback: T): Promise<T> {
   try {
-    return JSON.parse(await readFile(path.join(DATA_DIR, file), "utf8")) as T;
+    return JSON.parse(await readFrom(file)) as T;
   } catch {
     // A missing file means the agent has not produced that artefact yet,
     // which is a normal empty state, not an error worth surfacing.
@@ -70,26 +91,34 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
 }
 
 export async function getDecisions(): Promise<Decision[]> {
+  // Live file first so a developer sees the agent's journal grow in real
+  // time; the bundled snapshot is what a deploy actually serves.
   try {
-    const raw = await readFile(path.join(DATA_DIR, "decisions.jsonl"), "utf8");
-    return raw
+    const raw = await readFrom("decisions.jsonl");
+    const live = raw
       .split("\n")
       .filter((l) => l.trim())
       .map((l) => JSON.parse(l) as Decision);
+    if (live.length) return live;
   } catch {
-    return [];
+    /* fall through to the snapshot */
   }
+  return snapshot.decisions as unknown as Decision[];
 }
 
 export async function getOpenSpreads(): Promise<OpenSpread[]> {
-  return readJson<OpenSpread[]>("open_spreads.json", []);
+  const live = await readJson<OpenSpread[]>("open_spreads.json", []);
+  return live.length ? live : (snapshot.openSpreads as unknown as OpenSpread[]);
 }
 
 export async function getBuckets(): Promise<Bucket[]> {
-  const raw = await readJson<Record<string, Omit<Bucket, "key">>>(
+  let raw = await readJson<Record<string, Omit<Bucket, "key">>>(
     "execution_quality.json",
     {},
   );
+  if (!Object.keys(raw).length) {
+    raw = snapshot.buckets as unknown as Record<string, Omit<Bucket, "key">>;
+  }
   return Object.entries(raw).map(([key, v]) => ({ key, ...v }));
 }
 
