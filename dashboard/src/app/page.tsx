@@ -1,8 +1,10 @@
 import Brain from "./brain";
+import SurfacePanel from "./surfaces";
 import {
   getBuckets,
   getDecisions,
   getOpenSpreads,
+  getSurfaces,
   executionEconomics,
   rejectionsByGate,
   shrunkCapture,
@@ -120,10 +122,11 @@ function DecisionRow({ d }: { d: Decision }) {
 }
 
 export default async function Page() {
-  const [decisions, open, buckets] = await Promise.all([
+  const [decisions, open, buckets, surfaces] = await Promise.all([
     getDecisions(),
     getOpenSpreads(),
     getBuckets(),
+    getSurfaces(),
   ]);
 
   // Every candidate is journaled; only the best per poll is submitted. A
@@ -237,6 +240,10 @@ export default async function Page() {
 
           <div className="mt-5">
             <Brain />
+          </div>
+
+          <div className="mt-5">
+            <SurfacePanel data={surfaces} />
           </div>
 
           <div className="mt-5">

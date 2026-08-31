@@ -38,11 +38,13 @@ const snapshot = {
   decisions: await readJsonl("decisions.jsonl"),
   buckets: await readJson("execution_quality.json", {}),
   openSpreads: await readJson("open_spreads.json", []),
+  surfaces: await readJson("surfaces.json", null),
 };
 
 await mkdir(path.dirname(out), { recursive: true });
 await writeFile(out, JSON.stringify(snapshot));
 console.log(
   `snapshot: ${snapshot.decisions.length} decisions, ` +
-    `${Object.keys(snapshot.buckets).length} buckets -> src/lib/snapshot.json`,
+    `${Object.keys(snapshot.buckets).length} buckets, ` +
+    `${snapshot.surfaces?.surfaces?.length ?? 0} surfaces -> src/lib/snapshot.json`,
 );

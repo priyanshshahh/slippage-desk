@@ -73,6 +73,23 @@ export type OpenSpread = {
   opened_at: string;
 };
 
+export type Surface = {
+  surface: string;
+  layer: string;
+  job: string;
+  ok: boolean;
+  detail: string;
+  ms: number;
+};
+
+export type Surfaces = {
+  generated_at: string;
+  architecture: string;
+  surfaces: Surface[];
+  passing: number;
+  total: number;
+};
+
 export type Bucket = {
   key: string;
   submitted: number;
@@ -123,6 +140,11 @@ export async function getBuckets(): Promise<Bucket[]> {
 }
 
 /** Shrunk toward 1.0 so a bucket with one lucky fill does not look expert. */
+export async function getSurfaces(): Promise<Surfaces | null> {
+  const live = await readJson<Surfaces | null>("surfaces.json", null);
+  return live ?? (snapshot.surfaces as unknown as Surfaces | null);
+}
+
 export function shrunkCapture(b: Bucket, prior = 3): number {
   const n = b.captures.length;
   if (n === 0) return 1.0;

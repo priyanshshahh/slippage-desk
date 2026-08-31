@@ -10,6 +10,9 @@
 set -e
 cd "$(dirname "$0")/.." || exit 1
 
+echo "==> probing every Alpaca surface"
+./.venv/bin/python -m scripts.surfaces
+
 echo "==> regenerating proof artefact"
 ./.venv/bin/python -m scripts.proof
 

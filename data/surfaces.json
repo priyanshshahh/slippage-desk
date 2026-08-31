@@ -1,0 +1,128 @@
+{
+  "generated_at": "2026-08-31T18:28:00.179696+00:00",
+  "architecture": "Three surfaces, deliberately separate jobs. The CLI executes and verifies the book. The SDK returns chains with greeks in one call. MCP supplies read-only research. Execution never routes through MCP: it is a stdio subprocess, and a hung subprocess must never sit between the agent and its stops.",
+  "surfaces": [
+    {
+      "surface": "account get",
+      "layer": "CLI",
+      "job": "equity, buying power, options level",
+      "ok": true,
+      "detail": "equity $99,993.70",
+      "ms": 138
+    },
+    {
+      "surface": "clock",
+      "layer": "CLI",
+      "job": "is the market open",
+      "ok": true,
+      "detail": "open=True",
+      "ms": 70
+    },
+    {
+      "surface": "position list",
+      "layer": "CLI",
+      "job": "what the broker says we hold",
+      "ok": true,
+      "detail": "2 leg(s)",
+      "ms": 78
+    },
+    {
+      "surface": "order list",
+      "layer": "CLI",
+      "job": "resting orders",
+      "ok": true,
+      "detail": "0 open",
+      "ms": 104
+    },
+    {
+      "surface": "account activity list",
+      "layer": "CLI",
+      "job": "the broker's own fill record, used to verify capture",
+      "ok": true,
+      "detail": "12 fills",
+      "ms": 83
+    },
+    {
+      "surface": "account portfolio",
+      "layer": "CLI",
+      "job": "equity curve for P&L",
+      "ok": true,
+      "detail": "33 points",
+      "ms": 159
+    },
+    {
+      "surface": "calendar",
+      "layer": "CLI",
+      "job": "real session close, so a half day does not defeat the flatten",
+      "ok": true,
+      "detail": "1 session(s)",
+      "ms": 83
+    },
+    {
+      "surface": "data corporate-actions",
+      "layer": "CLI",
+      "job": "ex-dividend dates, which drive early assignment",
+      "ok": true,
+      "detail": "0 action(s)",
+      "ms": 81
+    },
+    {
+      "surface": "data latest-trade",
+      "layer": "CLI",
+      "job": "live spot; the options feed lags the underlying",
+      "ok": true,
+      "detail": "SPY 766.39",
+      "ms": 72
+    },
+    {
+      "surface": "TradingClient",
+      "layer": "SDK",
+      "job": "atomic multi-leg order submission",
+      "ok": true,
+      "detail": "account 1491780f...",
+      "ms": 104
+    },
+    {
+      "surface": "OptionChainRequest",
+      "layer": "SDK",
+      "job": "chain snapshots with greeks and IV, needed by the delta gate",
+      "ok": true,
+      "detail": "1218 contracts, 308 with greeks",
+      "ms": 1580
+    },
+    {
+      "surface": "OptionHistoricalDataClient",
+      "layer": "SDK",
+      "job": "options market data",
+      "ok": true,
+      "detail": "OptionHistoricalDataClient",
+      "ms": 0
+    },
+    {
+      "surface": "alpaca-mcp-server",
+      "layer": "MCP",
+      "job": "read-only research handed to the advisor",
+      "ok": true,
+      "detail": "39 tools exposed",
+      "ms": 1792
+    },
+    {
+      "surface": "ALPACA_TOOLSETS",
+      "layer": "MCP",
+      "job": "trading toolset omitted, so no order tool exists to call",
+      "ok": true,
+      "detail": "account,stock-data,options-data,assets,news",
+      "ms": 0
+    },
+    {
+      "surface": "get_stock_snapshot",
+      "layer": "MCP",
+      "job": "live context for one underlying",
+      "ok": true,
+      "detail": "returned",
+      "ms": 1666
+    }
+  ],
+  "passing": 15,
+  "total": 15
+}
