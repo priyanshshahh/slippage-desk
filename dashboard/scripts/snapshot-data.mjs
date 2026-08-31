@@ -39,6 +39,7 @@ const snapshot = {
   buckets: await readJson("execution_quality.json", {}),
   openSpreads: await readJson("open_spreads.json", []),
   surfaces: await readJson("surfaces.json", null),
+  proof: await readJson("proof.json", null),
 };
 
 // This also runs as `prebuild` on the deploy host, where ../data does not

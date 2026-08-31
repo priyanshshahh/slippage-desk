@@ -4,6 +4,7 @@ import {
   getBuckets,
   getDecisions,
   getOpenSpreads,
+  getProof,
   getSurfaces,
   executionEconomics,
   rejectionsByGate,
@@ -122,11 +123,12 @@ function DecisionRow({ d }: { d: Decision }) {
 }
 
 export default async function Page() {
-  const [decisions, open, buckets, surfaces] = await Promise.all([
+  const [decisions, open, buckets, surfaces, proof] = await Promise.all([
     getDecisions(),
     getOpenSpreads(),
     getBuckets(),
     getSurfaces(),
+    getProof(),
   ]);
 
   // Every candidate is journaled; only the best per poll is submitted. A
@@ -141,7 +143,7 @@ export default async function Page() {
   );
   const recent = [...decisions].reverse().slice(0, 25);
   const scored = buckets.filter((b) => b.captures.length > 0);
-  const econ = executionEconomics(decisions);
+  const econ = executionEconomics(decisions, proof);
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-8">
@@ -178,7 +180,7 @@ export default async function Page() {
             <Stat
               label="Credit captured"
               value={econ.ratio == null ? "—" : `${(econ.ratio * 100).toFixed(0)}%`}
-              note={`of theoretical, across ${econ.fills} fill${econ.fills === 1 ? "" : "s"}`}
+              note={`across ${econ.fills} fill${econ.fills === 1 ? "" : "s"}${econ.brokerVerified ? ", broker-verified" : ""}`}
             />
             <Stat
               label="Lost to execution"

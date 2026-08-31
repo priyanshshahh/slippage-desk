@@ -90,6 +90,22 @@ export type Surfaces = {
   total: number;
 };
 
+export type Proof = {
+  totals: {
+    candidates_considered: number;
+    orders_filled: number;
+    theoretical_credit_usd: number;
+    captured_credit_usd: number;
+    given_up_to_execution_usd: number;
+    aggregate_capture_ratio: number | null;
+  };
+  broker_verification: {
+    paired_spreads: number;
+    broker_capture_ratio: number | null;
+  };
+  sha256: string;
+};
+
 export type Bucket = {
   key: string;
   submitted: number;
@@ -140,6 +156,11 @@ export async function getBuckets(): Promise<Bucket[]> {
 }
 
 /** Shrunk toward 1.0 so a bucket with one lucky fill does not look expert. */
+export async function getProof(): Promise<Proof | null> {
+  const live = await readJson<Proof | null>("proof.json", null);
+  return live ?? (snapshot.proof as unknown as Proof | null);
+}
+
 export async function getSurfaces(): Promise<Surfaces | null> {
   const live = await readJson<Surfaces | null>("surfaces.json", null);
   return live ?? (snapshot.surfaces as unknown as Surfaces | null);
@@ -163,7 +184,18 @@ export function rejectionsByGate(decisions: Decision[]): [string, number][] {
 /** What the agent theoretically should have collected, versus what reached
  *  the account. The gap is the cost of execution, which on this horizon is
  *  the same order of magnitude as the entire strategy edge. */
-export function executionEconomics(decisions: Decision[]) {
+export function executionEconomics(decisions: Decision[], proof?: Proof | null) {
+  if (proof?.totals) {
+    const t = proof.totals;
+    return {
+      fills: proof.broker_verification?.paired_spreads ?? t.orders_filled,
+      theoretical: t.theoretical_credit_usd,
+      captured: t.captured_credit_usd,
+      givenUp: t.given_up_to_execution_usd,
+      ratio: t.aggregate_capture_ratio,
+      brokerVerified: true,
+    };
+  }
   let theoretical = 0;
   let captured = 0;
   let fills = 0;
@@ -180,5 +212,6 @@ export function executionEconomics(decisions: Decision[]) {
     captured,
     givenUp: theoretical - captured,
     ratio: theoretical > 0 ? captured / theoretical : null,
+    brokerVerified: false,
   };
 }
