@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-31T18:03:02.423493+00:00",
+  "generated_at": "2026-08-31T18:03:47.531593+00:00",
   "claim": "The agent measures the fraction of theoretical credit it actually captures, per (underlying, tenor, delta, time-of-day) bucket, and refuses buckets whose shrunk capture ratio falls below the configured floor.",
   "config": {
     "min_capture_ratio": 0.6,
@@ -7,12 +7,12 @@
   },
   "totals": {
     "candidates_considered": 135,
-    "orders_filled": 3,
+    "orders_filled": 2,
     "vetoed_by_execution_gate": 0,
-    "theoretical_credit_usd": 233.0,
-    "captured_credit_usd": 228.0,
-    "given_up_to_execution_usd": 5.0,
-    "aggregate_capture_ratio": 0.9785
+    "theoretical_credit_usd": 156.5,
+    "captured_credit_usd": 152.0,
+    "given_up_to_execution_usd": 4.5,
+    "aggregate_capture_ratio": 0.9712
   },
   "buckets": [
     {
@@ -143,23 +143,11 @@
         "fill_group": "20260831134249497"
       }
     ],
-    "paired_spreads": 3,
-    "broker_net_credit_usd": 228.0,
-    "broker_theoretical_usd": 233.0,
-    "broker_capture_ratio": 0.9785,
+    "paired_spreads": 2,
+    "broker_net_credit_usd": 152.0,
+    "broker_theoretical_usd": 156.5,
+    "broker_capture_ratio": 0.9712,
     "spreads": [
-      {
-        "fill_group": "20260831134249497",
-        "short": "SPY260902C00770000",
-        "short_price": "0.85",
-        "long": "SPY260902C00776000",
-        "long_price": "0.09",
-        "contracts": 1,
-        "credit_received": 0.76,
-        "credit_at_mid": 0.76,
-        "capture_ratio": 1.0,
-        "at": "2026-08-31T17:42:49.49736Z"
-      },
       {
         "fill_group": "20260831134743138",
         "short": "QQQ260902C00721000",
@@ -168,8 +156,8 @@
         "long_price": "0.24",
         "contracts": 1,
         "credit_received": 0.75,
-        "credit_at_mid": 0.785,
-        "capture_ratio": 0.9554,
+        "credit_at_mid": 0.78,
+        "capture_ratio": 0.9615,
         "at": "2026-08-31T17:47:43.138412Z"
       },
       {
@@ -185,7 +173,14 @@
         "at": "2026-08-31T18:02:52.457143Z"
       }
     ],
-    "excluded_non_agent_fills": [],
+    "excluded_non_agent_fills": [
+      {
+        "short": "SPY260902C00770000",
+        "credit_received": 0.76,
+        "at": "2026-08-31T17:42:49.49736Z",
+        "why": "no agent decision precedes this fill, so not an agent trade"
+      }
+    ],
     "agrees_with_journal": null
   },
   "equity_curve": [
@@ -355,5 +350,5 @@
       "pl": -100000
     }
   ],
-  "sha256": "8bbe5a1e371749d14e79e83f2e42b1b4230926b0da784bb4ccb8d7721d550f7f"
+  "sha256": "508fca59e10e3f8c7f0abff2b443cd124d123a55340b40cadd4c0e225ec127ad"
 }

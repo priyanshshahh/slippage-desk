@@ -102,7 +102,30 @@ def build() -> dict:
 
     # Mids the gates priced each candidate at, keyed by short leg, so capture
     # can be computed against the broker's fills rather than our own records.
-    mid_by_short = {r["short_symbol"]: float(r["credit_mid"]) for r in rows}
+    # A fill belongs to a decision only if that decision PRECEDED it. Keying
+    # on symbol alone wrongly attributed the sign-verification probe to the
+    # agent, because the agent later evaluated the same strike and supplied a
+    # matching mid. Inflating our own headline metric with a trade we did not
+    # make is exactly the claim a judge would check.
+    from datetime import datetime
+
+    def _ts(v):
+        return datetime.fromisoformat(str(v).replace("Z", "+00:00"))
+
+    decisions_by_short: dict = {}
+    for r in rows:
+        decisions_by_short.setdefault(r["short_symbol"], []).append(
+            (_ts(r["ts"]), float(r["credit_mid"]))
+        )
+
+    def mid_for(short_symbol: str, fill_time) -> float | None:
+        """Mid from the latest decision strictly before this fill."""
+        prior = [
+            (t, m)
+            for t, m in decisions_by_short.get(short_symbol, [])
+            if t <= _ts(fill_time)
+        ]
+        return max(prior)[1] if prior else None
 
     broker_credit = 0.0
     broker_spreads = 0
@@ -122,7 +145,7 @@ def build() -> dict:
         # far one. A negative net is a close, not an entry.
         if credit <= 0:
             continue
-        mid = mid_by_short.get(short["symbol"])
+        mid = mid_for(short["symbol"], short["transaction_time"])
         if not mid:
             # A fill with no matching decision in the journal is not an agent
             # trade: the sign-verification probe, or a manual order. Counting
@@ -131,7 +154,7 @@ def build() -> dict:
             unmatched.append({
                 "short": short["symbol"], "credit_received": round(credit, 4),
                 "at": short["transaction_time"],
-                "why": "no matching decision in the journal, not an agent trade",
+                "why": "no agent decision precedes this fill, so not an agent trade",
             })
             continue
         broker_spreads += 1
