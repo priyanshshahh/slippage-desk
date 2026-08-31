@@ -16,6 +16,9 @@ echo "==> probing every Alpaca surface"
 echo "==> regenerating proof artefact"
 ./.venv/bin/python -m scripts.proof
 
+echo "==> stamping the deck"
+./.venv/bin/python -m scripts.build_deck >/dev/null
+
 echo "==> snapshotting journal into the dashboard build"
 (cd dashboard && npm run snapshot)
 

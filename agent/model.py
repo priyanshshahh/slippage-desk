@@ -34,9 +34,6 @@ def _provider() -> str | None:
                    existing Claude subscription, so the agent needs no API
                    credits at all and still gets a frontier model.
       anthropic    the API proper, if a key happens to be present.
-      openai_compat  any OpenAI-shaped endpoint (Ollama, Groq, Gemini's
-                   compatibility layer) via ADVISOR_BASE_URL.
-
     The provider changes nothing downstream. Whichever answers, the clamp is
     identical: the model can only shrink or veto.
     """
@@ -44,8 +41,6 @@ def _provider() -> str | None:
         return "claude_cli"
     if os.getenv("ANTHROPIC_API_KEY", "").strip():
         return "anthropic"
-    if os.getenv("ADVISOR_BASE_URL", "").strip():
-        return "openai_compat"
     return None
 
 SYSTEM = """You are a risk advisor for an autonomous options income agent.
@@ -169,12 +164,8 @@ def advise(
     brief = _brief(decision, state, dte, context)
 
     try:
-        if provider == "claude_cli":
-            text = _ask_claude_cli(brief, cfg, timeout)
-        elif provider == "anthropic":
-            text = _ask_anthropic(brief, cfg, timeout)
-        else:
-            text = _ask_openai_compat(brief, cfg, timeout)
+        text = (_ask_claude_cli if provider == "claude_cli"
+                else _ask_anthropic)(brief, cfg, timeout)
     except Exception as exc:                      # noqa: BLE001 - all of them are vetoes
         return Opinion(0.0, f"advisor error, failing closed: {type(exc).__name__}", True)
 
@@ -245,29 +236,3 @@ def _ask_claude_cli(brief: str, cfg: dict, timeout: float) -> str | None:
         if out.startswith("json"):
             out = out[4:].strip()
     return out or None
-
-
-def _ask_openai_compat(brief: str, cfg: dict, timeout: float) -> str | None:
-    """Any OpenAI-shaped endpoint: Ollama, Groq, Gemini compatibility layer.
-
-    json_object mode plus the schema restated in the prompt, because
-    open-weight servers vary in how strictly they honour json_schema.
-    """
-    from openai import OpenAI
-
-    client = OpenAI(
-        base_url=os.environ["ADVISOR_BASE_URL"],
-        api_key=os.getenv("ADVISOR_API_KEY", "not-needed"),
-        timeout=timeout,
-        max_retries=0,
-    )
-    resp = client.chat.completions.create(
-        model=cfg["llm"].get("openai_compat_model", "llama3.1"),
-        max_tokens=512,
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": brief},
-        ],
-    )
-    return resp.choices[0].message.content
