@@ -1,0 +1,200 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Slippage Desk</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #09090b; color: #fafafa;
+         font: 16px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif; }
+  .s { width: 1280px; height: 720px; padding: 72px 88px; position: relative;
+       display: flex; flex-direction: column; justify-content: center;
+       page-break-after: always; border-bottom: 1px solid #27272a; }
+  h1 { font-size: 62px; line-height: 1.05; letter-spacing: -0.02em; }
+  h2 { font-size: 40px; line-height: 1.15; letter-spacing: -0.015em;
+       margin-bottom: 28px; }
+  p  { font-size: 22px; color: #d4d4d8; max-width: 60ch; }
+  .lede { font-size: 27px; color: #fafafa; }
+  .muted { color: #8b8b94; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .num { font-size: 76px; font-variant-numeric: tabular-nums;
+         letter-spacing: -0.03em; line-height: 1; }
+  .tag { position: absolute; top: 34px; left: 88px; font-size: 12px;
+         letter-spacing: 0.18em; text-transform: uppercase; color: #8b8b94; }
+  .pg  { position: absolute; bottom: 30px; right: 88px; font-size: 12px;
+         color: #52525b; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;
+          margin-top: 34px; }
+  .card { border: 1px solid #27272a; border-radius: 10px; padding: 22px; }
+  .card .k { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+             color: #8b8b94; margin-bottom: 10px; }
+  .card .v { font-size: 40px; font-variant-numeric: tabular-nums; line-height: 1; }
+  .card .n { font-size: 13px; color: #8b8b94; margin-top: 8px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 26px; font-size: 19px; }
+  td, th { text-align: left; padding: 11px 0; border-bottom: 1px solid #27272a; }
+  th { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+       color: #8b8b94; }
+  .ok { color: #4ade80; } .no { color: #fbbf24; }
+  ul { margin-top: 22px; } li { font-size: 21px; margin-bottom: 14px;
+       color: #d4d4d8; list-style: none; padding-left: 26px; position: relative; }
+  li:before { content: "→"; position: absolute; left: 0; color: #8b8b94; }
+  .quote { border-left: 3px solid #4ade80; padding-left: 24px; font-size: 21px;
+           color: #d4d4d8; font-style: italic; margin-top: 26px; max-width: 62ch; }
+</style>
+
+<section class="s">
+  <h1>Slippage&nbsp;Desk</h1>
+  <p class="lede" style="margin-top:26px">
+    The options agent that measures its own execution.
+  </p>
+  <p class="muted mono" style="margin-top:38px;font-size:17px">
+    Alpaca AI Trading Agents Hackathon &nbsp;·&nbsp; paper account PA343VC6LL3T
+  </p>
+  <div class="pg">1</div>
+</section>
+
+<section class="s">
+  <div class="tag">The problem</div>
+  <h2>Every agent here optimises <em>what</em> to trade.</h2>
+  <p class="lede">None of them measure whether they can actually get the price
+     their edge assumed.</p>
+  <table>
+    <tr><td>A 0.24-delta credit spread pays</td>
+        <td class="mono ok" style="text-align:right">+$38 on a win</td></tr>
+    <tr><td>The stop costs</td>
+        <td class="mono no" style="text-align:right">−$75</td></tr>
+    <tr><td>Breakeven win rate</td>
+        <td class="mono" style="text-align:right">66.7%</td></tr>
+    <tr><td>Actual win rate at that delta</td>
+        <td class="mono" style="text-align:right">~76%</td></tr>
+  </table>
+  <p style="margin-top:26px">The entire edge is nine percentage points.
+     Crossing the bid/ask eats a third of it.</p>
+  <div class="pg">2</div>
+</section>
+
+<section class="s">
+  <div class="tag">The field</div>
+  <h2>I read all 27 submissions before writing a line of this pitch.</h2>
+  <p class="lede">Ten describe the same architecture:<br>
+    <span class="mono">"LLM proposes, deterministic gates authorise."</span></p>
+  <p style="margin-top:30px">That is the baseline now, not a differentiator.
+     This project has it too. It is not the claim.</p>
+  <p class="lede" style="margin-top:30px">The claim is that execution quality
+     is measurable in four days, and strategy edge is not.</p>
+  <div class="pg">3</div>
+</section>
+
+<section class="s">
+  <div class="tag">How it works</div>
+  <h2>Score every fill against the mid it was priced at.</h2>
+  <ul>
+    <li>Capture ratio kept per <span class="mono">(underlying, tenor, delta band, time of day)</span></li>
+    <li>Shrunk toward 1.0, so one lucky fill cannot make a bucket look expert</li>
+    <li>Buckets that surrender too much credit are <strong>refused</strong></li>
+    <li>The same memory sets how far to cross on the next order</li>
+  </ul>
+  <p class="muted" style="margin-top:30px">Buckets that rarely fill lean toward
+     crossing. Buckets that fill readily hold out for mid. The agent closes a
+     loop on its own execution rather than just logging it.</p>
+  <div class="pg">4</div>
+</section>
+
+<section class="s">
+  <div class="tag">Governance</div>
+  <h2>The model has strictly negative authority.</h2>
+  <p class="lede">It may shrink a trade or veto it. Nothing else.</p>
+  <ul style="margin-top:26px">
+    <li>Thirteen deterministic gates run first; sizing is a fixed formula</li>
+    <li>The clamp <strong>multiplies</strong>, never assigns. A model returning 5.0 is treated as 1.0</li>
+    <li>It cannot pick a strike, change an expiry, or widen risk</li>
+    <li>Timeout, refusal, malformed JSON, NaN: every failure path is a veto</li>
+  </ul>
+  <p style="margin-top:26px"><strong>The field splits here.</strong> Several agents
+     fall back to trading deterministically when the model is unreachable.
+     This one refuses. Failure degrades to trading less, never to trading
+     unsupervised.</p>
+  <div class="pg">5</div>
+</section>
+
+<section class="s">
+  <div class="tag">The gate nobody else has</div>
+  <h2>Early assignment.</h2>
+  <p class="lede">A short call goes in-the-money. An ex-dividend falls before
+     expiry. Capturing the dividend beats the remaining extrinsic, so the
+     holder exercises early.</p>
+  <p style="margin-top:26px">You are assigned 100 shares per contract and
+     carrying an overnight gap you never agreed to. The spread's defined risk
+     was defined against expiry, not against being assigned three days before
+     it.</p>
+  <p class="lede" style="margin-top:26px">Twenty-seven submissions. Not one
+     mentions assignment.</p>
+  <div class="pg">6</div>
+</section>
+
+<section class="s">
+  <div class="tag">Alpaca</div>
+  <h2>Three surfaces, deliberately separate jobs.</h2>
+  <table>
+    <tr><th>Surface</th><th>Job</th></tr>
+    <tr><td class="mono">CLI</td><td>Execution and book verification. Nine endpoints.</td></tr>
+    <tr><td class="mono">Python SDK</td><td>Chains with greeks and IV in one call.</td></tr>
+    <tr><td class="mono">MCP server</td><td>Read-only research for the advisor.</td></tr>
+  </table>
+  <p style="margin-top:30px"><strong>Execution never routes through MCP</strong>,
+     and that is enforced rather than intended: the server launches without the
+     <span class="mono">trading</span> toolset, so no order tool exists to call.
+     A stdio subprocess must never sit between the agent and its stops.</p>
+  <p class="muted mono" style="margin-top:22px;font-size:17px">15 / 15 surfaces
+     responding, live on the dashboard.</p>
+  <div class="pg">7</div>
+</section>
+
+<section class="s">
+  <div class="tag">Evidence</div>
+  <h2>Not a screenshot. A reproducible artefact.</h2>
+  <div class="grid" id="stats">
+    <div class="card"><div class="k">Considered</div><div class="v">357</div><div class="n">candidates evaluated</div></div>
+    <div class="card"><div class="k">Cleared gates</div><div class="v">230</div><div class="n">passed all thirteen</div></div>
+    <div class="card"><div class="k">Credit captured</div><div class="v">96%</div><div class="n">broker-verified</div></div>
+    <div class="card"><div class="k">Lost to execution</div><div class="v">$26</div><div class="n">the number nobody else has</div></div>
+  </div>
+  <p style="margin-top:34px"><span class="mono">data/proof.json</span> carries
+     every fill, the mid it was priced against, the credit received, per-bucket
+     capture, every bucket refused, and a sha256 over the payload.</p>
+  <p class="lede" style="margin-top:22px">Sourced from Alpaca's own activity
+     log. Anyone holding the account ID can reproduce it.</p>
+  <div class="pg">8</div>
+</section>
+
+<section class="s">
+  <div class="tag">Honesty</div>
+  <h2>What we claim, and what we don't.</h2>
+  <p class="lede">We do not claim the strategy is profitable. Four sessions
+     cannot establish that for anyone in this hackathon, and any entrant
+     claiming otherwise is reading noise.</p>
+  <p class="lede" style="margin-top:30px">We claim the agent measured its own
+     execution quality and acted on it, and we ship the evidence.</p>
+  <div class="quote">
+    "Spot sits only 0.8% below the 721 short strike after a 1.2% down day, and
+    the 0.75 credit on a 5-wide spread does not pay for a 2-DTE gamma gap."
+    <div class="muted" style="font-style:normal;font-size:15px;margin-top:12px">
+      The advisor, declining a trade the gates had approved.</div>
+  </div>
+  <div class="pg">9</div>
+</section>
+
+<section class="s">
+  <h1 style="font-size:46px">Slippage Desk</h1>
+  <p class="lede" style="margin-top:24px">Most agents optimise what to trade.<br>
+     This one learns whether it can get the price.</p>
+  <p class="mono muted" style="margin-top:40px;font-size:17px">
+    github.com/priyanshshahh/slippage-desk<br>
+    dashboard-theta-lemon-36.vercel.app<br>
+    Alpaca paper account PA343VC6LL3T
+  </p>
+  <p class="muted" style="margin-top:34px;font-size:15px">Built with Claude Code.</p>
+  <div class="pg">10</div>
+</section>
+
+
+<!-- evidence sha256 e5bfd5355165ad4f -->

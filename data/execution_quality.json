@@ -72,9 +72,11 @@
     "captures": []
   },
   "QQQ:dte2:d0.25:close": {
-    "submitted": 2,
-    "filled": 0,
-    "captures": []
+    "submitted": 4,
+    "filled": 1,
+    "captures": [
+      1.0
+    ]
   },
   "QQQ:dte1:d0.25:close": {
     "submitted": 0,
@@ -92,6 +94,11 @@
     "captures": []
   },
   "IWM:dte1:d0.20:close": {
+    "submitted": 0,
+    "filled": 0,
+    "captures": []
+  },
+  "QQQ:dte2:d0.20:close": {
     "submitted": 0,
     "filled": 0,
     "captures": []

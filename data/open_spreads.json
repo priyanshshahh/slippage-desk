@@ -11,5 +11,18 @@
     "bucket": "QQQ:dte2:d0.25:midday",
     "opened_at": "2026-08-31T13:48:09.312256-04:00",
     "order_id": ""
+  },
+  {
+    "underlying": "QQQ",
+    "kind": "call_credit",
+    "expiry": "2026-09-02",
+    "short_symbol": "QQQ260902C00720000",
+    "long_symbol": "QQQ260902C00725000",
+    "contracts": 2,
+    "entry_credit": 0.9,
+    "max_loss_per_contract": 410.0,
+    "bucket": "QQQ:dte2:d0.25:close",
+    "opened_at": "2026-08-31T14:35:43.264965-04:00",
+    "order_id": ""
   }
 ]

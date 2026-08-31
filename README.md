@@ -1,4 +1,11 @@
-# Defined-Risk Options Income Agent
+# Slippage Desk
+
+**The options agent that measures its own execution.**
+
+An autonomous options income agent for the Alpaca AI Trading Agents
+Hackathon. It sells short-dated, defined-risk credit spreads on SPY, QQQ and
+IWM behind thirteen deterministic gates, and it scores every fill against the
+mid it was priced at.
 
 An autonomous options agent for the Alpaca AI Trading Agents Hackathon.
 It sells short-dated, defined-risk credit spreads on liquid index ETFs,

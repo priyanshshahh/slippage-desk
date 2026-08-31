@@ -149,7 +149,7 @@ export default async function Page() {
     <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-8">
       <header className="mb-7">
         <h1 className="text-xl font-semibold tracking-tight">
-          Defined-Risk Options Income Agent
+          Slippage Desk
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-muted">
           Ten agents in this hackathon govern an LLM with deterministic gates.

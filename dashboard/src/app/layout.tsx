@@ -6,8 +6,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Options Income Agent",
-  description: "Decision journal and risk-gate audit for the defined-risk options agent",
+  title: "Slippage Desk",
+  description: "The options agent that measures its own execution. Live decision journal, risk gates, and broker-verified capture.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
