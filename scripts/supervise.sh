@@ -21,6 +21,14 @@ RESTARTS=0
 
 log() { echo "$(date '+%Y-%m-%d %H:%M:%S')  supervisor: $*"; }
 
+# caffeinate holds off idle sleep for as long as this supervisor lives. A
+# sleeping laptop stops the agent, and no watchdog inside the machine can
+# restart a process on a suspended kernel. Closing the lid still sleeps it.
+if command -v caffeinate >/dev/null 2>&1; then
+  caffeinate -i -w $$ &
+  log "caffeinate holding off idle sleep"
+fi
+
 log "started, watching the agent"
 
 while true; do
