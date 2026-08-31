@@ -41,6 +41,25 @@ const snapshot = {
   surfaces: await readJson("surfaces.json", null),
 };
 
+// This also runs as `prebuild` on the deploy host, where ../data does not
+// exist. Writing an empty snapshot there would clobber the committed one and
+// ship a dashboard showing nothing, which is exactly what happened once.
+// Only overwrite when there is actually something to write.
+if (snapshot.decisions.length === 0) {
+  try {
+    const existing = JSON.parse(await readFile(out, "utf8"));
+    if (existing?.decisions?.length) {
+      console.log(
+        `snapshot: no source data here, keeping the committed snapshot ` +
+          `(${existing.decisions.length} decisions)`,
+      );
+      process.exit(0);
+    }
+  } catch {
+    /* nothing committed either; fall through and write the empty one */
+  }
+}
+
 await mkdir(path.dirname(out), { recursive: true });
 await writeFile(out, JSON.stringify(snapshot));
 console.log(
