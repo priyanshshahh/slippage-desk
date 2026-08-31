@@ -167,8 +167,10 @@ def build_state(cfg: dict, now_et: datetime) -> PortfolioState:
 
     ledger = positions.load()
     by_symbol: dict[str, int] = {}
+    risk_by_symbol: dict[str, float] = {}
     for s in ledger:
         by_symbol[s.underlying] = by_symbol.get(s.underlying, 0) + 1
+        risk_by_symbol[s.underlying] = risk_by_symbol.get(s.underlying, 0.0) + s.risk
 
     return PortfolioState(
         equity=equity,
@@ -177,6 +179,7 @@ def build_state(cfg: dict, now_et: datetime) -> PortfolioState:
         open_positions=len(ledger),
         open_risk=sum(s.risk for s in ledger),
         positions_by_symbol=by_symbol,
+        risk_by_symbol=risk_by_symbol,
         trades_today=_trades_today(cfg, now_et.date()),
         market_open=bool(clock.get("is_open", False)),
         now_et=now_et,
@@ -391,7 +394,9 @@ def poll_once(cfg: dict, memory: ExecutionMemory, dry_run: bool) -> None:
     now_et = _now_et(cfg)
 
     broker = cli.positions()
-    for dropped in positions.reconcile({s for s, _, _ in _option_legs(broker)}):
+    legs = _option_legs(broker)
+    qty_by_symbol = {sym: int(abs(q)) for sym, q, _ in legs if q < 0}
+    for dropped in positions.reconcile({s for s, _, _ in legs}, qty_by_symbol):
         _log(f"  ledger drop: {dropped.short_symbol} no longer held at broker")
     # An equity position can only have arrived by assignment. Say so loudly.
     for hit in assignment.detect_assignment(broker, cfg["universe"]["symbols"]):

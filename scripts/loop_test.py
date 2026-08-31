@@ -55,15 +55,22 @@ def test_exit_rules(cfg: dict) -> None:
     s = sample_spread(tomorrow)
     midday = datetime.now(ET).replace(hour=12, minute=0)
 
-    # profit_take_pct 0.50 on a 0.90 credit => close at or below 0.45
+    # Thresholds come from config so the test follows the configuration
+    # rather than encoding one moment of it. Entry credit is 0.90.
+    take = float(cfg["exit"]["profit_take_pct"])
+    stopm = float(cfg["exit"]["stop_loss_multiple"])
+    tp = 0.90 * (1 - take)          # buy back at or below this
+    sl = 0.90 * stopm               # cut at or above this
     cases = [
-        (0.40, "profit_take",  "cheap to buy back, 56% of credit captured"),
-        (0.45, "profit_take",  "exactly at the threshold"),
-        (0.50, None,           "not yet at the target"),
-        (1.20, None,           "losing, but inside the stop"),
-        (1.80, "stop_loss",    "2x the credit taken in"),
-        (2.50, "stop_loss",    "well past the stop"),
+        (round(tp - 0.05, 2), "profit_take", f"below the {take:.0%} target"),
+        (round(tp, 2),        "profit_take", "exactly at the threshold"),
+        (round(tp + 0.05, 2), None,          "not yet at the target"),
+        (round((tp + sl) / 2, 2), None,      "losing, but inside the stop"),
+        (round(sl, 2),        "stop_loss",   f"{stopm:g}x the credit taken in"),
+        (round(sl + 0.7, 2),  "stop_loss",   "well past the stop"),
     ]
+    print(f"  (profit target {take:.0%} -> buy back at {tp:.2f}; "
+          f"stop {stopm:g}x -> cut at {sl:.2f})")
     for cost, expected, why in cases:
         got = loop._exit_reason(s, cost, cfg, midday)
         status = "ok " if got == expected else "FAIL"

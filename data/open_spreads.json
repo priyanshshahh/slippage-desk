@@ -5,7 +5,7 @@
     "expiry": "2026-09-02",
     "short_symbol": "QQQ260902C00721000",
     "long_symbol": "QQQ260902C00726000",
-    "contracts": 1,
+    "contracts": 8,
     "entry_credit": 0.75,
     "max_loss_per_contract": 425.0,
     "bucket": "QQQ:dte2:d0.25:midday",

@@ -37,6 +37,9 @@ class PortfolioState:
     open_positions: int
     open_risk: float                    # total defined risk, dollars
     positions_by_symbol: dict[str, int] = field(default_factory=dict)
+    # Defined risk currently open per underlying, in dollars. Row counts
+    # cannot bound concentration; dollars can.
+    risk_by_symbol: dict[str, float] = field(default_factory=dict)
     trades_today: int = 0
     market_open: bool = True
     now_et: datetime | None = None
@@ -151,10 +154,22 @@ def candidate_gates(spread: Spread, state: PortfolioState, cfg: dict) -> list[Ve
     v.append(Verdict("defined_risk", spread.max_loss > 0 and spread.width > 0,
                      f"max loss ${spread.max_loss:.0f} on width {spread.width:g}"))
 
+    # Concentration is measured in RISK, not in ledger rows. Counting rows
+    # let the agent put eight contracts into one strike on 2026-08-31 while
+    # the gate read "2/3 in QQQ", because repeated trades at the same strike
+    # are one row. A limit that a single row can exceed is not a limit.
     held = state.positions_by_symbol.get(spread.underlying, 0)
-    v.append(Verdict("symbol_concentration",
-                     held < int(risk["max_positions_per_symbol"]),
-                     f"{held}/{risk['max_positions_per_symbol']} in {spread.underlying}"))
+    sym_risk = state.risk_by_symbol.get(spread.underlying, 0.0)
+    incoming = spread.max_loss
+    cap = float(risk["max_portfolio_risk_pct"]) * state.equity * float(
+        risk.get("max_symbol_risk_share", 0.5))
+    v.append(Verdict(
+        "symbol_concentration",
+        held < int(risk["max_positions_per_symbol"]) and sym_risk + incoming <= cap,
+        f"{held}/{risk['max_positions_per_symbol']} rows, "
+        f"${sym_risk:,.0f}+${incoming:,.0f} vs ${cap:,.0f} cap in "
+        f"{spread.underlying}",
+    ))
 
     return v
 

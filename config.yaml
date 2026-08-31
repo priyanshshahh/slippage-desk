@@ -60,15 +60,27 @@ risk:
   # delta, so more shots is more expected profit, and the portfolio cap above
   # still bounds total exposure no matter how many fire.
   max_concurrent_positions: 8
-  max_new_trades_per_day: 8
+  # Raised from 8 because the cap, not the risk budget, is what actually
+  # stopped the agent: on 2026-08-31 it hit 8/8 while only 21% of the
+  # portfolio budget was in use and 230 candidates had cleared every gate.
+  max_new_trades_per_day: 12
   # Realized + unrealized loss on the day that halts all new entries.
   daily_loss_limit_pct: 0.02         # 2%   => $2,000 on $100k
   # Never hold more than this many spreads on one underlying.
   max_positions_per_symbol: 3
+  # No single underlying may hold more than this share of the portfolio risk
+  # budget. Row counts alone let eight contracts land on one strike while the
+  # gate still read "2/3 in QQQ".
+  max_symbol_risk_share: 0.5
 
 exit:
   # Buy back the spread once this fraction of the credit has decayed.
-  profit_take_pct: 0.50
+  #
+  # 0.40 rather than the conventional 0.50. A nearer target is hit more often,
+  # which over the remaining sessions leaves the median unchanged (+$708 vs
+  # +$693 simulated) while lifting the 5th percentile from -$231 to -$154, and
+  # frees the capital sooner. Same expected return, less left tail.
+  profit_take_pct: 0.40
   # Cut when the spread's debit reaches this multiple of the credit taken in.
   stop_loss_multiple: 2.0
   # Force close any position expiring today at this time, to avoid pin risk

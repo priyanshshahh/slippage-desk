@@ -80,19 +80,40 @@ def opened_on(day: date) -> int:
     )
 
 
-def reconcile(broker_symbols: set[str]) -> list[OpenSpread]:
-    """Drop ledger rows the broker no longer reports.
+def reconcile(broker_symbols: set[str],
+              broker_qty: dict[str, int] | None = None) -> list[OpenSpread]:
+    """Make the ledger agree with the broker. The broker is the truth.
 
-    A spread that expired worthless, was closed by hand, or was liquidated
-    disappears from the broker. Keeping it would inflate open risk and
-    silently block new trades.
+    Two failure modes, both seen live on 2026-08-31:
+
+    1. A spread that expired, was closed by hand, or was liquidated vanishes
+       from the broker. Keeping it inflates open risk and blocks new trades.
+
+    2. Far worse: trading the SAME strike repeatedly overwrote the ledger row
+       instead of accumulating it, because rows are keyed on the short leg.
+       The ledger read 1 contract while the broker held 8, so open_risk was
+       understated by roughly $2,700 and the portfolio gate believed it had
+       headroom it did not have. The agent then concentrated eight contracts
+       into one strike.
+
+    Quantity now comes from the broker on every poll. A ledger that can
+    disagree with the broker about size is not a risk control.
     """
-    kept, dropped = [], []
+    kept, dropped, corrected = [], [], []
     for s in load():
-        if s.short_symbol in broker_symbols:
-            kept.append(s)
-        else:
+        if s.short_symbol not in broker_symbols:
             dropped.append(s)
-    if dropped:
+            continue
+        if broker_qty is not None:
+            actual = abs(broker_qty.get(s.short_symbol, s.contracts))
+            if actual and actual != s.contracts:
+                corrected.append((s.short_symbol, s.contracts, actual))
+                s.contracts = actual
+        kept.append(s)
+
+    if dropped or corrected:
         save(kept)
+    if corrected:
+        for sym, was, now in corrected:
+            print(f"  ledger corrected: {sym} {was}x -> {now}x (broker)")
     return dropped
