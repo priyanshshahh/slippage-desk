@@ -16,10 +16,12 @@ from engine.risk import Decision
 JOURNAL = ROOT / "data" / "decisions.jsonl"
 
 
-def record(decision: Decision, state_snapshot: dict, fill: dict | None = None) -> None:
+def record(decision: Decision, state_snapshot: dict, fill: dict | None = None,
+           ts: datetime | None = None) -> None:
+    """ts is for replaying or seeding history; live callers leave it None."""
     JOURNAL.parent.mkdir(parents=True, exist_ok=True)
     row = {
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": (ts or datetime.now(timezone.utc)).isoformat(),
         "underlying": decision.spread.underlying,
         "kind": decision.spread.kind,
         "expiry": decision.spread.expiry.isoformat(),
@@ -53,16 +55,25 @@ def load() -> list[dict]:
 
 
 def summary() -> dict:
+    """Counts that mean what their names say.
+
+    Every candidate the agent evaluates is journaled, but only the best one
+    per poll is actually submitted. So "the gates approved it" and "we traded
+    it" are different numbers, and conflating them overstates activity by an
+    order of magnitude.
+    """
     rows = load()
     considered = len(rows)
-    traded = sum(1 for r in rows if r["allowed"])
+    approved = sum(1 for r in rows if r["allowed"] and r["contracts"] > 0)
+    traded = sum(1 for r in rows if r.get("fill"))
     blocks: dict[str, int] = {}
     for r in rows:
         for gate in r["blocked_by"]:
             blocks[gate] = blocks.get(gate, 0) + 1
     return {
         "considered": considered,
+        "approved": approved,
         "traded": traded,
-        "rejected": considered - traded,
+        "rejected": considered - approved,
         "rejections_by_gate": dict(sorted(blocks.items(), key=lambda kv: -kv[1])),
     }

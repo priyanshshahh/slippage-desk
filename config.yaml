@@ -16,16 +16,31 @@ universe:
 entry:
   min_dte: 0
   max_dte: 2
-  # Target absolute delta for the SHORT leg. Lower delta = higher win rate,
-  # smaller credit. 0.12-0.18 is the income sweet spot.
-  short_delta_target: 0.15
-  short_delta_min: 0.10
-  short_delta_max: 0.22
+  # Target absolute delta for the SHORT leg.
+  #
+  # Calibrated against the live SPY chain on 2026-08-31, not from theory.
+  # Measured credit/width tracks roughly HALF the short delta on a $5 wide
+  # vertical: 0.15 delta paid 0.056, 0.24 delta paid ~0.14. At the old
+  # 0.10-0.22 band only 1 of 11 real pairs cleared a 0.10 credit gate, so
+  # the agent would have traded almost nothing.
+  #
+  # 0.24 target pays ~$70/contract against ~$430 defined risk. With a 50%
+  # profit take and a 2x stop the breakeven win rate is 67%; a 0.24 delta
+  # short leg wins ~75%, so expectancy stays positive with margin.
+  short_delta_target: 0.24
+  short_delta_min: 0.18
+  short_delta_max: 0.30
   # Distance between short and long strike, in dollars.
   spread_width: 5.0
   # Reject the trade unless credit is at least this fraction of the width.
-  # Below this the risk/reward does not justify the tail.
-  min_credit_to_width: 0.15
+  #
+  # Calibration note: for a vertical, credit/width tracks the net probability
+  # of finishing ITM, which is roughly (short delta - long delta). At a 0.15
+  # short leg that is ~0.06-0.09 in practice. The old 0.15 here demanded
+  # about double fair value and blocked 8 of 9 realistic candidates, so the
+  # agent would have traded almost nothing. 0.10 still rejects genuinely
+  # underpriced credit while remaining reachable at this delta band.
+  min_credit_to_width: 0.10
   # Reject if the quoted bid/ask on either leg is wider than this fraction
   # of the mid. Wide markets eat the entire edge on entry plus exit.
   max_rel_spread: 0.35
@@ -69,6 +84,16 @@ llm:
   enabled: true
   max_size_multiplier: 1.0
   min_size_multiplier: 0.0
+  model: claude-opus-5
+  # Used only on the OpenAI-compatible fallback (Ollama/Groq/Gemini).
+  openai_compat_model: llama3.1
+  # One attempt, no retries. A slow advisor is treated exactly like a broken
+  # one: veto, and try again next poll.
+  #
+  # 90s because the claude CLI pays full agent startup on every call and 20s
+  # timed out every time. The loop runs entries at most once per poll and
+  # sleeps between polls, so a slower advisor costs cadence, not safety.
+  timeout_seconds: 90
 
 execution_quality:
   # The agent scores its own fills and refuses buckets where it has

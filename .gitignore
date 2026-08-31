@@ -3,7 +3,9 @@
 __pycache__/
 *.pyc
 data/*.db
-data/*.jsonl
+# data/decisions.jsonl is the evidence artefact and is committed on purpose.
+data/demo-archive/
+logs/
 .DS_Store
 node_modules/
 .next/

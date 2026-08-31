@@ -105,10 +105,28 @@ def account_gates(state: PortfolioState, cfg: dict) -> list[Verdict]:
     return v
 
 
+def _same_expiry(spread: Spread) -> Verdict:
+    """Both legs must expire together or the risk is not defined.
+
+    If the long leg expires first, the short leg survives it naked, which
+    is unbounded loss on a call. Candidates are now built per expiry so
+    this should be unreachable, which is exactly why it is asserted: a
+    silent regression here is not a bad fill, it is a blown account.
+    """
+    a, b = spread.short_leg.expiry, spread.long_leg.expiry
+    if a == b:
+        return Verdict("same_expiry", True, f"both legs {a}")
+    return Verdict(
+        "same_expiry", False,
+        f"legs expire apart: short {a}, long {b} - diagonal, not a vertical; "
+        "the short leg would be left naked",
+    )
+
+
 def candidate_gates(spread: Spread, state: PortfolioState, cfg: dict) -> list[Verdict]:
     """Gates specific to one proposed spread."""
     entry, risk = cfg["entry"], cfg["risk"]
-    v: list[Verdict] = []
+    v: list[Verdict] = [_same_expiry(spread)]
 
     ctw = spread.credit_to_width
     v.append(Verdict("credit_to_width", ctw >= float(entry["min_credit_to_width"]),
@@ -206,9 +224,12 @@ def evaluate(
     state: PortfolioState,
     cfg: dict,
     memory: ExecutionMemory | None = None,
+    assignment: Verdict | None = None,
 ) -> Decision:
     """Run the full stack. Order is cheap-to-expensive, sizing last."""
     verdicts = account_gates(state, cfg) + candidate_gates(spread, state, cfg)
+    if assignment is not None:
+        verdicts.append(assignment)
     if memory is not None:
         now = state.now_et or datetime.now(ZoneInfo(cfg['schedule']['timezone']))
         verdicts.append(execution_gate(spread, memory, cfg, now))

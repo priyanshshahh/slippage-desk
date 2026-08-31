@@ -89,11 +89,23 @@ def build_credit_spread(
     right: str,
     cfg: dict,
 ) -> Spread | None:
-    """Build the best single credit vertical for one right on one expiry."""
+    """Build the best single credit vertical for one right on one expiry.
+
+    Callers must pass contracts from a SINGLE expiry. Pairing legs across
+    expiries produces a diagonal, not a vertical: if the long leg expires
+    first the short leg is left naked, which is unbounded risk on a call.
+    build_candidates() enforces the grouping; this asserts it rather than
+    trusting it.
+    """
     entry = cfg["entry"]
     legs = [c for c in contracts if c.right == right]
     if not legs:
         return None
+    if len({c.expiry for c in legs}) != 1:
+        raise ValueError(
+            "build_credit_spread requires one expiry, got "
+            f"{sorted({c.expiry for c in legs})}"
+        )
 
     short = _pick_short(
         legs,
@@ -136,10 +148,20 @@ def build_credit_spread(
 
 
 def build_candidates(contracts: list[Contract], cfg: dict) -> list[Spread]:
-    """All viable credit verticals across both rights, best credit first."""
+    """All viable credit verticals, best credit-to-width first.
+
+    Contracts are grouped by expiry before pairing. A chain spanning a 0-2
+    DTE band holds several expiries, and pairing across them silently
+    produces diagonals with naked short legs.
+    """
+    by_expiry: dict[date, list[Contract]] = {}
+    for c in contracts:
+        by_expiry.setdefault(c.expiry, []).append(c)
+
     out: list[Spread] = []
-    for right in ("P", "C"):
-        s = build_credit_spread(contracts, right, cfg)
-        if s is not None:
-            out.append(s)
+    for expiry in sorted(by_expiry):
+        for right in ("P", "C"):
+            s = build_credit_spread(by_expiry[expiry], right, cfg)
+            if s is not None:
+                out.append(s)
     return sorted(out, key=lambda s: s.credit_to_width, reverse=True)

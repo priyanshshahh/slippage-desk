@@ -129,6 +129,22 @@ def liquid(contracts: list[Contract], max_rel_spread: float) -> list[Contract]:
     ]
 
 
+def implied_spot(contracts: list[Contract]) -> float | None:
+    """Underlying price implied by the chain, via put-call parity.
+
+    C - P = S - K, so the strike where call and put mids converge is the
+    spot. Free, and it cannot disagree with the quotes the gates are
+    already reasoning about, which a separate spot feed could.
+    """
+    calls = {c.strike: c.mid for c in contracts if c.right == "C" and c.tradable}
+    puts = {c.strike: c.mid for c in contracts if c.right == "P" and c.tradable}
+    common = set(calls) & set(puts)
+    if not common:
+        return None
+    k = min(common, key=lambda s: abs(calls[s] - puts[s]))
+    return k + calls[k] - puts[k]
+
+
 def nearest_expiry(contracts: list[Contract]) -> date | None:
     expiries = sorted({c.expiry for c in contracts})
     return expiries[0] if expiries else None
