@@ -59,7 +59,9 @@ risk:
   # Raised alongside the budget. Expectancy per trade is positive at this
   # delta, so more shots is more expected profit, and the portfolio cap above
   # still bounds total exposure no matter how many fire.
-  max_concurrent_positions: 8
+  # Contracts, not spreads. Previously this counted ledger rows, and one row
+  # can hold many contracts, so the limit read far stronger than it bound.
+  max_concurrent_positions: 16
   # Raised from 8 because the cap, not the risk budget, is what actually
   # stopped the agent: on 2026-08-31 it hit 8/8 while only 21% of the
   # portfolio budget was in use and 230 candidates had cleared every gate.
@@ -67,7 +69,7 @@ risk:
   # Realized + unrealized loss on the day that halts all new entries.
   daily_loss_limit_pct: 0.02         # 2%   => $2,000 on $100k
   # Never hold more than this many spreads on one underlying.
-  max_positions_per_symbol: 3
+  max_positions_per_symbol: 8   # contracts per underlying
   # No single underlying may hold more than this share of the portfolio risk
   # budget. Row counts alone let eight contracts land on one strike while the
   # gate still read "2/3 in QQQ".

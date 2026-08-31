@@ -54,17 +54,23 @@ def _option_legs(broker_positions: list[dict]) -> list[tuple[str, float, float]]
     return legs
 
 
-def _mid_for(short_symbol: str) -> float | None:
-    """The mid the gates priced a candidate at, from the journal.
+def _decision_for(short_symbol: str) -> dict | None:
+    """The most recent decision that proposed this short leg.
 
     Adoption learns the credit actually received from the broker. Scoring
-    execution quality needs the theoretical it was measured against, and
-    that only exists in the decision that proposed the trade.
+    execution quality needs the theoretical it was measured against AND the
+    delta band it belongs in, and both only exist in the decision that
+    proposed the trade.
     """
     for row in reversed(journal.load()):
         if row.get("short_symbol") == short_symbol:
-            return float(row["credit_mid"])
+            return row
     return None
+
+
+def _mid_for(short_symbol: str) -> float | None:
+    row = _decision_for(short_symbol)
+    return float(row["credit_mid"]) if row else None
 
 
 def adopt_unknown(broker_positions: list[dict],
@@ -123,10 +129,16 @@ def adopt_unknown(broker_positions: list[dict],
             # Score the fill. Without this an order that rested and filled
             # later is managed correctly but never scored, and the whole
             # execution-quality loop stays empty precisely when it matters.
-            mid = _mid_for(sym)
+            decision = _decision_for(sym)
+            mid = float(decision["credit_mid"]) if decision else None
             if memory is not None and mid and credit > 0:
                 dte = max(0, (expiry - date.today()).days)
-                key = bucket_key(root, dte, 0.25,
+                # Use the delta the gates actually measured. Hardcoding 0.25
+                # here filed every adopted fill under a delta band it may not
+                # belong to, corrupting the per-bucket capture data that is
+                # this project's central claim.
+                short_delta = abs(float(decision["short_delta"]))
+                key = bucket_key(root, dte, short_delta,
                                  datetime.now(ZoneInfo("America/New_York")))
                 spread.bucket = key
                 positions.remove(sym)
@@ -143,20 +155,41 @@ def adopt_unknown(broker_positions: list[dict],
 # --------------------------------------------------------------------------
 
 def _trades_today(cfg: dict, today: date) -> int:
-    """Entries filled today, counted from the journal.
+    """Entries opened today, counted from the BROKER's activity log.
 
-    The ledger cannot answer this, because a spread opened and closed on
-    the same day is gone from it. The journal is append-only, so it can.
+    This was counted from the journal, which undercounts: an order that
+    rests and fills on a later poll is adopted from the broker and never
+    gets a journal fill row. Measured live on 2026-08-31 the journal read 8
+    while the broker had filled 10, so the daily cap was policing a number
+    25% below reality.
+
+    Legs of one mleg order share the millisecond prefix of their activity
+    id, which is how they are grouped back into trades. Falls back to the
+    journal only if the broker cannot be reached, since a cap that fails
+    open is worse than one that is slightly stale.
     """
     tz = ZoneInfo(cfg["schedule"]["timezone"])
-    n = 0
-    for row in journal.load():
-        if not row.get("allowed") or not row.get("fill"):
-            continue
-        ts = datetime.fromisoformat(row["ts"]).astimezone(tz).date()
-        if ts == today:
-            n += 1
-    return n
+    try:
+        groups: dict[str, list[dict]] = {}
+        for a in cli.activities("FILL"):
+            raw = str(a.get("transaction_time", "")).replace("Z", "+00:00")
+            if not raw:
+                continue
+            if datetime.fromisoformat(raw).astimezone(tz).date() != today:
+                continue
+            groups.setdefault(str(a.get("id", "")).split("::")[0], []).append(a)
+        # An entry sells a leg to open; a pure close does not.
+        return sum(1 for legs in groups.values()
+                   if any("sell" in str(x.get("side", "")) for x in legs))
+    except Exception:                              # noqa: BLE001
+        n = 0
+        for row in journal.load():
+            if not row.get("allowed") or not row.get("fill"):
+                continue
+            ts = datetime.fromisoformat(row["ts"]).astimezone(tz).date()
+            if ts == today:
+                n += 1
+        return n
 
 
 def build_state(cfg: dict, now_et: datetime) -> PortfolioState:
@@ -169,14 +202,16 @@ def build_state(cfg: dict, now_et: datetime) -> PortfolioState:
     by_symbol: dict[str, int] = {}
     risk_by_symbol: dict[str, float] = {}
     for s in ledger:
-        by_symbol[s.underlying] = by_symbol.get(s.underlying, 0) + 1
+        by_symbol[s.underlying] = by_symbol.get(s.underlying, 0) + s.contracts
         risk_by_symbol[s.underlying] = risk_by_symbol.get(s.underlying, 0.0) + s.risk
 
     return PortfolioState(
         equity=equity,
         starting_equity=float(cfg["account"]["expected_starting_equity"]),
         day_pnl=equity - last_equity,
-        open_positions=len(ledger),
+        # Contracts, not rows. A single row can hold eight contracts, so a
+        # cap on rows reads far stronger than it is.
+        open_positions=sum(s.contracts for s in ledger),
         open_risk=sum(s.risk for s in ledger),
         positions_by_symbol=by_symbol,
         risk_by_symbol=risk_by_symbol,
