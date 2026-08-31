@@ -167,6 +167,26 @@ def close_all() -> CLIResult:
     return run("position", "close-all")
 
 
+def latest_price(symbol: str) -> float | None:
+    """Live spot from the stock feed.
+
+    Deriving spot from the option chain via put-call parity is elegant and
+    free, but the indicative options feed lags, and the advisor kept
+    (correctly) refusing candidates whose delta was inconsistent with the
+    real underlying price. The stock feed is fresher.
+    """
+    r = run("data", "latest-trade", "--symbol", symbol)
+    if not r.ok or not isinstance(r.data, dict):
+        return None
+    # Shape varies: sometimes {"trade": {"p": ...}}, sometimes flat.
+    trade = r.data.get("trade", r.data)
+    price = trade.get("p") or trade.get("price")
+    try:
+        return float(price) if price is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
 def corporate_actions(symbols: list[str], start: str, end: str,
                       types: str = "cash_dividend") -> list[dict]:
     """Upcoming corporate actions. Ex-dividend dates drive early assignment."""

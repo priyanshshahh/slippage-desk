@@ -297,7 +297,10 @@ def scan_entries(cfg: dict, state: PortfolioState, memory: ExecutionMemory,
             continue
 
         tradable = chain.liquid(contracts, float(cfg["entry"]["max_rel_spread"]))
-        spot = chain.implied_spot(tradable)
+        # Live spot from the stock feed; parity off the chain is the fallback.
+        # The options feed lags, and assignment risk judged against a stale
+        # underlying is judged against the wrong number.
+        spot = cli.latest_price(symbol) or chain.implied_spot(tradable)
         for spread in build_candidates(tradable, cfg):
             av = (
                 assignment.assignment_gate(spread, spot, exdiv, now_et)

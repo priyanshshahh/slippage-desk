@@ -11,7 +11,10 @@ account:
 universe:
   # Deep, penny-wide, daily-expiring underlyings. Liquidity is the whole
   # reason for this shortlist: fill quality dominates edge on a 4 day horizon.
-  symbols: [SPY, QQQ]
+  # IWM added for a third independent chain. Its options are thinner, but
+  # the quote_width and crossable gates already reject anything untradeable,
+  # so the cost of including it is candidates that get refused, not bad fills.
+  symbols: [SPY, QQQ, IWM]
 
 entry:
   min_dte: 0
@@ -50,11 +53,14 @@ entry:
 
 risk:
   # Maximum loss on any single spread, as a fraction of current equity.
-  max_loss_per_trade_pct: 0.005      # 0.5% => $500 on $100k
+  max_loss_per_trade_pct: 0.01       # 1% => $1,000 on $100k
   # Total defined risk across all open positions.
-  max_portfolio_risk_pct: 0.03       # 3%   => $3,000 on $100k
-  max_concurrent_positions: 6
-  max_new_trades_per_day: 4
+  max_portfolio_risk_pct: 0.06       # 6%   => $6,000 on $100k
+  # Raised alongside the budget. Expectancy per trade is positive at this
+  # delta, so more shots is more expected profit, and the portfolio cap above
+  # still bounds total exposure no matter how many fire.
+  max_concurrent_positions: 8
+  max_new_trades_per_day: 8
   # Realized + unrealized loss on the day that halts all new entries.
   daily_loss_limit_pct: 0.02         # 2%   => $2,000 on $100k
   # Never hold more than this many spreads on one underlying.
