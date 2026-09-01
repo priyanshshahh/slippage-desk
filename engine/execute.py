@@ -187,6 +187,14 @@ def close_spread(position_symbols: list[str], contracts: int, limit_debit: float
         order_class=OrderClass.MLEG,
         time_in_force=TimeInForce.DAY,
         legs=legs,
+        # Without this a resting close is resubmitted every poll: the exit
+        # condition is still true, so the agent fires again and again while
+        # the first order sits in the book. Opens have carried an idempotency
+        # key since the start; closes were missed.
+        client_order_id=client_order_id(
+            type("S", (), {"short_leg": type("L", (), {"symbol": position_symbols[0]}),
+                           "long_leg": type("L", (), {"symbol": position_symbols[1]})}),
+            contracts) + "-c",
     )
     if dry_run:
         print(f"  DRY RUN  close {position_symbols} x{contracts} limit {limit_price}")

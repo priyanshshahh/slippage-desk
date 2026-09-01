@@ -178,9 +178,13 @@ def _trades_today(cfg: dict, today: date) -> int:
             if datetime.fromisoformat(raw).astimezone(tz).date() != today:
                 continue
             groups.setdefault(str(a.get("id", "")).split("::")[0], []).append(a)
-        # An entry sells a leg to open; a pure close does not.
+        # An ENTRY sells a leg SHORT to open ("sell_short"). A close sells to
+        # close, which Alpaca reports as plain "sell". The old predicate was
+        # `"sell" in side`, and "sell" is a substring of "sell_short", so it
+        # matched both and every profit-take consumed a daily-cap slot.
+        # Measured live: 22 of 23 fill groups counted as entries.
         return sum(1 for legs in groups.values()
-                   if any("sell" in str(x.get("side", "")) for x in legs))
+                   if any(str(x.get("side", "")) == "sell_short" for x in legs))
     except Exception:                              # noqa: BLE001
         n = 0
         for row in journal.load():
@@ -231,7 +235,10 @@ def _exit_reason(s: OpenSpread, cost_to_close: float, cfg: dict,
     hh, mm = (int(x) for x in ex["force_close_time"].split(":"))
     # A half day closes at 13:00, so a 15:45 force-close never fires on the
     # one session you would least want to be carrying 0DTE into.
-    actual = assignment.session_close(now_et.date())
+    try:
+        actual = assignment.session_close(now_et.date())
+    except Exception:                              # noqa: BLE001
+        actual = None                              # fall back to the configured time
     if actual and (actual[0], actual[1]) < (hh, mm):
         ch, cm = actual
         total = ch * 60 + cm - 15
@@ -281,8 +288,12 @@ def manage_exits(cfg: dict, now_et: datetime, dry_run: bool) -> int:
                 width = abs(s.max_loss_per_contract / 100.0 + s.entry_credit)
                 _log(f"  {s.short_symbol}: force close, no quote, "
                      f"limit {width:.2f} (max possible cost)")
-                execute.close_spread(s.symbols, s.contracts, width, dry_run=dry_run)
-                closed += 1
+                try:
+                    execute.close_spread(s.symbols, s.contracts, width,
+                                         dry_run=dry_run)
+                    closed += 1
+                except Exception as exc:           # noqa: BLE001
+                    _log(f"  ** close FAILED for {s.short_symbol}: {exc}")
             continue
 
         # Buy back the short at its ask, sell the long at its bid. The price
@@ -298,7 +309,15 @@ def manage_exits(cfg: dict, now_et: datetime, dry_run: bool) -> int:
             f"{s.contracts}x  in {s.entry_credit:.2f} out {cost_to_close:.2f} "
             f"P&L ${pnl:+.0f}"
         )
-        execute.close_spread(s.symbols, s.contracts, cost_to_close, dry_run=dry_run)
+        # One position's close must never prevent another's. An unguarded
+        # raise here aborted manage_exits entirely, so every position after the
+        # failing one silently went unmanaged, including its stop.
+        try:
+            execute.close_spread(s.symbols, s.contracts, cost_to_close,
+                                 dry_run=dry_run)
+            closed += 1
+        except Exception as exc:                   # noqa: BLE001
+            _log(f"  ** close FAILED for {s.short_symbol}: {exc}")
         # Deliberately NOT removing the ledger row here. A close order can
         # rest unfilled or be rejected, and dropping the row on submission
         # makes the agent believe it is flat while the broker still holds the
