@@ -140,8 +140,14 @@ def build() -> dict:
     broker_theoretical = 0.0
     verified: list = []
     unmatched: list = []
+    unpaired = []
     for group, legs in sorted(by_group.items()):
         if len(legs) != 2:
+            # Legs are grouped by the millisecond prefix of the activity id, so
+            # a pair straddling a boundary lands in two groups. Silently
+            # dropping those makes the evidence look complete when it is not.
+            unpaired.append({"fill_group": group,
+                             "legs": [l["symbol"] for l in legs]})
             continue
         short = next((l for l in legs if "sell" in str(l["side"])), None)
         long_ = next((l for l in legs if str(l["side"]) == "buy"), None)
@@ -223,6 +229,7 @@ def build() -> dict:
             ),
             "spreads": verified,
             "excluded_non_agent_fills": unmatched,
+            "unpaired_fill_groups": unpaired,
             "agrees_with_journal": (
                 abs(broker_credit - captured) < 1.0 if captured else None
             ),
@@ -259,6 +266,8 @@ def main() -> int:
     print(f"  broker theoretical         ${bv['broker_theoretical_usd']:,.2f}")
     if bv["broker_capture_ratio"] is not None:
         print(f"  BROKER-VERIFIED CAPTURE    {bv['broker_capture_ratio']:.1%}")
+    if bv["unpaired_fill_groups"]:
+        print(f"  unpaired groups (not counted) {len(bv['unpaired_fill_groups'])}")
     if bv["excluded_non_agent_fills"]:
         print(f"  excluded (not agent trades) {len(bv['excluded_non_agent_fills'])}")
     for v in bv["spreads"]:

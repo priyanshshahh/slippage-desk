@@ -33,6 +33,8 @@ class Contract:
     ask_size: float
     delta: float | None
     iv: float | None
+    open_interest: float = 0.0
+    volume: float = 0.0
 
     @property
     def mid(self) -> float:
@@ -109,6 +111,8 @@ def fetch_chain(
                 ask=float(getattr(quote, "ask_price", 0) or 0),
                 bid_size=float(getattr(quote, "bid_size", 0) or 0),
                 ask_size=float(getattr(quote, "ask_size", 0) or 0),
+                open_interest=float(getattr(snap, "open_interest", 0) or 0),
+                volume=float(getattr(getattr(snap, "daily_bar", None), "volume", 0) or 0),
                 delta=float(greeks.delta) if greeks and greeks.delta is not None else None,
                 iv=(
                     float(snap.implied_volatility)
@@ -120,13 +124,26 @@ def fetch_chain(
     return out
 
 
-def liquid(contracts: list[Contract], max_rel_spread: float) -> list[Contract]:
-    """Keep only contracts we could realistically get filled on."""
-    return [
-        c
-        for c in contracts
-        if c.tradable and c.rel_spread <= max_rel_spread and c.bid_size > 0 and c.ask_size > 0
-    ]
+def liquid(contracts: list[Contract], max_rel_spread: float,
+           min_open_interest: float = 0.0, min_volume: float = 0.0) -> list[Contract]:
+    """Keep only contracts we could realistically get filled on.
+
+    open_interest and volume were configured and documented as gates but no
+    code read them, so the universe was wider than the config claimed. They
+    are enforced here, and skipped when the feed does not report them rather
+    than silently emptying the chain.
+    """
+    out = []
+    for c in contracts:
+        if not (c.tradable and c.rel_spread <= max_rel_spread
+                and c.bid_size > 0 and c.ask_size > 0):
+            continue
+        if min_open_interest and c.open_interest and c.open_interest < min_open_interest:
+            continue
+        if min_volume and c.volume and c.volume < min_volume:
+            continue
+        out.append(c)
+    return out
 
 
 def implied_spot(contracts: list[Contract]) -> float | None:
@@ -136,8 +153,15 @@ def implied_spot(contracts: list[Contract]) -> float | None:
     spot. Free, and it cannot disagree with the quotes the gates are
     already reasoning about, which a separate spot feed could.
     """
-    calls = {c.strike: c.mid for c in contracts if c.right == "C" and c.tradable}
-    puts = {c.strike: c.mid for c in contracts if c.right == "P" and c.tradable}
+    # Parity only holds WITHIN one expiry. Keying on strike alone paired a
+    # call from one expiry with a put from another and returned a number that
+    # is not a price of anything. Restrict to the nearest expiry present.
+    tradable = [c for c in contracts if c.tradable]
+    if not tradable:
+        return None
+    expiry = min(c.expiry for c in tradable)
+    calls = {c.strike: c.mid for c in tradable if c.right == "C" and c.expiry == expiry}
+    puts = {c.strike: c.mid for c in tradable if c.right == "P" and c.expiry == expiry}
     common = set(calls) & set(puts)
     if not common:
         return None

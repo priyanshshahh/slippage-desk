@@ -129,7 +129,16 @@ def probe(spread, credit: float, cfg: dict) -> int:
     print("is the opposite of what was just sent.")
     print()
     print("Closing the test position now.")
-    cli.close_all()
+    # close_all flattened only one leg of a two-leg book during this very
+    # probe on 2026-08-31, leaving a naked long. Close each leg explicitly and
+    # check the result rather than assuming.
+    for sym in (spread.short_leg.symbol, spread.long_leg.symbol):
+        r = cli.close_position(sym)
+        print(f"  close {sym}: {'ok' if r.ok else 'FAILED ' + str(r.raw)[:80]}")
+    left = [p for p in cli.positions()
+            if p.get("symbol") in (spread.short_leg.symbol, spread.long_leg.symbol)]
+    if left:
+        print(f"  WARNING: {len(left)} leg(s) still open, close them by hand")
     return 0
 
 

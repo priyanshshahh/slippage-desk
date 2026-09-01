@@ -105,15 +105,24 @@ class ExecutionMemory:
         )
 
     def _get(self, key: str) -> BucketStats:
+        """Non-mutating read. Only recording creates a bucket.
+
+        setdefault here meant every bucket the gate merely looked at was
+        persisted and then published in report() as though it had been
+        measured, inflating the bucket count in the evidence artefact.
+        """
+        return self.buckets.get(key) or BucketStats()
+
+    def _get_or_create(self, key: str) -> BucketStats:
         return self.buckets.setdefault(key, BucketStats())
 
     def record_submission(self, key: str) -> None:
-        self._get(key).submitted += 1
+        self._get_or_create(key).submitted += 1
         self.save()
 
     def record_fill(self, key: str, mid_credit: float, actual_credit: float) -> float:
         """Score one fill. Returns the capture ratio."""
-        b = self._get(key)
+        b = self._get_or_create(key)
         b.filled += 1
         capture = (actual_credit / mid_credit) if mid_credit > 0 else 0.0
         # Clamp: a better-than-mid fill is luck, not a reason to trust the

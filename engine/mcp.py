@@ -93,6 +93,11 @@ def call(tool: str, **arguments: Any) -> Any | None:
     """Call one read-only MCP tool. Returns None on any failure."""
     async def _f(session):
         res = await session.call_tool(tool, arguments)
+        # An error result still carries text content, so without this the
+        # error message itself was handed to the advisor as market research
+        # and the caller logged "mcp research: ok".
+        if getattr(res, "isError", False):
+            return None
         out = []
         for block in res.content:
             text = getattr(block, "text", None)

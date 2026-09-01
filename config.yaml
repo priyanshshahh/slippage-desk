@@ -48,6 +48,13 @@ entry:
   # of the mid. Wide markets eat the entire edge on entry plus exit.
   max_rel_spread: 0.35
   # Reject any contract with open interest or volume below these.
+  #
+  # Enforced in chain.liquid(), but INERT on the free indicative feed, which
+  # reports neither field: measured 2026-09-01, 0 of 1054 SPY contracts carried
+  # open interest or volume. The gate skips contracts whose feed omits the
+  # field rather than emptying the chain, so these thresholds only bite on a
+  # paid OPRA subscription. quote_width and crossable carry the liquidity
+  # filtering in the meantime, and those work off quotes the feed does supply.
   min_open_interest: 100
   min_volume: 10
 

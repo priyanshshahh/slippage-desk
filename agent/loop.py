@@ -261,7 +261,7 @@ def build_state(cfg: dict, now_et: datetime) -> PortfolioState:
 # --------------------------------------------------------------------------
 
 def _exit_reason(s: OpenSpread, cost_to_close: float, cfg: dict,
-                 now_et: datetime) -> str | None:
+                 now_et: datetime, state_close: datetime | None = None) -> str | None:
     ex = cfg["exit"]
     hh, mm = (int(x) for x in ex["force_close_time"].split(":"))
     # A half day closes at 13:00, so a 15:45 force-close never fires on the
@@ -269,7 +269,12 @@ def _exit_reason(s: OpenSpread, cost_to_close: float, cfg: dict,
     try:
         actual = assignment.session_close(now_et.date())
     except Exception:                              # noqa: BLE001
-        actual = None                              # fall back to the configured time
+        # Fall back to the broker's own next_close, which build_state already
+        # fetched, rather than to the configured 15:45. Assuming a regular
+        # close when we could not determine one is the unsafe direction.
+        actual = None
+        if state_close is not None:
+            actual = (state_close.hour, state_close.minute)
     if actual and (actual[0], actual[1]) < (hh, mm):
         ch, cm = actual
         total = ch * 60 + cm - 15
@@ -285,7 +290,8 @@ def _exit_reason(s: OpenSpread, cost_to_close: float, cfg: dict,
     return None
 
 
-def manage_exits(cfg: dict, now_et: datetime, dry_run: bool) -> int:
+def manage_exits(cfg: dict, now_et: datetime, dry_run: bool,
+                 session_close: datetime | None = None) -> int:
     ledger = positions.load()
     if not ledger:
         return 0
@@ -311,12 +317,12 @@ def manage_exits(cfg: dict, now_et: datetime, dry_run: bool) -> int:
         if short_q is None or long_q is None:
             # No quote means we cannot price the exit. Only the clock-based
             # force close fires here, and it must actually get out.
-            if _exit_reason(s, float("inf"), cfg, now_et) == "force_close_expiring":
+            if _exit_reason(s, float("inf"), cfg, now_et, session_close) == "force_close_expiring":
                 # A vertical can never cost more than its width to buy back,
                 # so the width is a limit that fills while still bounded. The
                 # old hardcoded 0.05 would not have filled on anything ITM,
                 # which is precisely when a force close matters.
-                width = abs(s.max_loss_per_contract / 100.0 + s.entry_credit)
+                width = s.strike_width
                 _log(f"  {s.short_symbol}: force close, no quote, "
                      f"limit {width:.2f} (max possible cost)")
                 try:
@@ -330,7 +336,7 @@ def manage_exits(cfg: dict, now_et: datetime, dry_run: bool) -> int:
         # Buy back the short at its ask, sell the long at its bid. The price
         # we would actually pay, not the flattering mid.
         cost_to_close = short_q.ask - long_q.bid
-        reason = _exit_reason(s, cost_to_close, cfg, now_et)
+        reason = _exit_reason(s, cost_to_close, cfg, now_et, session_close)
         if not reason:
             continue
 
@@ -394,7 +400,11 @@ def scan_entries(cfg: dict, state: PortfolioState, memory: ExecutionMemory,
             _log(f"  chain fetch failed for {symbol}: {exc}")
             continue
 
-        tradable = chain.liquid(contracts, float(cfg["entry"]["max_rel_spread"]))
+        tradable = chain.liquid(
+            contracts, float(cfg["entry"]["max_rel_spread"]),
+            float(cfg["entry"].get("min_open_interest", 0)),
+            float(cfg["entry"].get("min_volume", 0)),
+        )
         # Live spot from the stock feed; parity off the chain is the fallback.
         # The options feed lags, and assignment risk judged against a stale
         # underlying is judged against the wrong number.
@@ -457,8 +467,23 @@ def scan_entries(cfg: dict, state: PortfolioState, memory: ExecutionMemory,
          f"(mid {spread.credit_mid:.2f}, crossed {spread.credit_worst:.2f}, "
          f"aggressiveness {aggressiveness})")
 
+    try:
+        fill = execute.submit_credit_spread(spread, best.contracts, limit,
+                                            dry_run=dry_run)
+    except Exception as exc:                       # noqa: BLE001
+        _log(f"  submission FAILED: {type(exc).__name__}: {exc}")
+        return False
+
+    # Record the submission only once an order actually exists. Recording it
+    # first counted rejected orders as submissions that could never fill,
+    # which drags the bucket's fill rate down and pushes aggressiveness toward
+    # crossing for no reason.
+    rejected = {"rejected", "canceled", "expired"}
+    if fill is None or str(fill.status).lower() in rejected:
+        _log(f"  order not live (status {fill.status if fill else 'none'}), "
+             "not recording a submission")
+        return False
     memory.record_submission(key)
-    fill = execute.submit_credit_spread(spread, best.contracts, limit, dry_run=dry_run)
 
     journal.record(best, snapshot, fill={
         "order_id": fill.order_id if fill else None,
@@ -533,7 +558,19 @@ def poll_once(cfg: dict, memory: ExecutionMemory, dry_run: bool) -> None:
 
     # Exits always run. A broken book is a reason to stop opening risk, never
     # a reason to stop managing what is already open.
-    manage_exits(cfg, now_et, dry_run)
+    manage_exits(cfg, now_et, dry_run, state.session_close_et)
+
+    # Entries are DAY orders. One left resting past the entry window can fill
+    # late in the session, or even after the force-close time, opening risk the
+    # gates would refuse at that hour. Cancel our own working entries once the
+    # window has closed; exits are left alone.
+    stop_h, stop_m = (int(x) for x in cfg["schedule"]["entry_stop"].split(":"))
+    if (now_et.hour, now_et.minute) >= (stop_h, stop_m):
+        for o in cli.open_orders():
+            if str(o.get("client_order_id", "")).startswith("sd-"):
+                cli.cancel(str(o.get("id")))
+                _log(f"  cancelled resting entry {str(o.get('id'))[:8]} "
+                     "(past the entry window)")
 
     if blocking:
         _log(f"  no entries: {len(blocking)} invariant violation(s) unresolved")

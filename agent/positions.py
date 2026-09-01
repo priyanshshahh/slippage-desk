@@ -33,6 +33,7 @@ class OpenSpread:
     bucket: str                 # execution-quality bucket key
     opened_at: str              # ISO timestamp, UTC
     order_id: str = ""
+    width: float = 0.0          # strike distance; 0 means derive it from OCC
 
     @property
     def expiry_date(self) -> date:
@@ -42,6 +43,21 @@ class OpenSpread:
     def symbols(self) -> list[str]:
         """Short leg first. close_spread() relies on that order."""
         return [self.short_symbol, self.long_symbol]
+
+    @property
+    def strike_width(self) -> float:
+        """Exact strike distance, recovered from the OCC symbols if unset.
+
+        Reconstructing it as max_loss/100 + entry_credit mixes a mid-based max
+        loss with an actual fill credit, so it is off by the slippage.
+        """
+        if self.width:
+            return self.width
+        from engine.chain import parse_occ
+        a, b = parse_occ(self.short_symbol), parse_occ(self.long_symbol)
+        if a and b:
+            return abs(a[3] - b[3])
+        return self.max_loss_per_contract / 100.0 + self.entry_credit
 
     @property
     def risk(self) -> float:

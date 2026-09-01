@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-01T17:56:10.235223+00:00",
+  "generated_at": "2026-09-01T18:03:17.993938+00:00",
   "claim": "The agent measures the fraction of theoretical credit it actually captures, per (underlying, tenor, delta, time-of-day) bucket, and refuses buckets whose shrunk capture ratio falls below the configured floor.",
   "config": {
     "min_capture_ratio": 0.6,
@@ -955,6 +955,20 @@
         "why": "no agent decision precedes this fill, so not an agent trade"
       }
     ],
+    "unpaired_fill_groups": [
+      {
+        "fill_group": "20260831134252819",
+        "legs": [
+          "SPY260902C00770000"
+        ]
+      },
+      {
+        "fill_group": "20260831134344735",
+        "legs": [
+          "SPY260902C00776000"
+        ]
+      }
+    ],
     "agrees_with_journal": null
   },
   "equity_curve": [
@@ -1124,5 +1138,5 @@
       "pl": 817.56
     }
   ],
-  "sha256": "baed15e3ed14504cbe6233a4961f984ed192be394e1f4ff45dddbabccb278fd5"
+  "sha256": "7fb0712d87d404e1e4627699a7fc4250f667123db144b91218d5e755a5ce912f"
 }

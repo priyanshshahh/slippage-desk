@@ -130,10 +130,19 @@ def session_close(day: date) -> tuple[int, int] | None:
     A force-close hardcoded to 15:45 does nothing at all on a 13:00 close,
     which is exactly the day you would least want to be holding 0DTE.
     """
-    rows = cli.calendar(day.isoformat(), day.isoformat())
+    try:
+        rows = cli.calendar(day.isoformat(), day.isoformat())
+    except Exception:                              # noqa: BLE001
+        raise
+    if not rows:
+        # An empty result means the call failed or the day is not a session.
+        # Returning None here was read by the caller as "regular close", which
+        # silently restored the 15:45 force close on a half day. Signal that we
+        # do not know, and let the caller fall back to the broker's own clock.
+        raise LookupError(f"no calendar row for {day}")
     for row in rows:
         close = row.get("close")
         if close and ":" in str(close):
             hh, mm = str(close).split(":")[:2]
             return int(hh), int(mm)
-    return None
+    raise LookupError(f"calendar row for {day} has no close time")
