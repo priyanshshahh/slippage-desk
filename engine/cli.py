@@ -222,13 +222,35 @@ def portfolio_history(period: str = "1W", timeframe: str = "1H") -> dict:
     return r.data if r.ok and isinstance(r.data, dict) else {}
 
 
+PAGE = 100
+
+
 def activities(activity_types: str = "FILL", date: str | None = None) -> list[dict]:
-    """The broker's own fill record. Independently checkable by a judge."""
-    args = ["account", "activity", "list", "--activity-types", activity_types]
-    if date:
-        args += ["--date", date]
-    r = run(*args)
-    return r.data if r.ok and isinstance(r.data, list) else []
+    """The broker's own fill record, fully paginated.
+
+    The endpoint returns at most page_size rows (default 100) and hands back
+    no cursor field; you page by passing the last row's id as --page-token.
+    A single unpaginated call was fine at 20 fills and would have silently
+    truncated the proof artefact past 100, which at 12 trades a day is two
+    days out. Truncated evidence is worse than none: it looks complete.
+    """
+    out: list[dict] = []
+    token: str | None = None
+    while True:
+        args = ["account", "activity", "list",
+                "--activity-types", activity_types, "--page-size", str(PAGE)]
+        if date:
+            args += ["--date", date]
+        if token:
+            args += ["--page-token", token]
+        r = run(*args)
+        page = r.data if r.ok and isinstance(r.data, list) else []
+        out.extend(page)
+        if len(page) < PAGE:
+            return out
+        token = str(page[-1].get("id", ""))
+        if not token:
+            return out
 
 
 def doctor() -> CLIResult:

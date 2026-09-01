@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-08-31T18:33:14.901841+00:00",
+  "generated_at": "2026-09-01T01:56:49.440740+00:00",
   "claim": "The agent measures the fraction of theoretical credit it actually captures, per (underlying, tenor, delta, time-of-day) bucket, and refuses buckets whose shrunk capture ratio falls below the configured floor.",
   "config": {
     "min_capture_ratio": 0.6,
     "min_samples_to_veto": 3
   },
   "totals": {
-    "candidates_considered": 332,
-    "orders_filled": 7,
+    "candidates_considered": 357,
+    "orders_filled": 8,
     "vetoed_by_execution_gate": 0,
-    "theoretical_credit_usd": 636.5,
-    "captured_credit_usd": 610.0,
+    "theoretical_credit_usd": 816.5,
+    "captured_credit_usd": 790.0,
     "given_up_to_execution_usd": 26.5,
-    "aggregate_capture_ratio": 0.9584
+    "aggregate_capture_ratio": 0.9675
   },
   "buckets": [
     {
@@ -106,14 +106,24 @@
       "aggressiveness": 0.25
     },
     {
-      "bucket": "QQQ:dte2:d0.25:close",
-      "submitted": 2,
+      "bucket": "QQQ:dte2:d0.20:close",
+      "submitted": 0,
       "filled": 0,
       "samples": 0,
       "raw_capture": null,
       "shrunk_capture": 0.85,
-      "fill_rate": 0.375,
-      "aggressiveness": 0.625
+      "fill_rate": 0.75,
+      "aggressiveness": 0.25
+    },
+    {
+      "bucket": "QQQ:dte2:d0.25:close",
+      "submitted": 4,
+      "filled": 1,
+      "samples": 1,
+      "raw_capture": 1.0,
+      "shrunk_capture": 0.9,
+      "fill_rate": 0.4167,
+      "aggressiveness": 0.583
     },
     {
       "bucket": "QQQ:dte2:d0.25:midday",
@@ -210,6 +220,24 @@
   "broker_verification": {
     "note": "Sourced from Alpaca's own activity log and portfolio history, not from this repository's bookkeeping. Reproducible by anyone holding the paper account ID.",
     "fill_activities": [
+      {
+        "symbol": "QQQ260902C00725000",
+        "side": "buy",
+        "qty": "2",
+        "price": "0.31",
+        "transaction_time": "2026-08-31T18:34:43.137834Z",
+        "order_id": "49d17c2b-ffa9-4bfd-9729-c3ae407aa735",
+        "fill_group": "20260831143443137"
+      },
+      {
+        "symbol": "QQQ260902C00720000",
+        "side": "sell_short",
+        "qty": "2",
+        "price": "1.21",
+        "transaction_time": "2026-08-31T18:34:43.137829Z",
+        "order_id": "e42fd94d-2abf-4fae-8b08-a258184e69fc",
+        "fill_group": "20260831143443137"
+      },
       {
         "symbol": "QQQ260902C00721000",
         "side": "sell_short",
@@ -373,10 +401,10 @@
         "fill_group": "20260831134249497"
       }
     ],
-    "paired_spreads": 7,
-    "broker_net_credit_usd": 610.0,
-    "broker_theoretical_usd": 636.5,
-    "broker_capture_ratio": 0.9584,
+    "paired_spreads": 8,
+    "broker_net_credit_usd": 790.0,
+    "broker_theoretical_usd": 816.5,
+    "broker_capture_ratio": 0.9675,
     "spreads": [
       {
         "fill_group": "20260831134743138",
@@ -461,6 +489,18 @@
         "credit_at_mid": 0.79,
         "capture_ratio": 0.9367,
         "at": "2026-08-31T18:32:15.061581Z"
+      },
+      {
+        "fill_group": "20260831143443137",
+        "short": "QQQ260902C00720000",
+        "short_price": "1.21",
+        "long": "QQQ260902C00725000",
+        "long_price": "0.31",
+        "contracts": 2,
+        "credit_received": 0.9,
+        "credit_at_mid": 0.9,
+        "capture_ratio": 1.0,
+        "at": "2026-08-31T18:34:43.137829Z"
       }
     ],
     "excluded_non_agent_fills": [
@@ -643,7 +683,12 @@
       "t": 1788201000,
       "equity": 5,
       "pl": -99995
+    },
+    {
+      "t": 1788204600,
+      "equity": -13,
+      "pl": -100013
     }
   ],
-  "sha256": "e5bfd5355165ad4fb021f9df8c37ba12ac375960ac46411290d10de3f33f3170"
+  "sha256": "dcd706d40eb050c3d75869fcb6846b580e9c01423c926581119cd4a3287f7390"
 }

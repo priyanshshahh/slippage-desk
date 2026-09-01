@@ -81,7 +81,21 @@ def check(ledger, broker_legs, state, cfg) -> list[Violation]:
                 f"{sym} holds ${risk:,.0f} against a ${cap * share:,.0f} cap",
                 "warn"))
 
-    # 6. Every open spread must still be a vertical. A diagonal's short leg
+    # 6. Leg quantities must match. A partially filled mleg order leaves the
+    #    short and long legs at different sizes, and the position stops being
+    #    defined-risk the moment they diverge. Not seen live yet, which is
+    #    exactly when it is cheap to catch.
+    long_qty = {sym: int(abs(q)) for sym, q, _ in broker_legs if q > 0}
+    for s_ in ledger:
+        ns, nl = short_qty.get(s_.short_symbol), long_qty.get(s_.long_symbol)
+        if ns is not None and nl is not None and ns != nl:
+            out.append(Violation(
+                "leg_qty_mismatch",
+                f"{s_.short_symbol} {ns}x vs cover {s_.long_symbol} {nl}x: "
+                "partial fill, risk is no longer defined",
+                "block"))
+
+    # 7. Every open spread must still be a vertical. A diagonal's short leg
     #    outlives its cover, and defined risk stops being defined.
     long_syms = {sym for sym, q, _ in broker_legs if q > 0}
     for s in ledger:
