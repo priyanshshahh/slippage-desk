@@ -1,4 +1,6 @@
 import Brain from "./brain";
+import Claim from "./claim";
+import Hero from "./hero";
 import SurfacePanel from "./surfaces";
 import {
   getBuckets,
@@ -147,18 +149,8 @@ export default async function Page() {
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-5 py-8">
-      <header className="mb-7">
-        <h1 className="text-xl font-semibold tracking-tight">
-          Slippage Desk
-        </h1>
-        <p className="mt-1 max-w-2xl text-sm text-muted">
-          Ten agents in this hackathon govern an LLM with deterministic gates.
-          They all measure whether their <em>decisions</em> were right. This one
-          also measures whether its <em>executions</em> were good, learns its fill
-          quality per bucket, and refuses the buckets where it cannot get filled
-          at the price its edge assumed.
-        </p>
-      </header>
+      <Hero proof={proof} />
+      <Claim />
 
       {decisions.length === 0 ? (
         <div className="rounded-lg border border-edge bg-panel px-4 py-8 text-center">
@@ -170,6 +162,11 @@ export default async function Page() {
         </div>
       ) : (
         <>
+          <h2 className="mb-1 text-sm font-semibold">Live evidence</h2>
+          <p className="mb-4 text-xs text-muted">
+            From the agent running on the paper account right now. Reload to
+            refresh.
+          </p>
           <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label="Considered" value={String(decisions.length)} note="candidates evaluated" />
             <Stat

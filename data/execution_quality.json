@@ -17,10 +17,12 @@
     "captures": []
   },
   "QQQ:dte2:d0.25:midday": {
-    "submitted": 6,
-    "filled": 1,
+    "submitted": 10,
+    "filled": 3,
     "captures": [
-      0.9677
+      0.9677,
+      1.0,
+      1.0215
     ]
   },
   "QQQ:dte1:d0.25:midday": {
@@ -110,6 +112,16 @@
     "captures": []
   },
   "IWM:dte2:d0.20:midday": {
+    "submitted": 0,
+    "filled": 0,
+    "captures": []
+  },
+  "IWM:dte1:d0.30:midday": {
+    "submitted": 0,
+    "filled": 0,
+    "captures": []
+  },
+  "IWM:dte1:d0.25:midday": {
     "submitted": 0,
     "filled": 0,
     "captures": []
