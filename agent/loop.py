@@ -272,11 +272,16 @@ def manage_exits(cfg: dict, now_et: datetime, dry_run: bool) -> int:
 
         if short_q is None or long_q is None:
             # No quote means we cannot price the exit. Only the clock-based
-            # force close can fire here, and it fires at any price.
+            # force close fires here, and it must actually get out.
             if _exit_reason(s, float("inf"), cfg, now_et) == "force_close_expiring":
-                _log(f"  {s.short_symbol}: force close, no quote available")
-                execute.close_spread(s.symbols, s.contracts, 0.05, dry_run=dry_run)
-                positions.remove(s.short_symbol)
+                # A vertical can never cost more than its width to buy back,
+                # so the width is a limit that fills while still bounded. The
+                # old hardcoded 0.05 would not have filled on anything ITM,
+                # which is precisely when a force close matters.
+                width = abs(s.max_loss_per_contract / 100.0 + s.entry_credit)
+                _log(f"  {s.short_symbol}: force close, no quote, "
+                     f"limit {width:.2f} (max possible cost)")
+                execute.close_spread(s.symbols, s.contracts, width, dry_run=dry_run)
                 closed += 1
             continue
 
@@ -294,7 +299,11 @@ def manage_exits(cfg: dict, now_et: datetime, dry_run: bool) -> int:
             f"P&L ${pnl:+.0f}"
         )
         execute.close_spread(s.symbols, s.contracts, cost_to_close, dry_run=dry_run)
-        positions.remove(s.short_symbol)
+        # Deliberately NOT removing the ledger row here. A close order can
+        # rest unfilled or be rejected, and dropping the row on submission
+        # makes the agent believe it is flat while the broker still holds the
+        # position. reconcile() removes it on the next poll once the broker
+        # confirms it is gone, which is the only source of truth for that.
         closed += 1
 
     return closed

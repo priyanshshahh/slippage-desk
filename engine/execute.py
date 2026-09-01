@@ -171,7 +171,15 @@ def close_spread(position_symbols: list[str], contracts: int, limit_debit: float
         )
         for i, sym in enumerate(position_symbols)
     ]
-    limit_price = round(abs(limit_debit), 2) * (-CREDIT_SIGN)
+    # Absolute net premium, positive, exactly like the open. Direction comes
+    # from the legs (buy_to_close / sell_to_close), not from the sign.
+    #
+    # This was -CREDIT_SIGN, i.e. negative, which asked the broker to PAY us
+    # to buy a spread back. Two close orders sat unfilled for eight minutes on
+    # 2026-09-01 while the agent retried and collected 403s, because the
+    # position was already committed to them. Closing a credit spread costs a
+    # debit; a debit is not a negative credit.
+    limit_price = round(abs(limit_debit), 2)
 
     req = LimitOrderRequest(
         qty=str(contracts),

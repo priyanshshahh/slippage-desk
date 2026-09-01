@@ -1,8 +1,10 @@
 {
   "SPY:dte2:d0.25:midday": {
-    "submitted": 0,
-    "filled": 0,
-    "captures": []
+    "submitted": 2,
+    "filled": 1,
+    "captures": [
+      0.9859
+    ]
   },
   "SPY:dte2:d0.20:midday": {
     "submitted": 0,
@@ -22,9 +24,11 @@
     ]
   },
   "QQQ:dte1:d0.25:midday": {
-    "submitted": 0,
-    "filled": 0,
-    "captures": []
+    "submitted": 1,
+    "filled": 1,
+    "captures": [
+      1.0
+    ]
   },
   "SPY:dte1:d0.20:midday": {
     "submitted": 0,
@@ -32,9 +36,11 @@
     "captures": []
   },
   "QQQ:dte1:d0.20:midday": {
-    "submitted": 0,
-    "filled": 0,
-    "captures": []
+    "submitted": 1,
+    "filled": 1,
+    "captures": [
+      1.0304
+    ]
   },
   "IWM:dte2:d0.30:midday": {
     "submitted": 0,
@@ -99,6 +105,11 @@
     "captures": []
   },
   "QQQ:dte2:d0.20:close": {
+    "submitted": 0,
+    "filled": 0,
+    "captures": []
+  },
+  "IWM:dte2:d0.20:midday": {
     "submitted": 0,
     "filled": 0,
     "captures": []

@@ -24,9 +24,16 @@ log() { echo "$(date '+%Y-%m-%d %H:%M:%S')  supervisor: $*"; }
 # caffeinate holds off idle sleep for as long as this supervisor lives. A
 # sleeping laptop stops the agent, and no watchdog inside the machine can
 # restart a process on a suspended kernel. Closing the lid still sleeps it.
+# -d display, -i idle, -m disk, -s system-on-AC, -u user-active.
+# -i alone was not enough: the machine still slept 03:32-12:03 on 2026-09-01
+# and the agent missed the open plus 2.5 hours of the session.
+#
+# None of these override a closed lid. On a MacBook, closing the lid sleeps
+# the machine regardless, unless pmset disablesleep is set (needs sudo).
 if command -v caffeinate >/dev/null 2>&1; then
-  caffeinate -i -w $$ &
-  log "caffeinate holding off idle sleep"
+  caffeinate -dimsu -w $$ &
+  log "caffeinate: display, idle, disk, system and user-active held"
+  log "NOTE: a closed lid still sleeps the machine. Leave it open."
 fi
 
 log "started, watching the agent"
