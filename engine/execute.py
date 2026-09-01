@@ -120,6 +120,17 @@ def client_order_id(spread: Spread, contracts: int) -> str:
     return f"sd-{uuid.uuid5(uuid.NAMESPACE_URL, stem).hex[:24]}"
 
 
+def close_order_id(position_symbols: list[str], contracts: int) -> str:
+    """Stable id for closing one specific position.
+
+    Deliberately clock-free: the same position closed on any poll produces the
+    same key, so Alpaca rejects the duplicate while the first close is still
+    working instead of the agent stacking rejected orders every 60 seconds.
+    """
+    stem = f"{position_symbols[0]}-{position_symbols[1]}-{contracts}"
+    return f"sdc-{uuid.uuid5(uuid.NAMESPACE_URL, stem).hex[:24]}"
+
+
 def submit_credit_spread(
     spread: Spread,
     contracts: int,
@@ -191,10 +202,12 @@ def close_spread(position_symbols: list[str], contracts: int, limit_debit: float
         # condition is still true, so the agent fires again and again while
         # the first order sits in the book. Opens have carried an idempotency
         # key since the start; closes were missed.
-        client_order_id=client_order_id(
-            type("S", (), {"short_leg": type("L", (), {"symbol": position_symbols[0]}),
-                           "long_leg": type("L", (), {"symbol": position_symbols[1]})}),
-            contracts) + "-c",
+        # Keyed on POSITION IDENTITY, not the clock. The open-side helper
+        # embeds the minute so a genuine re-entry a minute later is allowed;
+        # a close has no such need and that minute made every poll produce a
+        # fresh key, so the broker could not reject the repeat. Observed live:
+        # eight consecutive polls of 403 "held_for_orders" on one position.
+        client_order_id=close_order_id(position_symbols, contracts),
     )
     if dry_run:
         print(f"  DRY RUN  close {position_symbols} x{contracts} limit {limit_price}")

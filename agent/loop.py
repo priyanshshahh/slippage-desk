@@ -74,7 +74,8 @@ def _mid_for(short_symbol: str) -> float | None:
 
 
 def adopt_unknown(broker_positions: list[dict],
-                  memory: ExecutionMemory | None = None) -> list[OpenSpread]:
+                  memory: ExecutionMemory | None = None,
+                  cfg_width: float = 5.0) -> list[OpenSpread]:
     """Pick up spreads the broker has but the ledger does not.
 
     This is what makes an entry order that filled after we stopped waiting
@@ -82,7 +83,10 @@ def adopt_unknown(broker_positions: list[dict],
     real credit, so an adopted spread gets the same exit treatment as one
     we watched fill.
     """
-    known = {s.short_symbol for s in positions.load()}
+    # Both legs, not just the short. A long already serving as an existing
+    # row's cover must not be available to pair with a second short.
+    known = {sym for s in positions.load()
+             for sym in (s.short_symbol, s.long_symbol)}
     shorts, longs = {}, {}
 
     for sym, qty, avg in _option_legs(broker_positions):
@@ -100,12 +104,20 @@ def adopt_unknown(broker_positions: list[dict],
         for strike, sym, qty, avg in short_legs:
             # The cover is the long leg on the same root/expiry/right that
             # is furthest out of the money relative to this short.
-            covers = longs.get(key, [])
+            # The cover of a credit spread is ALWAYS further out of the money
+            # than the short leg: above it for a call, below it for a put.
+            # Without this filter a short call could be paired with a long
+            # below it, which is not a vertical and is not defined risk.
+            want_width = float(cfg_width)
+            covers = [
+                c for c in longs.get(key, [])
+                if (c[0] > strike if right == "C" else c[0] < strike)
+            ]
             if not covers:
                 continue
             cover = min(
                 covers,
-                key=lambda c: abs(abs(c[0] - strike) - 5.0),
+                key=lambda c: abs(abs(c[0] - strike) - want_width),
             )
             c_strike, c_sym, c_qty, c_avg = cover
             credit = avg - c_avg
@@ -132,18 +144,28 @@ def adopt_unknown(broker_positions: list[dict],
             decision = _decision_for(sym)
             mid = float(decision["credit_mid"]) if decision else None
             if memory is not None and mid and credit > 0:
-                dte = max(0, (expiry - date.today()).days)
-                # Use the delta the gates actually measured. Hardcoding 0.25
-                # here filed every adopted fill under a delta band it may not
-                # belong to, corrupting the per-bucket capture data that is
-                # this project's central claim.
-                short_delta = abs(float(decision["short_delta"]))
-                key = bucket_key(root, dte, short_delta,
-                                 datetime.now(ZoneInfo("America/New_York")))
+                # Reuse the key recorded AT SUBMISSION. Recomputing it here put
+                # the fill in a different time-of-day bucket than its own
+                # submission whenever an order rested across a boundary, so one
+                # bucket showed a submission with no fill and another a fill
+                # with no submission.
+                submitted = (decision.get("fill") or {}).get("bucket")
+                if submitted:
+                    key = submitted
+                else:
+                    dte = max(0, (expiry - date.today()).days)
+                    key = bucket_key(root, dte,
+                                     abs(float(decision["short_delta"])),
+                                     datetime.now(ZoneInfo("America/New_York")))
                 spread.bucket = key
                 positions.remove(sym)
                 positions.add(spread)
-                memory.record_submission(key)
+                # scan_entries already recorded the submission for any order it
+                # sent. Recording a second one here halved every bucket's fill
+                # rate and dragged aggressiveness toward crossing. Only count a
+                # submission for a position the agent never submitted.
+                if not submitted:
+                    memory.record_submission(key)
                 capture = memory.record_fill(key, mid, credit)
                 _log(f"  scored adopted fill: captured {capture:.1%} of mid "
                      f"({credit:.2f} vs {mid:.2f}) in {key}")
@@ -196,6 +218,14 @@ def _trades_today(cfg: dict, today: date) -> int:
         return n
 
 
+def _parse_clock(v) -> datetime | None:
+    """The broker's own next_close, which already reflects half days."""
+    try:
+        return datetime.fromisoformat(str(v)) if v else None
+    except (TypeError, ValueError):
+        return None
+
+
 def build_state(cfg: dict, now_et: datetime) -> PortfolioState:
     acct = cli.account()
     clock = cli.clock()
@@ -221,6 +251,7 @@ def build_state(cfg: dict, now_et: datetime) -> PortfolioState:
         risk_by_symbol=risk_by_symbol,
         trades_today=_trades_today(cfg, now_et.date()),
         market_open=bool(clock.get("is_open", False)),
+        session_close_et=_parse_clock(clock.get("next_close")),
         now_et=now_et,
     )
 
@@ -478,7 +509,8 @@ def poll_once(cfg: dict, memory: ExecutionMemory, dry_run: bool) -> None:
     for hit in assignment.detect_assignment(broker, cfg["universe"]["symbols"]):
         _log(f"  ** ASSIGNED: {hit} - defined risk no longer holds, flatten it")
 
-    for taken in adopt_unknown(broker, memory):
+    for taken in adopt_unknown(broker, memory,
+                                float(cfg["entry"]["spread_width"])):
         _log(f"  adopted from broker: {taken.underlying} {taken.kind} "
              f"{taken.contracts}x at {taken.entry_credit:.2f}")
 

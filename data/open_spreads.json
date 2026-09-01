@@ -1,18 +1,5 @@
 [
   {
-    "underlying": "SPY",
-    "kind": "call_credit",
-    "expiry": "2026-09-03",
-    "short_symbol": "SPY260903C00769000",
-    "long_symbol": "SPY260903C00774000",
-    "contracts": 1,
-    "entry_credit": 0.7,
-    "max_loss_per_contract": 430.0,
-    "bucket": "SPY:dte2:d0.25:midday",
-    "opened_at": "2026-09-01T12:06:47.866568-04:00",
-    "order_id": ""
-  },
-  {
     "underlying": "QQQ",
     "kind": "call_credit",
     "expiry": "2026-09-03",

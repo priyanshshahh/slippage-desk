@@ -112,8 +112,16 @@ def build() -> dict:
     def _ts(v):
         return datetime.fromisoformat(str(v).replace("Z", "+00:00"))
 
+    # Only rows that ACTUALLY PLACED AN ORDER. journal.record writes a row for
+    # every candidate merely considered, so keying on "was this strike ever
+    # evaluated" let any fill on a strike the agent had priced count as agent
+    # execution. The sign-verification probe was excluded only by luck of
+    # ordering. Attribution is on submission, not consideration.
     decisions_by_short: dict = {}
     for r in rows:
+        fill = r.get("fill") or {}
+        if not fill.get("order_id"):
+            continue
         decisions_by_short.setdefault(r["short_symbol"], []).append(
             (_ts(r["ts"]), float(r["credit_mid"]))
         )

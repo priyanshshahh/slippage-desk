@@ -195,14 +195,24 @@ def corporate_actions(symbols: list[str], start: str, end: str,
     if not r.ok or not r.data:
         return []
     d = r.data
-    if isinstance(d, dict):
-        # Response nests by action type; flatten whatever came back.
-        out: list[dict] = []
-        for v in d.values():
+    if isinstance(d, list):
+        return d
+    if not isinstance(d, dict):
+        return []
+    # The envelope is {"corporate_actions": {<type>: [...]}, "next_page_token": ...}.
+    # Flattening d.values() directly only ever saw the inner dict and the token
+    # string, neither of which is a list, so this returned [] on every call and
+    # the ex-dividend calendar was permanently empty. The assignment gate could
+    # not fire. Descend one level first.
+    inner = d.get("corporate_actions", d)
+    out: list[dict] = []
+    if isinstance(inner, dict):
+        for v in inner.values():
             if isinstance(v, list):
                 out.extend(v)
-        return out
-    return d if isinstance(d, list) else []
+    elif isinstance(inner, list):
+        out.extend(inner)
+    return out
 
 
 def calendar(start: str, end: str) -> list[dict]:
@@ -244,7 +254,13 @@ def activities(activity_types: str = "FILL", date: str | None = None) -> list[di
         if token:
             args += ["--page-token", token]
         r = run(*args)
-        page = r.data if r.ok and isinstance(r.data, list) else []
+        if not r.ok or not isinstance(r.data, list):
+            # Every other reader here raises on failure; this one returned an
+            # empty page, so a single 429 or auth blip made _trades_today
+            # report 0 and the daily cap silently stopped binding. A failure to
+            # read the cap's input must not look like "no trades yet".
+            raise CLIError(f"activity list failed: {r.raw}")
+        page = r.data
         out.extend(page)
         if len(page) < PAGE:
             return out

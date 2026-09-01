@@ -10,7 +10,7 @@ per-candidate ones, and sizing runs last.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from engine.execution_quality import ExecutionMemory, bucket_key
@@ -43,6 +43,9 @@ class PortfolioState:
     trades_today: int = 0
     market_open: bool = True
     now_et: datetime | None = None
+    # Real session close from the broker's clock. On a half day this is 13:00,
+    # and entries must stop well before it, not at the configured 15:30.
+    session_close_et: datetime | None = None
 
 
 @dataclass
@@ -85,9 +88,17 @@ def account_gates(state: PortfolioState, cfg: dict) -> list[Verdict]:
                      "market open" if state.market_open else "market closed"))
 
     start, stop = _parse_time(sched["entry_start"]), _parse_time(sched["entry_stop"])
+    # Never open inside the last 30 minutes of the ACTUAL session. Without this
+    # a half day (13:00 close) still admitted entries until the configured
+    # 15:30, i.e. after the market had shut, and anything that filled was
+    # force-closed on the very next poll.
+    if state.session_close_et is not None:
+        cutoff = (state.session_close_et - timedelta(minutes=30)).time()
+        if cutoff < stop:
+            stop = cutoff
     in_window = start <= now.timetz().replace(tzinfo=None) <= stop
     v.append(Verdict("entry_window", in_window,
-                     f"{now:%H:%M} vs {sched['entry_start']}-{sched['entry_stop']} ET"))
+                     f"{now:%H:%M} vs {sched['entry_start']}-{stop:%H:%M} ET"))
 
     floor = state.starting_equity * float(acct["equity_floor_pct"])
     v.append(Verdict("equity_floor", state.equity >= floor,
@@ -215,6 +226,13 @@ def execution_gate(
 
 
 def size_position(spread: Spread, state: PortfolioState, cfg: dict) -> tuple[int, Verdict]:
+    """Contracts permitted by EVERY cap, not just the dollar budgets.
+
+    The position and concentration gates each asked "does one more fit?" and
+    then sizing traded N, so a candidate could clear max_concurrent_positions
+    with one slot free and open eight contracts into it. Every limit now bounds
+    the count it is supposed to bound.
+    """
     """Contracts to trade, capped by both per-trade and portfolio risk."""
     risk = cfg["risk"]
     per_trade_budget = state.equity * float(risk["max_loss_per_trade_pct"])
@@ -226,6 +244,17 @@ def size_position(spread: Spread, state: PortfolioState, cfg: dict) -> tuple[int
     by_trade = int(per_trade_budget // spread.max_loss)
     by_portfolio = int(max(0.0, portfolio_budget) // spread.max_loss)
     n = max(0, min(by_trade, by_portfolio))
+
+    risk = cfg["risk"]
+    # Slots left under each COUNT cap, in contracts.
+    slots = int(risk["max_concurrent_positions"]) - state.open_positions
+    held = state.positions_by_symbol.get(spread.underlying, 0)
+    sym_slots = int(risk["max_positions_per_symbol"]) - held
+    share = float(risk.get("max_symbol_risk_share", 0.5))
+    sym_cap = float(risk["max_portfolio_risk_pct"]) * state.equity * share
+    sym_room = sym_cap - state.risk_by_symbol.get(spread.underlying, 0.0)
+    by_sym_dollars = int(sym_room // spread.max_loss) if spread.max_loss > 0 else 0
+    n = max(0, min(n, slots, sym_slots, by_sym_dollars))
 
     return n, Verdict(
         "sizing", n > 0,
