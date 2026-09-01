@@ -132,6 +132,23 @@ class ExecutionMemory:
     def samples(self, key: str) -> int:
         return len(self._get(key).captures)
 
+    def expected_credit(self, key: str, credit_mid: float) -> float:
+        """What this bucket has historically ACTUALLY paid, not what it quotes.
+
+        A candidate's advertised credit is the mid. What reaches the account is
+        the mid times whatever this bucket has captured historically. Ranking on
+        the advertised number picks spreads that look good; ranking on this one
+        picks spreads we can actually get filled on.
+
+        A bucket with no history returns the global prior (PRIOR_CAPTURE, 0.85),
+        so every cold bucket is discounted identically and they rank against
+        each other purely on quoted credit. A bucket that has proven it fills
+        well ranks ABOVE a cold one at the same quote; one that has proven it
+        fills badly ranks below. That is the intended ordering, and it means a
+        new bucket is neither flattered nor punished for being new.
+        """
+        return credit_mid * self.capture(key)
+
     def aggressiveness(self, key: str) -> float:
         """How far to cross the spread on the next order in this bucket.
 

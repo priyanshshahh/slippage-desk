@@ -333,6 +333,7 @@ def scan_entries(cfg: dict, state: PortfolioState, memory: ExecutionMemory,
     exdiv = assignment.ExDivCalendar.fetch(cfg["universe"]["symbols"])
 
     best = None
+    best_score = float("-inf")
     for symbol in cfg["universe"]["symbols"]:
         try:
             contracts = chain.fetch_chain(
@@ -356,9 +357,19 @@ def scan_entries(cfg: dict, state: PortfolioState, memory: ExecutionMemory,
             decision = evaluate(spread, state, cfg, memory, assignment=av)
             journal.record(decision, snapshot)
             if decision.allowed and decision.contracts > 0:
-                # Best risk/reward among everything that passed.
-                if best is None or spread.credit_to_width > best.spread.credit_to_width:
-                    best = decision
+                # Rank on the credit this bucket has historically DELIVERED,
+                # not the credit it advertises. Two candidates quoting the same
+                # mid are not equally good if one of them sits in a bucket that
+                # has only ever paid 85% of mid. Selecting on the advertised
+                # number picks spreads that look best; selecting on this picks
+                # spreads we can actually get filled on, which on this horizon
+                # is where the edge is.
+                dte_c = (spread.expiry - now_et.date()).days
+                key_c = bucket_key(spread.underlying, dte_c,
+                                   spread.short_delta, now_et)
+                score = memory.expected_credit(key_c, spread.credit_mid) / spread.width
+                if best is None or score > best_score:
+                    best, best_score = decision, score
 
     if best is None:
         _log("  no candidate passed every gate")
@@ -366,7 +377,9 @@ def scan_entries(cfg: dict, state: PortfolioState, memory: ExecutionMemory,
 
     spread = best.spread
     dte = (spread.expiry - now_et.date()).days
-    _log(f"  candidate: {spread.describe()} -> {best.contracts}x")
+    _log(f"  candidate: {spread.describe()} -> {best.contracts}x  "
+         f"(expected-credit score {best_score:.3f} vs quoted "
+         f"{spread.credit_to_width:.3f})")
 
     if cfg["llm"]["enabled"]:
         # One read-only MCP call per cycle, on the winner only. Returns None

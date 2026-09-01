@@ -75,7 +75,7 @@ export default function Hero({ proof }: { proof: Proof | null }) {
               <span className="font-mono">{money(givenUp)}</span> to execution.
             </>
           )}
-          .
+          {capture === null && "."}
         </p>
       </div>
     </header>
