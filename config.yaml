@@ -72,7 +72,7 @@ risk:
   # Raised from 8 because the cap, not the risk budget, is what actually
   # stopped the agent: on 2026-08-31 it hit 8/8 while only 21% of the
   # portfolio budget was in use and 230 candidates had cleared every gate.
-  max_new_trades_per_day: 12
+  max_new_trades_per_day: 16
   # Realized + unrealized loss on the day that halts all new entries.
   daily_loss_limit_pct: 0.02         # 2%   => $2,000 on $100k
   # Never hold more than this many spreads on one underlying.
