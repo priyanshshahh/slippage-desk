@@ -27,7 +27,7 @@ An options income agent that measures its own execution. It scores every fill ag
 
 ## Long description
 
-*(424 words. Opens with the arithmetic rather than the architecture, because
+*(405 words. Opens with the arithmetic rather than the architecture, because
 the arithmetic is what makes the architecture necessary.)*
 
 ```
