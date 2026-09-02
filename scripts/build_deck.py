@@ -74,13 +74,18 @@ def stamp_cover(proof: dict, n_gates: int) -> None:
 
 def main() -> int:
     proof = json.loads((ROOT / "data" / "proof.json").read_text())
-    s = journal.summary()
     t, bv = proof["totals"], proof["broker_verification"]
     capture = bv["broker_capture_ratio"] or t["aggregate_capture_ratio"] or 0
 
+    # These two used to come from journal.summary(), which reads the live
+    # journal and keeps counting while the agent runs. The deck therefore
+    # printed 1,208 considered while data/proof.json, the video and every
+    # other deliverable said 693, and a judge opening both would have found
+    # the pitch disagreeing with its own signed evidence. Everything now
+    # quotes the frozen artifact, which is the whole point of signing one.
     cards = [
-        ("Considered", f"{s['considered']:,}", "candidates evaluated"),
-        ("Cleared gates", f"{s['approved']:,}", "passed all fifteen"),
+        ("Considered", f"{t['candidates_considered']:,}", "candidates evaluated"),
+        ("Spreads filled", f"{bv['paired_spreads']:,}", "broker-paired, all fifteen gates"),
         ("Credit captured", f"{capture * 100:.1f}%", "broker-verified"),
         ("Lost to execution", f"${t['given_up_to_execution_usd']:,.0f}",
          "the number nobody else has"),

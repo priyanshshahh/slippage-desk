@@ -106,7 +106,7 @@ function buildSlides(p: Props) {
 
     // 2: the gap in the field
     <div key="2">
-      <Kicker>I read all 47 submissions</Kicker>
+      <Kicker>I read all 47 submissions, September 1</Kicker>
       <Big>
         Eleven promise their model can only veto.
         <br />

@@ -26,6 +26,10 @@ DOCS = ["docs/SUBMISSION.md", "docs/WRITEUP.md", "docs/VIDEO.md", "docs/SOCIAL.m
 # is the assertion; a claim that drifts from it is a claim a judge can falsify.
 FIELD = {
     "competitors": 47,
+    # Counted 2026-09-01, while submissions stayed open until the 4th. An
+    # undated "all 47" quietly becomes false the moment anyone else submits,
+    # so every prose claim of the count must carry the date with it.
+    "as_of": "September 1",
     "measure_execution": 0,      # scored fills against mid, or tracked capture
     "slippage_mentioned": 4,     # all four pre-trade filters, none post-fill
     "veto_only": 11,
@@ -84,7 +88,18 @@ def main() -> int:
         ("capture percent", r"\b(\d{2}(?:\.\d)?)%(?=[^.\n]{0,40}(?:broker-verified|of theoretical))", f"{capture * 100:.1f}"),
         ("lost to execution", r"\$(\d[\d,]*)(?=\s*(?:surrender|lost|given up|to execution))",
          f"{t['given_up_to_execution_usd']:.0f}"),
-        ("candidates considered", r"\b(\d{3,4})\b(?=\s*(?:candidates|considered))", str(t["candidates_considered"])),
+        # Two separate misses here, both real. The old pattern required the
+        # number to sit immediately before the word, so it never looked inside
+        # a stat card where markup separates them, and \d{3,4} could not see a
+        # thousands separator, so "1,208" would have matched as "208" and
+        # passed. build_deck.py drifted to a live journal count of 1,208 while
+        # every other deliverable said 693, and this check watched it happen.
+        ("candidates considered",
+         r"\b(\d[\d,]{2,6})\b(?=\s*(?:candidates|considered))",
+         f"{t['candidates_considered']:,}"),
+        ("candidates considered (stat card)",
+         r"Considered</div>\s*<div class=\"v\">([\d,]+)<",
+         f"{t['candidates_considered']:,}"),
         # Config-derived. These drifted silently once already, in three docs at once.
         ("profit take", r"\b(\d{2})% of credit", f"{float(cfg('profit_take_pct')) * 100:.0f}"),
         ("advisor timeout", r"\b(\d+)-second\b(?=[^.\n]{0,30}timeout)", cfg("timeout_seconds")),
@@ -141,6 +156,19 @@ def main() -> int:
     print(f"source of truth: {n_gates} gates, {capture * 100:.1f}% capture, "
           f"${t['given_up_to_execution_usd']:.0f} lost, "
           f"{t['candidates_considered']} considered, {FIELD['competitors']} competitors")
+    # A bare count is a claim with an expiry date on it. Any prose file that
+    # states the number must also say when it was counted.
+    for rel in DOCS:
+        f = ROOT / rel
+        if not f.exists():
+            continue
+        body = f.read_text()
+        if re.search(r"(?:read all|of the|of those)\s+47\s+(?:other\s+)?submissions",
+                     body) and FIELD["as_of"] not in body:
+            problems.append(
+                f"  {rel}: states 47 submissions but never says it was counted "
+                f"{FIELD['as_of']}; the count is only true as of that date")
+
     if problems:
         print(f"\nDRIFT: {len(problems)} claim(s) disagree with source\n")
         print("\n".join(problems))

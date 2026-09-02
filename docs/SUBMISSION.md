@@ -36,7 +36,7 @@ the keys"; this one opens with arithmetic.)*
 ```
 A defined-risk credit spread is a thin trade by construction. This desk collects about $81 per contract on a $5-wide vertical, and the bid/ask it crosses on entry and again on exit is a material fraction of that. Execution here is not a rounding error, it is a first-order term. An agent that picks the right strike and then hands the credit back to the spread has not made money, it has made work.
 
-I read all 47 other submissions in this hackathon. Four list a slippage control, and all four are pre-trade filters: reject the quote if it looks too wide. None measures what it actually got after the fill. Slippage Desk does, and then trades on the answer.
+I read all 47 other submissions posted as of September 1. Four list a slippage control, and all four are pre-trade filters: reject the quote if it looks too wide. None measures what it actually got after the fill. Slippage Desk does, and then trades on the answer.
 
 It sells 0 to 2 DTE credit spreads on SPY, QQQ and IWM behind fifteen deterministic gates: delta band, credit-to-width floor, quote width, crossability, same-expiry pairing, defined risk, portfolio and per-symbol dollar caps, position and daily trade caps, equity floor, daily loss limit, an entry window that hard-stops before the close, and an early-assignment check reading live corporate actions.
 

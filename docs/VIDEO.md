@@ -59,7 +59,7 @@ Scroll the chain-of-thought feed. Let a **refusal** land on camera.
 **The money line, and the field splits on it:**
 
 > "And when the model is unreachable, this desk *refuses*. Of the 47 other
-> submissions here, only six say what happens when their model fails at all.
+> submissions posted as of September 1, only six say what happens when their model fails at all.
 > I'd rather trade less than trade unsupervised."
 
 ---

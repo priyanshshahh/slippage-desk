@@ -27,8 +27,8 @@ change an expiry, widen risk, or reach around a gate, because nothing in the cal
 path accepts anything else from it.
 
 Every failure path returns veto: timeout, malformed JSON, a refusal stop reason,
-NaN, or a missing key. **The field splits here.** Of the 47 other
-submissions, only six say what happens when their model fails at all. This one
+NaN, or a missing key. **The field splits here.** Of the 47 other submissions posted
+as of September 1, only six say what happens when their model fails at all. This one
 refuses: a model failure degrades to "trades less", never to "trades
 unsupervised".
 

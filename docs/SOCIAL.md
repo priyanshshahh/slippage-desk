@@ -16,7 +16,7 @@ Every figure below was verified on 2026-08-31.
 ### X, short version (fits 280)
 
 ```
-I read all 47 submissions in the @AlpacaHQ x @lablabai trading hackathon.
+I read all 47 submissions posted as of September 1 in the @AlpacaHQ x @lablabai trading hackathon.
 
 11 describe the same architecture: "LLM proposes, deterministic gates authorize."
 
@@ -30,7 +30,7 @@ That's the whole edge.
 ### X, long version (if you have Premium)
 
 ```
-I read all 47 submissions in the @AlpacaHQ x @lablabai AI trading hackathon.
+I read all 47 submissions posted as of September 1 in the @AlpacaHQ x @lablabai AI trading hackathon.
 
 11 describe the same architecture:
 "LLM proposes, deterministic gates authorize."
@@ -69,7 +69,7 @@ This one learns whether it can actually get the price.
 ### LinkedIn version
 
 ```
-I read all 47 submissions in the Alpaca x lablab.ai AI Trading Agents
+I read all 47 submissions posted as of September 1 in the Alpaca x lablab.ai AI Trading Agents
 Hackathon before writing a line of my pitch.
 
 Ten of them describe the same architecture: an LLM proposes, deterministic
