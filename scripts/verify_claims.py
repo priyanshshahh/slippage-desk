@@ -32,6 +32,7 @@ FIELD = {
     "failure_behaviour": 6,
     "name_plus_tagline": 24,
     "calls_itself_options_agent": 11,
+    "mentions_assignment": 2,
 }
 
 
@@ -96,6 +97,16 @@ def main() -> int:
         # pair (gates 13, surfaces 15) shipped on the cover image once.
         ("gates stat cell", r"Deterministic gates</div><div class=\"v\">(\d+)<", str(n_gates)),
         ("surfaces stat cell", r"Alpaca surfaces</div><div class=\"v\">(\d+)<", "3"),
+        # Spelled-out numbers hid from every check above. The video script
+        # said "twenty-seven submissions" and "thirty-five dollars a contract"
+        # long after the digits were fixed everywhere else, which would have
+        # been read aloud on camera.
+        ("competitors read (word)",
+         r"\b(twenty-seven|thirty-three|forty-seven)\b(?=[^.\n]{0,30}submissions)",
+         "forty-seven"),
+        ("veto-only count (word)",
+         r"\b(ten|eleven|twelve)\b(?=[^.\n]{0,40}(?:veto|govern an LLM))",
+         "eleven"),
         # Derived economics. Nothing below may be typed by hand.
         ("win per contract", r"\$(\d+\.\d\d)(?=[^.\n]{0,25}(?:on a win|banks))", f"{ec['win_usd']:.2f}"),
         ("stop cost", r"stop costs[^$\n]{0,12}\$(\d+\.\d\d)", f"{ec['loss_usd']:.2f}"),

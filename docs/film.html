@@ -1,0 +1,59 @@
+<!doctype html><meta charset=utf-8><title>Slippage Desk film</title><style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#09090b;height:100%;overflow:hidden;
+  font:16px/1.5 -apple-system,"Segoe UI",system-ui,sans-serif;color:#fafafa}
+#stage{position:fixed;left:50%;top:50%;width:1920px;height:1080px;transform-origin:50% 50%}
+.s{position:absolute;inset:0;padding:96px 120px;display:flex;
+   flex-direction:column;justify-content:center;opacity:0;
+   transition:opacity .7s ease}
+.s.on{opacity:1}
+.kicker{font:17px/1 ui-monospace,Menlo,monospace;letter-spacing:.24em;
+  text-transform:uppercase;color:#8b8b94;margin-bottom:34px}
+h1{font-size:132px;line-height:.97;letter-spacing:-.035em}
+h2{font-size:80px;line-height:1.06;letter-spacing:-.025em;max-width:22ch}
+.sub{font-size:40px;color:#d4d4d8;margin-top:30px;max-width:34ch}
+.big{font-size:88px;line-height:1.08;letter-spacing:-.03em;max-width:24ch}
+.accent{color:#fbbf24}
+.note{font-size:31px;color:#a1a1aa;margin-top:40px;max-width:58ch;line-height:1.5}
+table{margin-top:48px;border-collapse:collapse;width:100%;max-width:1500px}
+td{padding:22px 0;border-bottom:1px solid #27272a;font-size:36px}
+td:last-child{text-align:right;font-family:ui-monospace,Menlo,monospace;
+  font-size:38px;letter-spacing:-.01em}
+.ok{color:#4ade80}.no{color:#fbbf24}
+.frame{position:absolute;inset:0;overflow:hidden;background:#09090b}
+.zoom{position:absolute;top:0;left:0;width:1240px;height:2600px;
+  transform:scale(1.549);transform-origin:0 0}
+.frame iframe{position:absolute;top:0;left:0;width:1240px;height:2600px;
+  border:0;transition:transform 40s linear}
+.capbar{position:absolute;left:0;right:0;bottom:0;padding:42px 120px 48px;
+  background:linear-gradient(transparent,rgba(9,9,11,.93) 32%);
+  font-size:34px;line-height:1.4;color:#e4e4e7}
+.capbar b{color:#8b8b94;font:15px/1 ui-monospace,Menlo,monospace;
+  letter-spacing:.24em;text-transform:uppercase;display:block;margin-bottom:14px}
+.links{margin-top:52px;font-family:ui-monospace,Menlo,monospace;font-size:32px;
+  color:#8b8b94;line-height:2}
+#bar{position:fixed;left:0;bottom:0;height:3px;background:#4ade80;width:0;z-index:9}
+</style><div id=stage><section class="s"><div class="kicker">Alpaca AI Trading Agents Hackathon</div><h1>Slippage Desk</h1><div class="sub">The options agent that measures its own execution.</div></section><section class="s"><div class="kicker">The problem, as arithmetic</div><h2>A credit spread is a thin trade by construction.</h2><table><tr><td>A 0.24-delta spread collects</td><td class="">$81.09</td></tr><tr><td>A win banks 40% of it</td><td class="ok">+$32.43</td></tr><tr><td>The stop costs all of it</td><td class="no">-$81.09</td></tr><tr><td>So breakeven is</td><td class="">71.4%</td></tr><tr><td>A 0.24 delta implies</td><td class="">76% OTM</td></tr></table><div class="note">The entire edge is 4.6 percentage points. $5.19 a contract.</div></section><section class="s"><div class="kicker">Where that edge goes</div><div class="big">Crossing the bid/ask cost $1.78 a contract.<br><span class="accent">34% of the entire edge.</span></div><div class="note">Execution is not a rounding error here. It is a first-order term, and it is the one thing four sessions can actually measure.</div></section><section class="s"><div class="kicker">I read all 47 other submissions</div><div class="big">Four mention slippage. All four are pre-trade filters.<br><span class="accent">Not one measures what it got after the fill.</span></div><div class="note">Eleven promise their model can only veto. Every one of them measures whether its decisions were right. None measures whether its executions were good.</div></section><section class="s" style=padding:0><div class="frame"><div class="zoom"><iframe src="https://slippage-desk.vercel.app" scrolling="no"></iframe></div><div class="capbar"><b>The live desk</b>Every figure on this page is derived from the config and from the contracts actually filled. Nothing is typed by hand.</div></div></section><section class="s" style=padding:0><div class="frame"><div class="zoom"><iframe src="https://slippage-desk.vercel.app" scrolling="no"></iframe></div><div class="capbar"><b>Live evidence</b>Per-bucket capture: underlying, tenor, delta band, time of day. Buckets that fill readily hold out for mid. Buckets that do not, pay up or get skipped.</div></div></section><section class="s"><div class="kicker">Fifteen deterministic gates</div><h2>The model cannot open a trade.</h2><table><tr><td>Advisor returns</td><td class="">multiplier [0,1] + veto</td></tr><tr><td>It can shrink or refuse</td><td class="ok">nothing else</td></tr><tr><td>Every failure path returns</td><td class="no">0.0</td></tr><tr><td>Model unreachable means</td><td class="">trade less, never worse</td></tr></table><div class="note">The clamp is a type signature, not a prompt instruction. Of the 47 other submissions, six say what happens when their model fails at all.</div></section><section class="s"><div class="kicker">Alpaca, all three surfaces</div><h2>Separate jobs, on purpose.</h2><table><tr><td>CLI</td><td class="">submits mleg orders, verifies the book</td></tr><tr><td>Python SDK</td><td class="">pulls chains with greeks</td></tr><tr><td>MCP server</td><td class="">read-only research for the advisor</td></tr></table><div class="note">MCP is launched with the trading toolsets stripped, so research physically cannot place an order. Execution never goes through a subprocess.</div></section><section class="s"><div class="kicker">The evidence, not a backtest</div><h2>Sourced from Alpaca's own activity log.</h2><table><tr><td>Candidates considered</td><td class="">693</td></tr><tr><td>Spreads filled</td><td class="">20</td></tr><tr><td>Credit at mid</td><td class="">$1,906</td></tr><tr><td>Actually captured</td><td class="ok">$1,865</td></tr><tr><td>Surrendered to execution</td><td class="no">$41</td></tr><tr><td>Capture ratio</td><td class="ok">97.9%</td></tr></table><div class="note">sha256 a8f12accfb821e6b74b16716fa481015 over the payload, so it cannot be quietly edited later.</div></section><section class="s"><div class="kicker">What this does not claim</div><div class="big">Four sessions cannot establish that a strategy is profitable.<br><span class="accent">For anyone in this hackathon.</span></div><div class="note">What four sessions can establish is that an agent measured its own execution and acted on it. That is the claim, and the file above is the receipt.</div></section><section class="s"><h1>Slippage Desk</h1><div class="sub">Next: cross-venue routing on the same memory, and per-bucket sizing rather than per-bucket veto.</div><div class="links">https://slippage-desk.vercel.app<br>https://github.com/priyanshshahh/slippage-desk<br>paper account PA343VC6LL3T</div></section></div><div id=bar></div><script>window.__S=[{"t": 6, "pan": null}, {"t": 20, "pan": null}, {"t": 18, "pan": null}, {"t": 18, "pan": null}, {"t": 32, "pan": [0, -560]}, {"t": 30, "pan": [-560, -1330]}, {"t": 28, "pan": null}, {"t": 26, "pan": null}, {"t": 28, "pan": null}, {"t": 16, "pan": null}, {"t": 18, "pan": null}];
+const S=window.__S,stage=document.getElementById('stage'),bar=document.getElementById('bar');
+function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);
+  stage.style.transform=`translate(-50%,-50%) scale(${k})`;}
+fit();addEventListener('resize',fit);
+const total=S.reduce((a,s)=>a+s.t,0);
+let i=0,elapsed=0;
+function show(){
+  if(i>0)stage.children[i-1].classList.remove('on');
+  if(i>=S.length){bar.style.width='100%';return;}
+  const el=stage.children[i];el.classList.add('on');
+  const f=el.querySelector('iframe');
+  if(f&&S[i].pan){f.style.transform=`translateY(${S[i].pan[0]}px)`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      f.style.transitionDuration=(S[i].t-2)+'s';
+      f.style.transform=`translateY(${S[i].pan[1]}px)`;}));}
+  const d=S[i].t*1000;elapsed+=S[i].t;i++;
+  bar.style.transition=`width ${S[i-1].t}s linear`;
+  bar.style.width=(elapsed/total*100)+'%';
+  setTimeout(show,d);
+}
+// Give the iframes a moment to paint before the clock starts.
+setTimeout(show,1200);
+</script>

@@ -11,17 +11,21 @@ plans. Most entrants skip the last two. Do not.
 
 ### 0:00–0:30 · The problem, stated as a number
 
-> "A 15-delta credit spread on SPY makes about thirty-five dollars a contract.
-> Crossing the bid-ask on the way in and out costs ten to twenty of it. So on a
-> four-day window, how well you get *filled* matters as much as what you pick.
+> "A point-two-four delta credit spread on SPY collects about eighty-one dollars
+> a contract. A win banks thirty-two of that. The stop costs the whole eighty-one.
+> So breakeven is seventy-one point four percent, the delta implies seventy-six,
+> and the entire edge is four point six points. Five dollars nineteen a contract.
 >
-> I read all twenty-seven submissions in this hackathon. Ten of them govern an
-> LLM with deterministic risk gates. Every one measures whether its decisions
-> were right. **Not one measures whether its executions were good.**"
+> Crossing the bid-ask cost me a dollar seventy-eight of it. That is thirty-four
+> percent of the whole edge, gone to execution.
+>
+> I read all forty-seven other submissions in this hackathon. Eleven promise
+> their model can only veto. Every one measures whether its decisions were right.
+> **Not one measures whether its executions were good.**"
 
-*On screen:* the arithmetic, big. $35 edge vs $10-20 slippage.
+*On screen:* the arithmetic, big. $5.19 edge per contract vs $1.78 lost to execution.
 
-**Do not open with architecture.** Ten teams open with architecture.
+**Do not open with architecture.** Most of the field opens with architecture.
 
 ---
 
@@ -84,7 +88,10 @@ Open `data/proof.json`.
 > execution gate refused, and a sha256 over the payload so it can't be quietly
 > edited later."
 
-Say the real numbers out loud.
+Say these out loud, they are the ones in data/proof.json:
+**693 considered, 428 cleared the gates, 20 spreads filled across 23 contracts,
+$1,906 of credit at mid, $1,865 actually captured, $41 surrendered to execution,
+97.9% capture, sha256 over the payload.**
 
 ---
 

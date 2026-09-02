@@ -108,7 +108,7 @@ function buildSlides(p: Props) {
     <div key="2">
       <Kicker>I read all 47 submissions</Kicker>
       <Big>
-        Ten govern an LLM with deterministic gates.
+        Eleven promise their model can only veto.
         <br />
         <span className="text-block">None measure whether they got filled.</span>
       </Big>

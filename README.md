@@ -14,9 +14,9 @@ overrule.
 
 ## The core design claim
 
-Ten other agents in this hackathon govern an LLM with deterministic risk
-gates. That idea is now the baseline, not a differentiator, and this
-project has it too. It is not the claim.
+Eleven other agents in this hackathon promise their model can only veto.
+That idea is now the baseline, not a differentiator, and this project has
+it too. It is not the claim.
 
 The claim is this: **on a four-session horizon, execution quality is the
 same order of magnitude as the entire strategy edge, and nobody measures
