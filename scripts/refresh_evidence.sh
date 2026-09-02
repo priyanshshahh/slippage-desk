@@ -28,10 +28,15 @@ echo "==> deploying"
 
 echo "==> committing evidence"
 git add -A
-git commit -q -m "Refresh evidence: $(./.venv/bin/python -c '
+SUMMARY=$(PYTHONPATH=. ./.venv/bin/python -c "
 from engine import journal
 s = journal.summary()
-print(f"{s[\"considered\"]} considered, {s[\"traded\"]} traded")
-')" || echo "    nothing to commit"
+print(str(s['considered']) + ' considered, ' + str(s['traded']) + ' traded')
+")
+if [ -z "$SUMMARY" ]; then
+  echo "    could not read journal summary, refusing to commit a blank message"
+  exit 1
+fi
+git commit -q -m "Refresh evidence: $SUMMARY" || echo "    nothing to commit"
 git push -q origin main && echo "    pushed"
 echo "done"

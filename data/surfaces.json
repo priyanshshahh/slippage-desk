@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-31T18:33:14.031222+00:00",
+  "generated_at": "2026-09-02T10:08:44.254083+00:00",
   "architecture": "Three surfaces, deliberately separate jobs. The CLI executes and verifies the book. The SDK returns chains with greeks in one call. MCP supplies read-only research. Execution never routes through MCP: it is a stdio subprocess, and a hung subprocess must never sit between the agent and its stops.",
   "surfaces": [
     {
@@ -7,16 +7,16 @@
       "layer": "CLI",
       "job": "equity, buying power, options level",
       "ok": true,
-      "detail": "equity $100,000.50",
-      "ms": 157
+      "detail": "equity $100,958.12",
+      "ms": 135
     },
     {
       "surface": "clock",
       "layer": "CLI",
       "job": "is the market open",
       "ok": true,
-      "detail": "open=True",
-      "ms": 77
+      "detail": "open=False",
+      "ms": 71
     },
     {
       "surface": "position list",
@@ -24,7 +24,7 @@
       "job": "what the broker says we hold",
       "ok": true,
       "detail": "2 leg(s)",
-      "ms": 86
+      "ms": 112
     },
     {
       "surface": "order list",
@@ -32,23 +32,23 @@
       "job": "resting orders",
       "ok": true,
       "detail": "0 open",
-      "ms": 79
+      "ms": 131
     },
     {
       "surface": "account activity list",
       "layer": "CLI",
       "job": "the broker's own fill record, used to verify capture",
       "ok": true,
-      "detail": "18 fills",
-      "ms": 80
+      "detail": "54 fills",
+      "ms": 81
     },
     {
       "surface": "account portfolio",
       "layer": "CLI",
       "job": "equity curve for P&L",
       "ok": true,
-      "detail": "34 points",
-      "ms": 145
+      "detail": "35 points",
+      "ms": 201
     },
     {
       "surface": "calendar",
@@ -56,7 +56,7 @@
       "job": "real session close, so a half day does not defeat the flatten",
       "ok": true,
       "detail": "1 session(s)",
-      "ms": 84
+      "ms": 94
     },
     {
       "surface": "data corporate-actions",
@@ -64,15 +64,15 @@
       "job": "ex-dividend dates, which drive early assignment",
       "ok": true,
       "detail": "0 action(s)",
-      "ms": 97
+      "ms": 98
     },
     {
       "surface": "data latest-trade",
       "layer": "CLI",
       "job": "live spot; the options feed lags the underlying",
       "ok": true,
-      "detail": "SPY 766.31",
-      "ms": 97
+      "detail": "SPY 762.15",
+      "ms": 80
     },
     {
       "surface": "TradingClient",
@@ -80,15 +80,15 @@
       "job": "atomic multi-leg order submission",
       "ok": true,
       "detail": "account 1491780f...",
-      "ms": 90
+      "ms": 106
     },
     {
       "surface": "OptionChainRequest",
       "layer": "SDK",
       "job": "chain snapshots with greeks and IV, needed by the delta gate",
       "ok": true,
-      "detail": "1218 contracts, 321 with greeks",
-      "ms": 1706
+      "detail": "1182 contracts, 304 with greeks",
+      "ms": 1384
     },
     {
       "surface": "OptionHistoricalDataClient",
@@ -103,8 +103,8 @@
       "layer": "MCP",
       "job": "read-only research handed to the advisor",
       "ok": true,
-      "detail": "0 tools exposed",
-      "ms": 1797
+      "detail": "39 tools exposed",
+      "ms": 3178
     },
     {
       "surface": "ALPACA_TOOLSETS",
@@ -118,11 +118,11 @@
       "surface": "get_stock_snapshot",
       "layer": "MCP",
       "job": "live context for one underlying",
-      "ok": false,
-      "detail": "None",
-      "ms": 836
+      "ok": true,
+      "detail": "returned",
+      "ms": 1821
     }
   ],
-  "passing": 14,
+  "passing": 15,
   "total": 15
 }

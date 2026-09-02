@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-01T18:03:17.993938+00:00",
+  "generated_at": "2026-09-02T10:08:45.543335+00:00",
   "claim": "The agent measures the fraction of theoretical credit it actually captures, per (underlying, tenor, delta, time-of-day) bucket, and refuses buckets whose shrunk capture ratio falls below the configured floor.",
   "config": {
     "min_capture_ratio": 0.6,
@@ -250,6 +250,42 @@
   "broker_verification": {
     "note": "Sourced from Alpaca's own activity log and portfolio history, not from this repository's bookkeeping. Reproducible by anyone holding the paper account ID.",
     "fill_activities": [
+      {
+        "symbol": "QQQ260903C00720000",
+        "side": "sell",
+        "qty": "6",
+        "price": "0.22",
+        "transaction_time": "2026-09-01T18:42:04.600531Z",
+        "order_id": "0b55101b-cc01-4662-a65d-861cee6a530c",
+        "fill_group": "20260901144204600"
+      },
+      {
+        "symbol": "QQQ260903C00715000",
+        "side": "buy",
+        "qty": "6",
+        "price": "0.79",
+        "transaction_time": "2026-09-01T18:42:04.600493Z",
+        "order_id": "eab0887a-2960-4ae9-a0b8-bc3f3c858850",
+        "fill_group": "20260901144204600"
+      },
+      {
+        "symbol": "QQQ260903C00716000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.7",
+        "transaction_time": "2026-09-01T18:34:03.698637Z",
+        "order_id": "1cf2bb36-abba-4cb0-908d-5c2ee32dc48d",
+        "fill_group": "20260901143403698"
+      },
+      {
+        "symbol": "QQQ260903C00721000",
+        "side": "sell",
+        "qty": "1",
+        "price": "0.19",
+        "transaction_time": "2026-09-01T18:34:03.698644Z",
+        "order_id": "1bbb58ec-f8c9-40e0-baae-b2ca353d1f02",
+        "fill_group": "20260901143403698"
+      },
       {
         "symbol": "SPY260903C00774000",
         "side": "sell",
@@ -1129,14 +1165,24 @@
     },
     {
       "t": 1788280200,
-      "equity": 100696.88,
-      "pl": 710.56
+      "equity": 100696.2,
+      "pl": 709.88
     },
     {
       "t": 1788283800,
-      "equity": 100803.88,
-      "pl": 817.56
+      "equity": 100802.56,
+      "pl": 816.24
+    },
+    {
+      "t": 1788287400,
+      "equity": 100932.56,
+      "pl": 946.24
+    },
+    {
+      "t": 1788291000,
+      "equity": 100959.2,
+      "pl": 972.88
     }
   ],
-  "sha256": "7fb0712d87d404e1e4627699a7fc4250f667123db144b91218d5e755a5ce912f"
+  "sha256": "18f59679ecb066b37d78152f5ffb576c697524638da2e4a191a2273a558234fd"
 }
