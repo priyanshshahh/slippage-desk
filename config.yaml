@@ -129,3 +129,23 @@ execution_quality:
   # Do not veto until the bucket has at least this many scored fills, so
   # the cold start explores rather than locking itself out.
   min_samples_to_veto: 3
+
+reporting:
+  # The hackathon reads this account's P&L at a fixed wall-clock moment
+  # (2026-09-04 11:00 ET). Force-close only fires on a spread's own expiry
+  # day at 15:45, so without this block the submitted number would be a
+  # mark-to-market snapshot of an open short-gamma position taken almost
+  # five hours before that position actually closes. That is not a P&L, it
+  # is a coin flip on Thursday's tape.
+  #
+  # This is a reporting control, not a risk gate. It stops the agent trading
+  # before a cutoff and flattens the book so the reported figure is settled.
+  # It is exactly what an operator does before an audit. Both fields are
+  # nullable: set either to null to disable that half.
+  enabled: true
+  # No new entries after this instant. Positions already open keep running
+  # under the normal profit-take, stop and force-close rules.
+  no_new_entries_after: '2026-09-03T15:45:00-04:00'
+  # Close everything still open at this instant, regardless of expiry. Set
+  # an hour before the deadline so a failed close has time to retry.
+  flatten_all_at: '2026-09-04T10:00:00-04:00'

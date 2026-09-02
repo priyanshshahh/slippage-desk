@@ -260,6 +260,28 @@ def build_state(cfg: dict, now_et: datetime) -> PortfolioState:
 # exits
 # --------------------------------------------------------------------------
 
+def _reporting_cutoff(cfg: dict, key: str, now_et: datetime) -> bool:
+    """True once the reporting cutoff named by `key` has passed.
+
+    The hackathon reads this account at a fixed instant, and force_close only
+    fires on a spread's own expiry day. Without this the submitted P&L would
+    be an open position's mark, not a settled figure. See config.yaml
+    `reporting`. Unset or unparseable means the cutoff simply does not exist,
+    because a typo here must not silently stop the desk trading.
+    """
+    rep = cfg.get("reporting") or {}
+    if not rep.get("enabled"):
+        return False
+    raw = rep.get(key)
+    if not raw:
+        return False
+    try:
+        return now_et >= datetime.fromisoformat(str(raw))
+    except ValueError:
+        _log(f"  ** reporting.{key} is not an ISO timestamp: {raw!r}; ignoring")
+        return False
+
+
 def _exit_reason(s: OpenSpread, cost_to_close: float, cfg: dict,
                  now_et: datetime, state_close: datetime | None = None) -> str | None:
     ex = cfg["exit"]
@@ -281,6 +303,10 @@ def _exit_reason(s: OpenSpread, cost_to_close: float, cfg: dict,
         hh, mm = total // 60, total % 60
     if s.expiry_date <= now_et.date() and (now_et.hour, now_et.minute) >= (hh, mm):
         return "force_close_expiring"
+    # Checked after the expiry force-close only because that one is cheaper to
+    # evaluate; either firing means the same thing, get out now.
+    if _reporting_cutoff(cfg, "flatten_all_at", now_et):
+        return "reporting_flatten"
     if s.entry_credit <= 0:
         return None
     if cost_to_close <= s.entry_credit * (1.0 - float(ex["profit_take_pct"])):
@@ -317,7 +343,8 @@ def manage_exits(cfg: dict, now_et: datetime, dry_run: bool,
         if short_q is None or long_q is None:
             # No quote means we cannot price the exit. Only the clock-based
             # force close fires here, and it must actually get out.
-            if _exit_reason(s, float("inf"), cfg, now_et, session_close) == "force_close_expiring":
+            if _exit_reason(s, float("inf"), cfg, now_et, session_close) in (
+                    "force_close_expiring", "reporting_flatten"):
                 # A vertical can never cost more than its width to buy back,
                 # so the width is a limit that fills while still bounded. The
                 # old hardcoded 0.05 would not have filled on anything ITM,
@@ -360,7 +387,6 @@ def manage_exits(cfg: dict, now_et: datetime, dry_run: bool,
         # makes the agent believe it is flat while the broker still holds the
         # position. reconcile() removes it on the next poll once the broker
         # confirms it is gone, which is the only source of truth for that.
-        closed += 1
 
     return closed
 
@@ -574,6 +600,10 @@ def poll_once(cfg: dict, memory: ExecutionMemory, dry_run: bool) -> None:
 
     if blocking:
         _log(f"  no entries: {len(blocking)} invariant violation(s) unresolved")
+        return
+
+    if _reporting_cutoff(cfg, "no_new_entries_after", now_et):
+        _log("  no entries: past the reporting cutoff in config.yaml")
         return
 
     if state.market_open:

@@ -94,6 +94,56 @@ def test_exit_rules(cfg: dict) -> None:
     print("  [ok ] expiring and past the stop -> force close wins")
 
 
+def test_reporting_freeze(cfg: dict) -> None:
+    """The submitted P&L must be settled, not a mark on an open position.
+
+    force_close only fires on a spread's own expiry day, so a spread expiring
+    after the reporting cutoff would still be open when the account is read.
+    These assertions are the reason config.yaml has a `reporting` block.
+    """
+    print("\n--- reporting freeze ---")
+    import copy
+    c = copy.deepcopy(cfg)
+    # A spread expiring well after any cutoff: nothing else would close it.
+    s = sample_spread(date.today() + timedelta(days=30))
+    midday = datetime.now(ET).replace(hour=12, minute=0)
+
+    c["reporting"] = {"enabled": True,
+                      "flatten_all_at": "2026-09-04T10:00:00-04:00",
+                      "no_new_entries_after": "2026-09-03T15:45:00-04:00"}
+
+    before = datetime(2026, 9, 4, 9, 59, tzinfo=ET)
+    after = datetime(2026, 9, 4, 10, 1, tzinfo=ET)
+
+    assert loop._exit_reason(s, 0.90, c, before) is None
+    print("  [ok ] one minute before the cutoff -> hold")
+    assert loop._exit_reason(s, 0.90, c, after) == "reporting_flatten"
+    print("  [ok ] one minute after  -> reporting_flatten")
+
+    # Flatten must ignore price entirely, exactly like the expiry force close.
+    assert loop._exit_reason(s, 99.0, c, after) == "reporting_flatten"
+    print("  [ok ] deeply underwater after the cutoff -> still flattens")
+
+    # The entry cutoff is a separate clock and must fire earlier.
+    assert not loop._reporting_cutoff(c, "no_new_entries_after",
+                                      datetime(2026, 9, 3, 15, 44, tzinfo=ET))
+    assert loop._reporting_cutoff(c, "no_new_entries_after",
+                                  datetime(2026, 9, 3, 15, 46, tzinfo=ET))
+    print("  [ok ] entry cutoff fires at 15:45 on the 3rd, not before")
+
+    # Failing open is the whole safety argument: a typo or a disabled block
+    # must never quietly stop the desk trading or flatten it early.
+    c["reporting"]["enabled"] = False
+    assert loop._exit_reason(s, 0.90, c, after) is None
+    print("  [ok ] enabled: false -> no cutoff at all")
+    c["reporting"] = {"enabled": True, "flatten_all_at": "not a timestamp"}
+    assert loop._exit_reason(s, 0.90, c, after) is None
+    print("  [ok ] unparseable timestamp -> ignored, desk keeps running")
+    c["reporting"] = {"enabled": True, "flatten_all_at": None}
+    assert loop._exit_reason(s, 0.90, c, after) is None
+    print("  [ok ] null timestamp -> ignored")
+
+
 def test_adoption() -> None:
     print("\n--- adopting a spread the broker has and the ledger does not ---")
     expiry = date.today() + timedelta(days=1)
@@ -421,6 +471,7 @@ def main() -> int:
         positions.LEDGER = Path(tmp) / "open_spreads.json"
 
         test_exit_rules(cfg)
+        test_reporting_freeze(cfg)
         test_adoption()
         test_reconcile()
         test_multi_expiry_pairing(cfg)
