@@ -14,9 +14,9 @@ overrule.
 
 ## The core design claim
 
-Eleven other agents in this hackathon promise their model can only veto.
-That idea is now the baseline, not a differentiator, and this project has
-it too. It is not the claim.
+"LLM proposes, deterministic gates authorise" is table stakes for an agent
+allowed anywhere near a live account. This project has it, and it is not
+the claim.
 
 The claim is this: **on a four-session horizon, execution quality is the
 same order of magnitude as the entire strategy edge, and nobody measures
@@ -53,10 +53,10 @@ incapable of creating a trade, widening risk, or overriding a gate. That
 is enforced in `engine/risk.apply_model_opinion`, which clamps the model's
 output to `[0.0, 1.0]` and multiplies rather than assigns.
 
-One difference worth naming, because the field splits on it: when the
-model is unreachable, several of these agents fall back to trading
-deterministically. This one **vetoes**. A model failure degrades to
-"trades less", never to "trades unsupervised".
+One decision worth naming, because it is easy to get backwards: when the
+model is unreachable, the tempting fallback is to keep trading on the
+deterministic gates alone. This one **vetoes** instead. A model failure
+degrades to "trades less", never to "trades unsupervised".
 
 ## Strategy
 

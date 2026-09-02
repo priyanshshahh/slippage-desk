@@ -22,22 +22,21 @@ DOCS = ["docs/SUBMISSION.md", "docs/WRITEUP.md", "docs/VIDEO.md", "docs/SOCIAL.m
         "dashboard/src/app/claim.tsx", "dashboard/src/app/demo/deck.tsx",
         "dashboard/src/app/hero.tsx"]
 
-# Competitor facts, each measured from the 47 scraped submissions. The count
-# is the assertion; a claim that drifts from it is a claim a judge can falsify.
-FIELD = {
-    "competitors": 47,
-    # Counted 2026-09-01, while submissions stayed open until the 4th. An
-    # undated "all 47" quietly becomes false the moment anyone else submits,
-    # so every prose claim of the count must carry the date with it.
-    "as_of": "September 1",
-    "measure_execution": 0,      # scored fills against mid, or tracked capture
-    "slippage_mentioned": 4,     # all four pre-trade filters, none post-fill
-    "veto_only": 11,
-    "failure_behaviour": 6,
-    "name_plus_tagline": 24,
-    "calls_itself_options_agent": 11,
-    "mentions_assignment": 2,
-}
+# Comparative claims are banned from every shipped artifact. The survey of
+# other entries was internal research used to steer the build, never a public
+# argument, and this repository is public. These patterns are deliberately
+# narrow so ordinary words survive: "order submission" and "pre-submission
+# checklist" must not trip, while "47 other submissions" must.
+FORBIDDEN = [
+    (r"\b\d+\s+(?:other\s+)?submissions\b", "counts other entries"),
+    (r"\bread all\s+(?:\d+\s+)?(?:other\s+)?submissions\b", "claims to have read the field"),
+    (r"\bother (?:agents?|teams?|entrants?|submissions?)\b", "refers to other entries"),
+    (r"\b(?:nobody|no one) else\b", "claims uniqueness by comparison"),
+    (r"\beveryone else\b", "compares against the field"),
+    (r"\bevery other agent\b", "compares against the field"),
+    (r"\bthe field (?:splits|opens|does|is)\b", "characterises the field"),
+    (r"\bcompetitors?\b", "names competitors"),
+]
 
 
 def gate_count() -> int:
@@ -84,7 +83,6 @@ def main() -> int:
     checks = [
         ("gate count (word)", r"\b(twelve|thirteen|fourteen|fifteen|sixteen)\b(?=[^.\n]{0,40}?(?:deterministic|gates|checks))",
          WORDS[n_gates]),
-        ("competitors read", r"(?:read all|of the|of those)\s+(\d+)\s+(?:other\s+)?submissions", str(FIELD["competitors"])),
         ("capture percent", r"\b(\d{2}(?:\.\d)?)%(?=[^.\n]{0,40}(?:broker-verified|of theoretical))", f"{capture * 100:.1f}"),
         ("lost to execution", r"\$(\d[\d,]*)(?=\s*(?:surrender|lost|given up|to execution))",
          f"{t['given_up_to_execution_usd']:.0f}"),
@@ -112,13 +110,8 @@ def main() -> int:
         # pair (gates 13, surfaces 15) shipped on the cover image once.
         ("gates stat cell", r"Deterministic gates</div><div class=\"v\">(\d+)<", str(n_gates)),
         ("surfaces stat cell", r"Alpaca surfaces</div><div class=\"v\">(\d+)<", "3"),
-        # Spelled-out numbers hid from every check above. The video script
-        # said "twenty-seven submissions" and "thirty-five dollars a contract"
-        # long after the digits were fixed everywhere else, which would have
-        # been read aloud on camera.
-        ("competitors read (word)",
-         r"\b(twenty-seven|thirty-three|forty-seven)\b(?=[^.\n]{0,30}submissions)",
-         "forty-seven"),
+        # Spelled-out numbers hid from every check above, so a wrong figure
+        # could be read aloud on camera long after the digits were fixed.
         ("veto-only count (word)",
          r"\b(ten|eleven|twelve)\b(?=[^.\n]{0,40}(?:veto|govern an LLM))",
          "eleven"),
@@ -131,6 +124,9 @@ def main() -> int:
         ("credit per contract", r"about \$(\d+) per contract", f"{ec['credit_per_contract_usd']:.0f}"),
         ("expected per contract", r"worth\s+\$(\d+\.\d\d)\s+a contract", f"{ec['expected_per_contract_usd']:.2f}"),
         ("share of edge eaten", r"(\d+)% of the edge", str(eaten)),
+        # SUBMISSION.md shipped "24 contracts" against a proof that says 23,
+        # in the one document a judge reads first.
+        ("contracts filled", r"\b(\d+) contracts\b", str(ec["contracts"])),
     ]
 
     problems: list[str] = []
@@ -155,19 +151,31 @@ def main() -> int:
 
     print(f"source of truth: {n_gates} gates, {capture * 100:.1f}% capture, "
           f"${t['given_up_to_execution_usd']:.0f} lost, "
-          f"{t['candidates_considered']} considered, {FIELD['competitors']} competitors")
-    # A bare count is a claim with an expiry date on it. Any prose file that
-    # states the number must also say when it was counted.
+          f"{t['candidates_considered']} considered")
+    # Comparative claims are banned outright, so the sweep reports every hit
+    # rather than checking a value. The survey that produced them was internal.
+    # The two build scripts are swept as well: they generate the film and its
+    # narration, which no other check in this file ever reads, so a comparison
+    # reintroduced there would ship on camera unseen.
     for rel in DOCS:
+        f = ROOT / rel
+        if f.exists() and re.search(r"\b\d+\s+(?:approved|cleared the gates)\b",
+                                    f.read_text()):
+            problems.append(
+                f"  {rel}: claims a gate-clearance count. data/proof.json does "
+                f"not record one, so it cannot be verified and drifts silently")
+
+    for rel in DOCS + ["scripts/build_film.py", "scripts/build_narration.py",
+                       "scripts/build_deck.py"]:
         f = ROOT / rel
         if not f.exists():
             continue
         body = f.read_text()
-        if re.search(r"(?:read all|of the|of those)\s+47\s+(?:other\s+)?submissions",
-                     body) and FIELD["as_of"] not in body:
-            problems.append(
-                f"  {rel}: states 47 submissions but never says it was counted "
-                f"{FIELD['as_of']}; the count is only true as of that date")
+        for pattern, why in FORBIDDEN:
+            for m in re.finditer(pattern, body, re.I):
+                line = body[: m.start()].count("\n") + 1
+                problems.append(
+                    f"  {rel}:{line}  comparative claim {m.group(0)!r}: {why}")
 
     if problems:
         print(f"\nDRIFT: {len(problems)} claim(s) disagree with source\n")

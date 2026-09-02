@@ -62,12 +62,13 @@ def scenes(p: dict) -> list[dict]:
                   "measure."),
 
         dict(t=18, kind="punch",
-             kicker="I read all 47 other submissions",
-             big="Four mention slippage. All four are pre-trade filters.",
-             accent="Not one measures what it got after the fill.",
-             note="Eleven promise their model can only veto. Every one of them "
-                  "measures whether its decisions were right. None measures "
-                  "whether its executions were good."),
+             kicker="What usually goes unmeasured",
+             big="A strategy log says whether the decision was right.",
+             accent="It says nothing about what the fill cost.",
+             note="Scoring an execution means comparing it to the mid it was "
+                  "priced at, at the moment it comes back from the broker. "
+                  "Without that comparison, execution cost never appears as a "
+                  "number anyone can act on."),
 
         dict(t=32, kind="frame", src=SITE, pan=[0, -560],
              kicker="The live desk", cap="Every figure on this page is derived "
@@ -88,8 +89,8 @@ def scenes(p: dict) -> list[dict]:
                    ("Every failure path returns", "0.0", "no"),
                    ("Model unreachable means", "trade less, never worse", "")],
              note="The clamp is a type signature, not a prompt instruction. "
-                  "Of the 47 other submissions, six say what happens when "
-                  "their model fails at all."),
+                  "The failure path is part of the design: timeout, malformed "
+                  "JSON, NaN and refusal all return the same veto."),
 
         dict(t=26, kind="stats",
              kicker="Alpaca, all three surfaces",

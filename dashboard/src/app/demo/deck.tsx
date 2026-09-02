@@ -104,17 +104,18 @@ function buildSlides(p: Props) {
       </Note>
     </div>,
 
-    // 2: the gap in the field
+    // 2: the gap the whole project exists to close
     <div key="2">
-      <Kicker>I read all 47 submissions, September 1</Kicker>
+      <Kicker>The measurement that is usually missing</Kicker>
       <Big>
-        Eleven promise their model can only veto.
+        Deciding right is not the same as
         <br />
-        <span className="text-block">None measure whether they got filled.</span>
+        <span className="text-block">getting filled right.</span>
       </Big>
       <Note>
-        Every agent here measures whether its decisions were right. Not one
-        measures whether its executions were good.
+        A strategy log tells you whether the decision was good. It says nothing
+        about what crossing the spread cost to act on it. On a trade this thin,
+        that second number is the one that decides the outcome.
       </Note>
     </div>,
 
@@ -152,12 +153,13 @@ function buildSlides(p: Props) {
       <Note>
         It cannot pick a strike, change an expiry, or increase size. The clamp
         multiplies, never assigns. And when the model is unreachable this desk{" "}
-        <strong className="text-foreground">refuses</strong>. Only 6 of the 47
-        submissions here say what happens when their model fails at all.
+        <strong className="text-foreground">refuses</strong>. The failure path
+        is part of the design, not an afterthought: every one of them returns a
+        veto.
       </Note>
     </div>,
 
-    // 5: the thing nobody else has
+    // 5: what the execution loop actually produces
     <div key="5">
       <Kicker>What this one measures</Kicker>
       <Big>

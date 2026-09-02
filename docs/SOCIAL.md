@@ -16,29 +16,25 @@ Every figure below was verified on 2026-08-31.
 ### X, short version (fits 280)
 
 ```
-I read all 47 submissions posted as of September 1 in the @AlpacaHQ x @lablabai trading hackathon.
+Built an options agent for the @AlpacaHQ x @lablabai trading hackathon.
 
-11 describe the same architecture: "LLM proposes, deterministic gates authorize."
+A strategy log tells you whether your DECISION was right.
 
-All of them measure whether their DECISIONS were right.
+It tells you nothing about what crossing the spread cost to act on it.
 
-None measure whether their EXECUTIONS were good.
-
-That's the whole edge.
+This desk measures that, per fill. On a credit spread it IS the edge.
 ```
 
 ### X, long version (if you have Premium)
 
 ```
-I read all 47 submissions posted as of September 1 in the @AlpacaHQ x @lablabai AI trading hackathon.
+Built an options agent for the @AlpacaHQ x @lablabai AI trading hackathon.
 
-11 describe the same architecture:
-"LLM proposes, deterministic gates authorize."
+Measuring whether your decision was right is the easy half.
 
-All of them measure whether their decisions were right.
-None measure whether their executions were good.
+The hard half is what crossing the spread cost you to act on it.
 
-On a 4-day horizon that IS the game:
+On a 4-day horizon that second number IS the game:
 
 A 0.24-delta credit spread pays $32.43 on a win.
 The stop costs $81.09.
@@ -69,17 +65,19 @@ This one learns whether it can actually get the price.
 ### LinkedIn version
 
 ```
-I read all 47 submissions posted as of September 1 in the Alpaca x lablab.ai AI Trading Agents
-Hackathon before writing a line of my pitch.
+I built an options agent for the Alpaca x lablab.ai AI Trading Agents
+Hackathon, and spent the first day on the arithmetic rather than the
+architecture.
 
-Ten of them describe the same architecture: an LLM proposes, deterministic
-risk gates authorise, the model can never override. It is a good design. It
-is also, at this point, the baseline rather than a differentiator.
+"An LLM proposes, deterministic risk gates authorise, the model can never
+override" is table stakes for anything allowed near a live account. This
+project has it. It is not the interesting part.
 
-What struck me is what nobody was measuring.
+The interesting part is what usually goes unmeasured.
 
-Every one of those agents measures whether its decisions were right. Not one
-measures whether its executions were good.
+Measuring whether a decision was right is straightforward. Measuring whether
+the execution was good means scoring every fill against the mid it was
+priced at, and almost nothing does that by default.
 
 On a four-session horizon, that distinction is the entire game. A 0.24-delta
 defined-risk credit spread pays about $32.43 on a win against a $81.09 stop.

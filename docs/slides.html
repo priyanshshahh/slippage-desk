@@ -54,9 +54,9 @@
 
 <section class="s">
   <div class="tag">The problem</div>
-  <h2>Every agent here optimises <em>what</em> to trade.</h2>
-  <p class="lede">None of them measure whether they can actually get the price
-     their edge assumed.</p>
+  <h2>The hard part is not choosing <em>what</em> to trade.</h2>
+  <p class="lede">It is getting the price the edge assumed. That gap is
+     invisible unless you score every fill against the mid it was priced at.</p>
   <table>
     <tr><td>A win banks</td>
         <td class="mono ok" style="text-align:right">+$32.43</td></tr>
@@ -75,13 +75,13 @@
 </section>
 
 <section class="s">
-  <div class="tag">The field</div>
-  <h2>I read all 47 submissions before writing a line of this pitch.</h2>
-  <p style="margin-top:8px;font-size:15px;opacity:.55">Counted September 1, 2026. Submissions stayed open until the 4th.</p>
-  <p class="lede">Eleven describe the same architecture:<br>
-    <span class="mono">"LLM proposes, deterministic gates authorise."</span></p>
-  <p style="margin-top:30px">That is the baseline now, not a differentiator.
-     This project has it too. It is not the claim.</p>
+  <div class="tag">The baseline</div>
+  <h2>"LLM proposes, deterministic gates authorise."</h2>
+  <p class="lede">That architecture is table stakes for an agent allowed near
+     a live account. This project has it, and it is not the claim.</p>
+  <p style="margin-top:30px">The claim is narrower and harder to fake: this
+     desk knows, per fill, what its execution actually cost, and it trades
+     differently because of it.</p>
   <p class="lede" style="margin-top:30px">The claim is that execution quality
      is measurable in four days, and strategy edge is not.</p>
   <div class="pg">3</div>
@@ -112,15 +112,15 @@
     <li>It cannot pick a strike, change an expiry, or widen risk</li>
     <li>Timeout, refusal, malformed JSON, NaN: every failure path is a veto</li>
   </ul>
-  <p style="margin-top:26px"><strong>The field splits here.</strong> Of the 47 other
-     submissions, only six say what happens when their model fails at all.
-     This one refuses. Failure degrades to trading less, never to trading
+  <p style="margin-top:26px"><strong>The failure path is the design.</strong>
+     Ask any LLM-driven system what it does when the model is unreachable.
+     This one refuses: failure degrades to trading less, never to trading
      unsupervised.</p>
   <div class="pg">5</div>
 </section>
 
 <section class="s">
-  <div class="tag">The gate nobody else has</div>
+  <div class="tag">The gate that is easy to miss</div>
   <h2>Early assignment.</h2>
   <p class="lede">A short call goes in-the-money. An ex-dividend falls before
      expiry. Capturing the dividend beats the remaining extrinsic, so the
@@ -129,8 +129,8 @@
      carrying an overnight gap you never agreed to. The spread's defined risk
      was defined against expiry, not against being assigned three days before
      it.</p>
-  <p class="lede" style="margin-top:26px">Forty-seven other submissions. Two
-     mention assignment at all.</p>
+  <p class="lede" style="margin-top:26px">So assignment is a gate, checked
+     against the ex-dividend calendar before every entry, not a footnote.</p>
   <div class="pg">6</div>
 </section>
 
@@ -159,7 +159,7 @@
     <div class="card"><div class="k">Considered</div><div class="v">693</div><div class="n">candidates evaluated</div></div>
     <div class="card"><div class="k">Spreads filled</div><div class="v">20</div><div class="n">broker-paired, all fifteen gates</div></div>
     <div class="card"><div class="k">Credit captured</div><div class="v">97.9%</div><div class="n">broker-verified</div></div>
-    <div class="card"><div class="k">Lost to execution</div><div class="v">$41</div><div class="n">the number nobody else has</div></div>
+    <div class="card"><div class="k">Lost to execution</div><div class="v">$41</div><div class="n">what execution actually cost</div></div>
   </div>
   <p style="margin-top:34px"><span class="mono">data/proof.json</span> carries
      every fill, the mid it was priced against, the credit received, per-bucket
@@ -205,6 +205,10 @@
 <!-- evidence sha256 7fb0712d87d404e1 -->
 
 <!-- evidence sha256 18f59679ecb066b3 -->
+
+<!-- evidence sha256 a8f12accfb821e6b -->
+
+<!-- evidence sha256 a8f12accfb821e6b -->
 
 <!-- evidence sha256 a8f12accfb821e6b -->
 

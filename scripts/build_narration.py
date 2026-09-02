@@ -25,7 +25,8 @@ from engine.config import ROOT
 from scripts.build_film import scenes
 
 VOICE = "Samantha"          # the most natural of the installed system voices
-LEAD_IN = 1.2               # build_film.py delays the first scene by this long
+LEAD_IN = 0.4               # the plate is trimmed to the first scene, so this
+                            # only lets its 0.7s fade finish before the voice
 OUT_AUDIO = ROOT / "docs" / "narration.m4a"
 # The silent screen recording is the input and is kept, because re-recording
 # it costs four minutes of wall clock. The narrated mux is the deliverable,
@@ -70,11 +71,12 @@ def spoken(p: dict) -> list[str]:
         f"And it is the one thing a few sessions can actually measure.",
 
         # 3 the field, 18s
-        "I read all forty seven other submissions posted as of September first. "
-        "Four mention slippage, and all four are pre trade filters. "
-        "Not one measures what it actually got after the fill. "
-        "Eleven promise their model can only veto. Every one measures "
-        "whether its decisions were right. None measures whether its executions were good.",
+        "Here is the part that usually goes unmeasured. A strategy log tells "
+        "you whether the decision was right. It tells you nothing about what "
+        "crossing the spread cost you to act on it. Scoring an execution means "
+        "comparing the fill to the mid it was priced at, the moment it comes "
+        "back from the broker. Without that comparison, execution cost never "
+        "appears as a number anyone can act on.",
 
         # 4 dashboard, 32s
         "This is the live desk, running on a paper account against real quotes. "
@@ -82,9 +84,10 @@ def spoken(p: dict) -> list[str]:
         "contracts actually filled. Nothing on it is typed by hand, and nothing "
         "is seeded. Every fill is scored against the mid it was priced at, the "
         "moment it comes back from the broker. The difference between those two "
-        "numbers is the only thing on screen that nobody else in this hackathon "
-        "is reporting, and it is the number that decides whether a strategy this "
-        "thin makes money or quietly gives it all back to the market maker.",
+        "numbers is the one that decides whether a strategy this thin makes "
+        "money, or quietly gives it all back to the market maker. It is "
+        "measured here on every single fill, rather than estimated once and "
+        "assumed to hold.",
 
         # 5 buckets, 30s
         "A bucket is an underlying, a tenor, a delta band and a time of day. "
@@ -101,9 +104,8 @@ def spoken(p: dict) -> list[str]:
         "zero and one, plus a veto flag. It can shrink a trade or refuse it. "
         "It cannot pick a strike, change an expiry, or widen risk. "
         "Every failure path returns zero, so a model that is unreachable means "
-        "this desk trades less, never worse. "
-        "Of the forty seven other submissions, six say what happens when their "
-        "model fails at all.",
+        "this desk trades less, never worse. Timeout, malformed output, a "
+        "refusal, a not a number: all of them return the same veto.",
 
         # 7 alpaca surfaces, 26s
         "Alpaca appears three times, with deliberately separate jobs. "

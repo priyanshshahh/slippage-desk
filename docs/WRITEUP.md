@@ -12,8 +12,8 @@ Something else is measurable in four days, and it is not small. A 0.24-delta
 credit spread on SPY collects about $81 per contract on a $5-wide vertical,
 and the bid/ask it crosses on entry and again on exit is a material
 fraction of that. **Execution
-slippage is the same order of magnitude as the entire strategy edge**, and no
-other agent in this hackathon measures it.
+slippage is the same order of magnitude as the entire strategy edge**, which
+is why this desk measures it per fill instead of assuming it away.
 
 ## AI logic
 
@@ -27,10 +27,9 @@ change an expiry, widen risk, or reach around a gate, because nothing in the cal
 path accepts anything else from it.
 
 Every failure path returns veto: timeout, malformed JSON, a refusal stop reason,
-NaN, or a missing key. **The field splits here.** Of the 47 other submissions posted
-as of September 1, only six say what happens when their model fails at all. This one
-refuses: a model failure degrades to "trades less", never to "trades
-unsupervised".
+NaN, or a missing key. **The failure path is where this kind of design usually
+goes unspecified**, so it is worth stating plainly: a model failure here
+degrades to "trades less", never to "trades unsupervised".
 
 The advisor is Claude Opus 5, called with a strict JSON schema, a 90-second
 timeout and zero retries, so a slow advisor is treated exactly like a broken one.

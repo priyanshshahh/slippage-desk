@@ -19,19 +19,20 @@ plans. Most entrants skip the last two. Do not.
 > Crossing the bid-ask cost me a dollar seventy-eight of it. That is thirty-four
 > percent of the whole edge, gone to execution.
 >
-> I read all forty-seven other submissions in this hackathon. Eleven promise
-> their model can only veto. Every one measures whether its decisions were right.
-> **Not one measures whether its executions were good.**"
+> A strategy log tells you whether the decision was right. It says nothing about
+> what crossing the spread cost to act on it.
+> **This desk measures whether its executions were good.**"
 
 *On screen:* the arithmetic, big. $5.19 edge per contract vs $1.78 lost to execution.
 
-**Do not open with architecture.** Most of the field opens with architecture.
+**Do not open with architecture.** Open with the arithmetic that makes the
+architecture necessary.
 
 ---
 
 ### 0:30–1:15 · What it does
 
-Dashboard, live. Point at the two tiles nobody else can show:
+Dashboard, live. Point at the two tiles that carry the whole thesis:
 **Credit captured %** and **Lost to execution $**.
 
 > "Every fill gets scored against the mid it was priced at. The agent keeps a
@@ -56,10 +57,10 @@ Scroll the chain-of-thought feed. Let a **refusal** land on camera.
 > it. It cannot pick a strike, change an expiry, or widen risk. That is enforced
 > in code. The clamp multiplies, it never assigns."
 
-**The money line, and the field splits on it:**
+**The money line:**
 
-> "And when the model is unreachable, this desk *refuses*. Of the 47 other
-> submissions posted as of September 1, only six say what happens when their model fails at all.
+> "And when the model is unreachable, this desk *refuses*. The failure path is
+> part of the design rather than an afterthought.
 > I'd rather trade less than trade unsupervised."
 
 ---
@@ -89,7 +90,7 @@ Open `data/proof.json`.
 > edited later."
 
 Say these out loud, they are the ones in data/proof.json:
-**693 considered, 428 cleared the gates, 20 spreads filled across 23 contracts,
+**693 considered, 20 spreads filled across 23 contracts,
 $1,906 of credit at mid, $1,865 actually captured, $41 surrendered to execution,
 97.9% capture, sha256 over the payload.**
 

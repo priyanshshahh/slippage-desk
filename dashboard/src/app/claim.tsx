@@ -1,14 +1,14 @@
 const CARDS = [
   {
-    k: "What the field does",
-    v: "47 submissions",
-    n: "Eleven promise their model can only veto. Every one measures whether its decisions were right.",
+    k: "The problem",
+    v: "Execution",
+    n: "A credit spread's edge is thin enough that the price you actually get decides whether the edge exists at all.",
     tone: "muted" as const,
   },
   {
-    k: "What nobody measures",
-    v: "0 of 47",
-    n: "Not one measures whether its executions were good. Fill quality is invisible to every other agent here.",
+    k: "Why it stays hidden",
+    v: "Fill vs mid",
+    n: "A fill only reads as good or bad beside the mid it was priced against. Without that comparison, execution cost never shows up as a line you can look at.",
     tone: "block" as const,
   },
   {
@@ -25,13 +25,13 @@ const TONE = {
   allow: "text-allow",
 };
 
-/** The differentiator, stated before the reader has to infer it from data. */
+/** The claim, stated before the reader has to infer it from the data. */
 export default function Claim() {
   return (
     <section className="mb-10">
-      <h2 className="mb-1 text-sm font-semibold">Why this is different</h2>
+      <h2 className="mb-1 text-sm font-semibold">What this measures</h2>
       <p className="mb-4 text-xs text-muted">
-        Read before the numbers below, or they look like everyone else&apos;s.
+        Read this before the numbers below, or they are just numbers.
       </p>
       <div className="grid gap-3 md:grid-cols-3">
         {CARDS.map((c) => (

@@ -88,7 +88,7 @@ def main() -> int:
         ("Spreads filled", f"{bv['paired_spreads']:,}", "broker-paired, all fifteen gates"),
         ("Credit captured", f"{capture * 100:.1f}%", "broker-verified"),
         ("Lost to execution", f"${t['given_up_to_execution_usd']:,.0f}",
-         "the number nobody else has"),
+         "what execution actually cost"),
     ]
     html = "\n".join(
         f'    <div class="card"><div class="k">{k}</div>'
