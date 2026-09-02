@@ -34,7 +34,7 @@ The four strongest competitors all open with "most trading agents hand an LLM
 the keys"; this one opens with arithmetic.)*
 
 ```
-A defined-risk credit spread is a thin trade by construction. This desk collects about $78 per contract on a $5-wide vertical, and the bid/ask it crosses on entry and again on exit is a material fraction of that. Execution here is not a rounding error, it is a first-order term. An agent that picks the right strike and then hands the credit back to the spread has not made money, it has made work.
+A defined-risk credit spread is a thin trade by construction. This desk collects about $81 per contract on a $5-wide vertical, and the bid/ask it crosses on entry and again on exit is a material fraction of that. Execution here is not a rounding error, it is a first-order term. An agent that picks the right strike and then hands the credit back to the spread has not made money, it has made work.
 
 I read all 47 other submissions in this hackathon. Four list a slippage control, and all four are pre-trade filters: reject the quote if it looks too wide. None measures what it actually got after the fill. Slippage Desk does, and then trades on the answer.
 
@@ -67,10 +67,10 @@ Four sessions is not a track record and this claims no predictive edge. It claim
 
 | Field | Value |
 | --- | --- |
-| Public GitHub repository | `<<FILL>>` |
+| Public GitHub repository | `https://github.com/priyanshshahh/slippage-desk` |
 | Demo application platform | Vercel |
-| Application URL | `<<FILL>>` |
-| **Alpaca paper account ID** | `<<FILL>>` |
+| Application URL | `https://slippage-desk.vercel.app` |
+| **Alpaca paper account ID** | `PA343VC6LL3T` |
 
 Cover image: PNG or JPG, **16:9**.
 Video: MP4, **3 to 5 minutes** (the rubric scores under 3 min as "Limited").

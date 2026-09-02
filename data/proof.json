@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T10:08:45.543335+00:00",
+  "generated_at": "2026-09-02T10:12:06.149434+00:00",
   "claim": "The agent measures the fraction of theoretical credit it actually captures, per (underlying, tenor, delta, time-of-day) bucket, and refuses buckets whose shrunk capture ratio falls below the configured floor.",
   "config": {
     "min_capture_ratio": 0.6,
@@ -246,6 +246,17 @@
       "aggressiveness": 0.65
     }
   ],
+  "economics": {
+    "note": "Derived from config.yaml and from the broker-verified fills, not hand-entered. Win and loss follow the exit rules in agent/loop.py.",
+    "contracts": 23,
+    "credit_per_contract_usd": 81.09,
+    "win_usd": 32.43,
+    "loss_usd": 81.09,
+    "breakeven_win_rate": 0.7143,
+    "delta_implied_otm_rate": 0.76,
+    "edge_points": 4.6,
+    "expected_per_contract_usd": 5.19
+  },
   "fills": [],
   "broker_verification": {
     "note": "Sourced from Alpaca's own activity log and portfolio history, not from this repository's bookkeeping. Reproducible by anyone holding the paper account ID.",
@@ -1184,5 +1195,5 @@
       "pl": 972.88
     }
   ],
-  "sha256": "18f59679ecb066b37d78152f5ffb576c697524638da2e4a191a2273a558234fd"
+  "sha256": "a8f12accfb821e6b74b16716fa48101529119a3ac17e82b9f735957ae8ed443b"
 }

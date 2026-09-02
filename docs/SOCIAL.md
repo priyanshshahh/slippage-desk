@@ -40,13 +40,13 @@ None measure whether their executions were good.
 
 On a 4-day horizon that IS the game:
 
-A 0.24-delta credit spread pays $38 on a win.
-The stop costs $75.
-Breakeven win rate: 66.7%
-Actual win rate: ~76%
+A 0.24-delta credit spread pays $32.43 on a win.
+The stop costs $81.09.
+Breakeven win rate: 71.4%
+Delta-implied OTM rate: 76%
 
-Your entire edge is 9 percentage points.
-Crossing the bid/ask eats a third of it.
+Your entire edge is 4.6 percentage points, worth $5.19 a contract.
+Crossing the bid/ask cost $1.78 of that. 34% of the edge.
 
 So I built an agent that scores every fill against the mid it was
 priced at, learns its capture ratio per (symbol, tenor, delta,
@@ -82,10 +82,11 @@ Every one of those agents measures whether its decisions were right. Not one
 measures whether its executions were good.
 
 On a four-session horizon, that distinction is the entire game. A 0.24-delta
-defined-risk credit spread pays about $38 on a win against a $75 stop. The
-breakeven win rate is 66.7%. The actual win rate at that delta is roughly
-76%. So the edge is nine percentage points, and crossing the bid/ask on entry
-and exit consumes a meaningful share of it.
+defined-risk credit spread pays about $32.43 on a win against a $81.09 stop.
+The breakeven win rate is 71.4%. A 0.24 short delta implies a 76% chance of
+finishing out of the money. So the edge is 4.6 percentage points, worth
+$5.19 a contract, and crossing the bid/ask cost $1.78 of that, or 34%
+of the edge.
 
 Put plainly: an agent that picks the right strike and then hands half its
 edge to the spread has not made money. It has made work.

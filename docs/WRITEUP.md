@@ -9,7 +9,7 @@ evaluation window that is close to noise: nobody, in this field or outside it,
 can establish strategy edge from four days of paper trading.
 
 Something else is measurable in four days, and it is not small. A 0.24-delta
-credit spread on SPY collects about $78 per contract on a $5-wide vertical,
+credit spread on SPY collects about $81 per contract on a $5-wide vertical,
 and the bid/ask it crosses on entry and again on exit is a material
 fraction of that. **Execution
 slippage is the same order of magnitude as the entire strategy edge**, and no

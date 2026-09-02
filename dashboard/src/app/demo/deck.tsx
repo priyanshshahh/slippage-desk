@@ -93,13 +93,14 @@ function buildSlides(p: Props) {
     <div key="1">
       <Kicker>Slippage Desk</Kicker>
       <Big>
-        A 0.24-delta credit spread pays <span className="text-allow">$38</span>.
+        A 0.24-delta spread nets <span className="text-allow">$5.19</span> a contract.
         <br />
-        Crossing the spread costs <span className="text-block">a third of it</span>.
+        Crossing the spread cost <span className="text-block">$1.78 of it</span>.
       </Big>
       <Note>
-        Breakeven win rate is 66.7%. Actual is about 76%. The entire edge is nine
-        percentage points, and execution eats a third of that.
+        A win banks $32.43 against a $81.09 stop, so breakeven is 71.4%. A 0.24 short
+        delta implies 76% finish out of the money. The entire edge is 4.6 percentage
+        points, and execution took 34% of it.
       </Note>
     </div>,
 

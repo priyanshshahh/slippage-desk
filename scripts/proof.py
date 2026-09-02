@@ -27,6 +27,45 @@ from engine.execution_quality import ExecutionMemory
 OUT = ROOT / "data" / "proof.json"
 
 
+def _economics(cfg: dict, broker_credit: float, verified: list) -> dict:
+    """The per-contract arithmetic, derived from config and from real fills.
+
+    Exit rules live in agent/loop.py: profit take closes at
+    entry_credit * (1 - profit_take_pct), so a win banks profit_take_pct of
+    the credit; the stop closes at entry_credit * stop_loss_multiple, so a
+    loss costs (stop_loss_multiple - 1) of it. Breakeven win rate follows.
+    """
+    contracts = sum(int(s.get("contracts", 0)) for s in verified)
+    if contracts <= 0 or broker_credit <= 0:
+        return {}
+
+    take = float(cfg["exit"]["profit_take_pct"])
+    stop = float(cfg["exit"]["stop_loss_multiple"])
+    delta = float(cfg["entry"]["short_delta_target"])
+
+    credit = broker_credit / contracts
+    win = take * credit
+    loss = (stop - 1.0) * credit
+    breakeven = loss / (win + loss)
+    otm = 1.0 - delta
+    expected = otm * win - delta * loss
+
+    return {
+        "note": (
+            "Derived from config.yaml and from the broker-verified fills, not "
+            "hand-entered. Win and loss follow the exit rules in agent/loop.py."
+        ),
+        "contracts": contracts,
+        "credit_per_contract_usd": round(credit, 2),
+        "win_usd": round(win, 2),
+        "loss_usd": round(loss, 2),
+        "breakeven_win_rate": round(breakeven, 4),
+        "delta_implied_otm_rate": round(otm, 4),
+        "edge_points": round((otm - breakeven) * 100, 1),
+        "expected_per_contract_usd": round(expected, 2),
+    }
+
+
 def build() -> dict:
     cfg = load_config()
     rows = journal.load()
@@ -212,6 +251,10 @@ def build() -> dict:
             ),
         },
         "buckets": memory.report(),
+        # The front page states the trade's arithmetic. It used to state it in
+        # hand-typed constants that matched neither config.yaml nor the fills,
+        # so derive it here instead: one signed source, no second copy to drift.
+        "economics": _economics(cfg, broker_credit, verified),
         "fills": fills,
         "broker_verification": {
             "note": (

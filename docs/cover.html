@@ -1,42 +1,93 @@
 <!doctype html>
 <meta charset="utf-8">
 <title>Slippage Desk cover</title>
+<!--
+  Rendered to docs/cover.png by scripts/build_deck.py, which also stamps every
+  value carrying an id="x-*" from data/proof.json. The stats were hand-typed
+  once and shipped with gates and surfaces transposed, so nothing here is
+  authored by hand any more. Edit the layout freely; leave the ids alone.
+-->
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: #09090b; }
   .c { width: 1280px; height: 720px; background: #09090b; color: #fafafa;
        font: 16px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif;
-       padding: 78px 88px; display: flex; flex-direction: column;
-       justify-content: center; position: relative; overflow: hidden; }
-  .glow { position: absolute; width: 900px; height: 900px; border-radius: 50%;
-          right: -320px; top: -360px; pointer-events: none;
-          background: radial-gradient(circle, rgba(74,222,128,.10), transparent 62%); }
+       padding: 72px 88px; display: grid; grid-template-columns: 1fr 470px;
+       gap: 72px; align-items: center; position: relative; overflow: hidden; }
+  .glow { position: absolute; width: 820px; height: 820px; border-radius: 50%;
+          right: -300px; top: -330px; pointer-events: none;
+          background: radial-gradient(circle, rgba(74,222,128,.11), transparent 62%); }
   .tag { font-size: 13px; letter-spacing: .22em; text-transform: uppercase;
-         color: #8b8b94; margin-bottom: 26px; }
-  h1 { font-size: 92px; line-height: .98; letter-spacing: -.035em; }
-  .lede { font-size: 30px; color: #d4d4d8; margin-top: 26px; max-width: 26ch; }
-  .row { display: flex; gap: 60px; margin-top: 54px; }
-  .k { font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
-       color: #8b8b94; margin-bottom: 9px; }
-  .v { font-size: 46px; font-variant-numeric: tabular-nums; letter-spacing: -.03em;
+         color: #8b8b94; margin-bottom: 24px; }
+  h1 { font-size: 86px; line-height: .97; letter-spacing: -.035em; }
+  .lede { font-size: 27px; color: #d4d4d8; margin-top: 22px; max-width: 22ch; }
+  .row { display: flex; gap: 46px; margin-top: 46px; }
+  .k { font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+       color: #8b8b94; margin-bottom: 8px; }
+  .v { font-size: 38px; font-variant-numeric: tabular-nums; letter-spacing: -.03em;
        line-height: 1; }
   .v.g { color: #4ade80; }
-  .foot { position: absolute; bottom: 44px; left: 88px; right: 88px;
+
+  /* The thesis as a picture: what the quote promised, what the fill delivered,
+     and the gap between them, which is the only thing four sessions can prove. */
+  .panel { border: 1px solid #27272a; border-radius: 14px; padding: 34px 32px;
+           background: #0e0e11; position: relative; }
+  .bar { height: 15px; border-radius: 3px; background: #1f1f23; margin-top: 10px;
+         overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 3px; }
+  .bar.mid > i { background: #3f3f46; }
+  .bar.cap > i { background: #4ade80; }
+  .lbl { display: flex; justify-content: space-between; align-items: baseline;
+         font-size: 12px; letter-spacing: .13em; text-transform: uppercase;
+         color: #8b8b94; }
+  .amt { font-family: ui-monospace, Menlo, monospace; font-size: 21px;
+         letter-spacing: -.01em; color: #fafafa; text-transform: none; }
+  .amt.g { color: #4ade80; }
+  .gap { margin-top: 28px; padding-top: 22px; border-top: 1px solid #27272a; }
+  .gap .n { font-size: 44px; font-family: ui-monospace, Menlo, monospace;
+            color: #fbbf24; letter-spacing: -.03em; line-height: 1; }
+  .gap .c2 { font-size: 13px; color: #8b8b94; margin-top: 11px; line-height: 1.45; }
+  .foot { position: absolute; bottom: 40px; left: 88px; right: 88px;
           display: flex; justify-content: space-between;
-          font-family: ui-monospace, Menlo, monospace; font-size: 14px;
+          font-family: ui-monospace, Menlo, monospace; font-size: 13px;
           color: #52525b; }
 </style>
 <div class="c">
   <div class="glow"></div>
-  <div class="tag">Alpaca AI Trading Agents Hackathon</div>
-  <h1>Slippage<br>Desk</h1>
-  <div class="lede">The options agent that measures its own execution.</div>
-  <div class="row">
-    <div><div class="k">Credit captured</div><div class="v g">97.9%</div></div>
-    <div><div class="k">Broker-verified</div><div class="v">yes</div></div>
-    <div><div class="k">Deterministic gates</div><div class="v">15</div></div>
-    <div><div class="k">Alpaca surfaces</div><div class="v">3</div></div>
+
+  <div>
+    <div class="tag">Alpaca AI Trading Agents Hackathon</div>
+    <h1>Slippage<br>Desk</h1>
+    <div class="lede">The options agent that measures its own execution.</div>
+    <div class="row">
+      <div><div class="k">Credit captured</div>
+           <div class="v g" id="x-capture">97.9%</div></div>
+      <div><div class="k">Spreads verified</div>
+           <div class="v" id="x-spreads">20</div></div>
+      <div><div class="k">Deterministic gates</div>
+           <div class="v" id="x-gates">15</div></div>
+      <div><div class="k">Alpaca surfaces</div>
+           <div class="v" id="x-surfaces">3</div></div>
+    </div>
   </div>
+
+  <div class="panel">
+    <div class="lbl"><span>Credit at mid</span>
+                     <span class="amt" id="x-theoretical">$1,906</span></div>
+    <div class="bar mid"><i style="width:100%"></i></div>
+
+    <div class="lbl" style="margin-top:24px"><span>Actually captured</span>
+                     <span class="amt g" id="x-captured">$1,865</span></div>
+    <div class="bar cap"><i id="x-barwidth" style="width:97.9%"></i></div>
+
+    <div class="gap">
+      <div class="k">Surrendered to execution</div>
+      <div class="n" id="x-lost">$41</div>
+      <div class="c2">The number every other agent in this field
+                      is guessing at.</div>
+    </div>
+  </div>
+
   <div class="foot">
     <span>Trading API · MCP server · CLI</span>
     <span>paper PA343VC6LL3T</span>

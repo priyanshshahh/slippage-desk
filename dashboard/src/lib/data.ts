@@ -103,6 +103,18 @@ export type Proof = {
     paired_spreads: number;
     broker_capture_ratio: number | null;
   };
+  // Derived in scripts/proof.py from config.yaml and the verified fills, so
+  // the front page never restates the trade's arithmetic from memory.
+  economics?: {
+    contracts: number;
+    credit_per_contract_usd: number;
+    win_usd: number;
+    loss_usd: number;
+    breakeven_win_rate: number;
+    delta_implied_otm_rate: number;
+    edge_points: number;
+    expected_per_contract_usd: number;
+  };
   sha256: string;
 };
 

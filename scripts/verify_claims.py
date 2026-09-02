@@ -65,6 +65,16 @@ def main() -> int:
     capture = bv["broker_capture_ratio"] or t["aggregate_capture_ratio"]
     n_gates = gate_count()
 
+    # The trade's arithmetic. Every published copy of it was hand-typed once
+    # and described a $38 credit against a $75 stop, matching neither the
+    # config nor a single fill. scripts/proof.py now derives it; these checks
+    # make sure no deliverable restates it from memory again.
+    ec = proof.get("economics") or {}
+    if not ec:
+        raise SystemExit("data/proof.json has no economics block; run scripts.proof")
+    cost_per_contract = t["given_up_to_execution_usd"] / ec["contracts"]
+    eaten = round(cost_per_contract / ec["expected_per_contract_usd"] * 100)
+
     # (label, regex that finds a claim, the value the claim must carry)
     checks = [
         ("gate count (word)", r"\b(twelve|thirteen|fourteen|fifteen|sixteen)\b(?=[^.\n]{0,40}?(?:deterministic|gates|checks))",
@@ -86,6 +96,15 @@ def main() -> int:
         # pair (gates 13, surfaces 15) shipped on the cover image once.
         ("gates stat cell", r"Deterministic gates</div><div class=\"v\">(\d+)<", str(n_gates)),
         ("surfaces stat cell", r"Alpaca surfaces</div><div class=\"v\">(\d+)<", "3"),
+        # Derived economics. Nothing below may be typed by hand.
+        ("win per contract", r"\$(\d+\.\d\d)(?=[^.\n]{0,25}(?:on a win|banks))", f"{ec['win_usd']:.2f}"),
+        ("stop cost", r"stop costs[^$\n]{0,12}\$(\d+\.\d\d)", f"{ec['loss_usd']:.2f}"),
+        ("breakeven win rate", r"[Bb]reakeven(?:[^.\n]{0,20})?\s(\d{2}\.\d)%", f"{ec['breakeven_win_rate'] * 100:.1f}"),
+        ("delta-implied OTM", r"[Dd]elta-implied OTM(?:[^.\n]{0,12})?\s(\d{2})%", f"{ec['delta_implied_otm_rate'] * 100:.0f}"),
+        ("edge points", r"edge is\s+(\d+(?:\.\d)?)\s+percentage points", str(ec["edge_points"])),
+        ("credit per contract", r"about \$(\d+) per contract", f"{ec['credit_per_contract_usd']:.0f}"),
+        ("expected per contract", r"worth\s+\$(\d+\.\d\d)\s+a contract", f"{ec['expected_per_contract_usd']:.2f}"),
+        ("share of edge eaten", r"(\d+)% of the edge", str(eaten)),
     ]
 
     problems: list[str] = []
