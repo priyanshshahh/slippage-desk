@@ -112,3 +112,31 @@ $1,906 of credit at mid, $1,865 actually captured, $41 surrendered to execution,
 - [ ] GitHub URL and demo URL both visible on screen
 - [ ] Under 5:00, over 3:00
 - [ ] Audio checked before the full take
+
+---
+
+## The shipped video
+
+`docs/video.mp4` is the submission cut: 4:03, 1920x1080, with a generated
+narration track. `docs/video_silent.mp4` is the raw screen recording it was
+built from, kept because re-recording costs four minutes of wall clock.
+
+The narration is not read from this file. It lives in
+`scripts/build_narration.py`, one block per scene, with every figure
+formatted out of `data/proof.json` rather than transcribed. That is
+deliberate: the script above sat for a day saying "thirty-five dollars a
+contract" as a spelled-out word, where no digit check could see it.
+
+Scene durations are imported from `scripts/build_film.py`, so re-timing the
+film re-times the narration instead of desynchronising it. Each block is
+fitted to its scene by slowing the speaking rate first and only speeding up
+when it has to, and the build exits non-zero if a block still overruns its
+slide.
+
+To rebuild after any change to the proof or the film:
+
+    PYTHONPATH=. ./.venv/bin/python scripts/build_narration.py
+
+Recording your own voice over the same cut is still better than the system
+voice. The per-scene timings printed by that command are the budget to read
+against, and `video_silent.mp4` is the clean plate to record over.

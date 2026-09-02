@@ -1,4 +1,4 @@
-"""Generate docs/narration.m4a and mux it onto docs/video.mp4.
+"""Generate docs/narration.m4a and mux it onto the silent screen recording.
 
 The film was shipped silent, which reads as unfinished next to entries that
 talk over their demo. This speaks the argument in time with the scenes.
@@ -27,8 +27,11 @@ from scripts.build_film import scenes
 VOICE = "Samantha"          # the most natural of the installed system voices
 LEAD_IN = 1.2               # build_film.py delays the first scene by this long
 OUT_AUDIO = ROOT / "docs" / "narration.m4a"
-VIDEO_IN = ROOT / "docs" / "video.mp4"
-VIDEO_OUT = ROOT / "docs" / "video_narrated.mp4"
+# The silent screen recording is the input and is kept, because re-recording
+# it costs four minutes of wall clock. The narrated mux is the deliverable,
+# so it takes the plain name that the submission refers to.
+VIDEO_IN = ROOT / "docs" / "video_silent.mp4"
+VIDEO_OUT = ROOT / "docs" / "video.mp4"
 
 
 def spoken(p: dict) -> list[str]:
