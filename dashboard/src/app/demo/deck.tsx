@@ -89,7 +89,7 @@ function buildSlides(p: Props) {
   const stopped = gates.find((v) => !v.allowed);
 
   return [
-    // 1 — the hook, not the architecture
+    // 1: the hook, not the architecture
     <div key="1">
       <Kicker>Slippage Desk</Kicker>
       <Big>
@@ -103,9 +103,9 @@ function buildSlides(p: Props) {
       </Note>
     </div>,
 
-    // 2 — the gap in the field
+    // 2: the gap in the field
     <div key="2">
-      <Kicker>I read all 33 submissions</Kicker>
+      <Kicker>I read all 47 submissions</Kicker>
       <Big>
         Ten govern an LLM with deterministic gates.
         <br />
@@ -117,9 +117,9 @@ function buildSlides(p: Props) {
       </Note>
     </div>,
 
-    // 3 — a real refusal, live from the journal
+    // 3: a real refusal, live from the journal
     <div key="3">
-      <Kicker>Thirteen gates run before any order</Kicker>
+      <Kicker>Fifteen gates run before any order</Kicker>
       <Big>This one was refused.</Big>
       <div className="mt-8 max-w-4xl space-y-1.5 font-mono text-[clamp(0.8rem,1.15vw,1.05rem)]">
         {gates.slice(0, 11).map((v, n) => (
@@ -140,7 +140,7 @@ function buildSlides(p: Props) {
       )}
     </div>,
 
-    // 4 — the model's authority
+    // 4: the model's authority
     <div key="4">
       <Kicker>The model layer</Kicker>
       <Big>
@@ -151,12 +151,12 @@ function buildSlides(p: Props) {
       <Note>
         It cannot pick a strike, change an expiry, or increase size. The clamp
         multiplies, never assigns. And when the model is unreachable this desk{" "}
-        <strong className="text-foreground">refuses</strong> — several agents here
-        fall back to trading unsupervised. I would rather trade less.
+        <strong className="text-foreground">refuses</strong>. Only 6 of the 47
+        submissions here say what happens when their model fails at all.
       </Note>
     </div>,
 
-    // 5 — the thing nobody else has
+    // 5: the thing nobody else has
     <div key="5">
       <Kicker>What this one measures</Kicker>
       <Big>
@@ -181,27 +181,27 @@ function buildSlides(p: Props) {
       </div>
       <Note>
         Every fill scored against the mid it was priced at, per underlying,
-        tenor, delta band and time of day. Buckets that fill badly get refused —
+        tenor, delta band and time of day. Buckets that fill badly get refused,
         and candidates are now ranked on the credit a bucket has actually
         delivered, not the credit it advertises.
       </Note>
     </div>,
 
-    // 6 — Alpaca
+    // 6: Alpaca
     <div key="6">
       <Kicker>Alpaca, three surfaces, separate jobs</Kicker>
       <Big>Execution never routes through MCP.</Big>
       <div className="mt-8 max-w-4xl space-y-3 text-[clamp(0.95rem,1.4vw,1.3rem)]">
         <div>
-          <span className="font-mono text-allow">CLI</span> — executes orders and
+          <span className="font-mono text-allow">CLI</span> executes orders and
           verifies the book. Nine endpoints.
         </div>
         <div>
-          <span className="font-mono text-allow">SDK</span> — option chains with
+          <span className="font-mono text-allow">SDK</span> option chains with
           greeks in one call.
         </div>
         <div>
-          <span className="font-mono text-allow">MCP</span> — read-only research,
+          <span className="font-mono text-allow">MCP</span> read-only research,
           launched without the trading toolset so no order tool exists to call.
         </div>
       </div>
@@ -211,7 +211,7 @@ function buildSlides(p: Props) {
       </Note>
     </div>,
 
-    // 7 — the claim, and its limits
+    // 7: the claim, and its limits
     <div key="7">
       <Kicker>What we claim</Kicker>
       <Big>
@@ -240,7 +240,7 @@ function buildSlides(p: Props) {
       </Note>
     </div>,
 
-    // 8 — close
+    // 8: close
     <div key="8">
       <Kicker>Slippage Desk</Kicker>
       <Big>

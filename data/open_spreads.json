@@ -1,31 +1,5 @@
 [
   {
-    "underlying": "QQQ",
-    "kind": "call_credit",
-    "expiry": "2026-09-03",
-    "short_symbol": "QQQ260903C00716000",
-    "long_symbol": "QQQ260903C00721000",
-    "contracts": 1,
-    "entry_credit": 0.85,
-    "max_loss_per_contract": 415.0,
-    "bucket": "QQQ:dte2:d0.25:midday",
-    "opened_at": "2026-09-01T12:21:18.976547-04:00",
-    "order_id": ""
-  },
-  {
-    "underlying": "QQQ",
-    "kind": "call_credit",
-    "expiry": "2026-09-03",
-    "short_symbol": "QQQ260903C00715000",
-    "long_symbol": "QQQ260903C00720000",
-    "contracts": 6,
-    "entry_credit": 0.95,
-    "max_loss_per_contract": 405.0,
-    "bucket": "QQQ:dte2:d0.25:midday",
-    "opened_at": "2026-09-01T12:22:50.180799-04:00",
-    "order_id": ""
-  },
-  {
     "underlying": "SPY",
     "kind": "call_credit",
     "expiry": "2026-09-03",
@@ -36,6 +10,7 @@
     "max_loss_per_contract": 419.0,
     "bucket": "SPY:dte2:d0.25:midday",
     "opened_at": "2026-09-01T12:42:06.064817-04:00",
-    "order_id": ""
+    "order_id": "",
+    "width": 0.0
   }
 ]

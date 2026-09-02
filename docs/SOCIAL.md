@@ -11,14 +11,14 @@ Every figure below was verified on 2026-08-31.
 
 ---
 
-## POST 1 — the hook. Post this first.
+## POST 1: the hook. Post this first.
 
 ### X, short version (fits 280)
 
 ```
-I read all 27 submissions in the @AlpacaHQ x @lablabai trading hackathon.
+I read all 47 submissions in the @AlpacaHQ x @lablabai trading hackathon.
 
-10 describe the same architecture: "LLM proposes, deterministic gates authorize."
+11 describe the same architecture: "LLM proposes, deterministic gates authorize."
 
 All of them measure whether their DECISIONS were right.
 
@@ -30,9 +30,9 @@ That's the whole edge.
 ### X, long version (if you have Premium)
 
 ```
-I read all 27 submissions in the @AlpacaHQ x @lablabai AI trading hackathon.
+I read all 47 submissions in the @AlpacaHQ x @lablabai AI trading hackathon.
 
-10 describe the same architecture:
+11 describe the same architecture:
 "LLM proposes, deterministic gates authorize."
 
 All of them measure whether their decisions were right.
@@ -54,10 +54,10 @@ time-of-day) bucket, and refuses the buckets where it cannot get
 filled at the price its edge assumed.
 
 Live right now:
-257 candidates considered
-168 cleared every risk gate
-4 actually traded
-97.1% of theoretical credit captured
+693 candidates considered
+428 cleared every risk gate
+20 actually traded
+97.9% of theoretical credit captured
 
 That last number is verified against Alpaca's own activity log, not
 my bookkeeping. Anyone with the account ID can reproduce it.
@@ -69,7 +69,7 @@ This one learns whether it can actually get the price.
 ### LinkedIn version
 
 ```
-I read all 27 submissions in the Alpaca x lablab.ai AI Trading Agents
+I read all 47 submissions in the Alpaca x lablab.ai AI Trading Agents
 Hackathon before writing a line of my pitch.
 
 Ten of them describe the same architecture: an LLM proposes, deterministic
@@ -96,8 +96,8 @@ tenor, delta band, time of day) bucket, refuses the buckets where it has
 historically surrendered too much credit, and uses the same memory to decide
 how far to cross on the next order.
 
-Currently live on a paper account: 257 candidates considered, 168 cleared
-every risk gate, 4 traded, 97.1% of theoretical credit captured. That capture
+Currently live on a paper account: 693 candidates considered, 428 cleared
+every risk gate, 20 traded, 97.9% of theoretical credit captured. That capture
 figure comes from Alpaca's own activity log rather than my own bookkeeping,
 so anyone holding the account ID can reproduce it independently.
 
@@ -117,7 +117,7 @@ That is what gets reshared in this niche. Progress updates are not.
 
 ---
 
-## POST 2 — the bug that would have cost the week
+## POST 2: the bug that would have cost the week
 
 ```
 Nearly shipped an options agent that would have gone naked short.
@@ -140,7 +140,7 @@ Real chains span several. Check yours.
 
 ---
 
-## POST 3 — the docs contradiction, settled for $1.10
+## POST 3: the docs contradiction, settled for $1.10
 
 ```
 Alpaca's docs disagreed with themselves about the credit sign on
@@ -167,7 +167,7 @@ Cost to settle: $1.10 of simulated money.
 
 ---
 
-## POST 4 — the advisor earning its place
+## POST 4: the advisor earning its place
 
 ```
 My risk gates approved this trade. The LLM refused it:
@@ -186,7 +186,7 @@ Turns out that is enough to be useful.
 
 ---
 
-## POST 5 — the result. Post after the final run.
+## POST 5: the result. Post after the final run.
 
 ```
 Final numbers from 4 sessions on @AlpacaHQ paper:

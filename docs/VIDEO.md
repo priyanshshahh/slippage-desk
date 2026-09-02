@@ -1,4 +1,4 @@
-# Video script — 4:00 target
+# Video script (4:00 target)
 
 **Format:** MP4. Hard max 5:00. The rubric scores under 3:00 as "Limited", so
 4:00 is the safe target. Record the screen at 1920x1080.
@@ -44,19 +44,19 @@ Dashboard, live. Point at the two tiles nobody else can show:
 
 Scroll the chain-of-thought feed. Let a **refusal** land on camera.
 
-> "Twelve deterministic gates, in the order they ran, with the actual numbers.
+> "Fifteen deterministic gates, in the order they ran, with the actual numbers.
 > This one stopped on credit-to-width: the market wasn't paying enough for the
 > risk, so it declined.
 >
 > The LLM sits here, and it can do exactly two things: shrink the trade, or veto
 > it. It cannot pick a strike, change an expiry, or widen risk. That is enforced
-> in code — the clamp multiplies, it never assigns."
+> in code. The clamp multiplies, it never assigns."
 
 **The money line, and the field splits on it:**
 
-> "And when the model is unreachable, this desk *refuses*. Several agents here
-> fall back to trading deterministically. I'd rather trade less than trade
-> unsupervised."
+> "And when the model is unreachable, this desk *refuses*. Of the 47 other
+> submissions here, only six say what happens when their model fails at all.
+> I'd rather trade less than trade unsupervised."
 
 ---
 

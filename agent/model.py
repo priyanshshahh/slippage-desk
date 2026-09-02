@@ -46,7 +46,7 @@ def _provider() -> str | None:
 SYSTEM = """You are a risk advisor for an autonomous options income agent.
 
 The agent sells defined-risk credit spreads. A candidate reaches you only
-after passing twelve deterministic risk gates and being sized by a fixed
+after passing fifteen deterministic risk gates and being sized by a fixed
 formula. Your job is NOT to find trades. Your job is to catch the things a
 static rule cannot see: an unusual quote, a stale-looking chain, an
 earnings or macro event the structure implies, a credit that looks too

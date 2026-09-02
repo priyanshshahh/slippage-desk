@@ -28,8 +28,8 @@ def main() -> int:
 
     cards = [
         ("Considered", f"{s['considered']:,}", "candidates evaluated"),
-        ("Cleared gates", f"{s['approved']:,}", "passed all thirteen"),
-        ("Credit captured", f"{capture * 100:.0f}%", "broker-verified"),
+        ("Cleared gates", f"{s['approved']:,}", "passed all fifteen"),
+        ("Credit captured", f"{capture * 100:.1f}%", "broker-verified"),
         ("Lost to execution", f"${t['given_up_to_execution_usd']:,.0f}",
          "the number nobody else has"),
     ]

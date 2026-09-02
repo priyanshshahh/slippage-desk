@@ -8,16 +8,17 @@ Most autonomous trading agents optimise *what* to trade. Over a four-session
 evaluation window that is close to noise: nobody, in this field or outside it,
 can establish strategy edge from four days of paper trading.
 
-Something else is measurable in four days, and it is not small. A 15-delta
-credit spread on SPY earns roughly $35 per contract at a 50% profit take.
-Crossing the bid/ask on entry and exit costs $10 to $20 of that. **Execution
+Something else is measurable in four days, and it is not small. A 0.24-delta
+credit spread on SPY collects about $78 per contract on a $5-wide vertical,
+and the bid/ask it crosses on entry and again on exit is a material
+fraction of that. **Execution
 slippage is the same order of magnitude as the entire strategy edge**, and no
 other agent in this hackathon measures it.
 
 ## AI logic
 
 The model layer has **strictly negative authority**. A candidate reaches it only
-after passing twelve deterministic gates and being sized by a fixed formula. The
+after passing fifteen deterministic gates and being sized by a fixed formula. The
 model returns one number in `[0, 1]` and a reason. That is the entire interface.
 
 `engine/risk.apply_model_opinion` clamps the value and **multiplies** rather than
@@ -26,16 +27,17 @@ change an expiry, widen risk, or reach around a gate, because nothing in the cal
 path accepts anything else from it.
 
 Every failure path returns veto: timeout, malformed JSON, a refusal stop reason,
-NaN, or a missing key. **The field splits here.** Several agents fall back to
-trading deterministically when the model is unreachable. This one refuses. A
-model failure degrades to "trades less", never to "trades unsupervised".
+NaN, or a missing key. **The field splits here.** Of the 47 other
+submissions, only six say what happens when their model fails at all. This one
+refuses: a model failure degrades to "trades less", never to "trades
+unsupervised".
 
-The advisor is Claude Opus 5, called with a strict JSON schema, a 20-second
+The advisor is Claude Opus 5, called with a strict JSON schema, a 90-second
 timeout and zero retries, so a slow advisor is treated exactly like a broken one.
 
 ## Risk gates
 
-Thirteen deterministic checks run before any order, cheapest first, sizing last.
+Fifteen deterministic checks run before any order, cheapest first, sizing last.
 Each returns a named, logged verdict, and all must allow:
 
 `market_open`, `entry_window`, `equity_floor`, `daily_loss_limit`,

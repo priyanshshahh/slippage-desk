@@ -67,7 +67,7 @@ export default function Hero({ proof }: { proof: Proof | null }) {
           <strong> how well you get filled matters as much as what you pick</strong>
           {capture !== null && (
             <>
-              {" "}— and this agent captured{" "}
+              {" "}and this agent captured{" "}
               <span className="font-mono text-allow">
                 {(capture * 100).toFixed(1)}%
               </span>{" "}

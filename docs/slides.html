@@ -74,8 +74,8 @@
 
 <section class="s">
   <div class="tag">The field</div>
-  <h2>I read all 27 submissions before writing a line of this pitch.</h2>
-  <p class="lede">Ten describe the same architecture:<br>
+  <h2>I read all 47 submissions before writing a line of this pitch.</h2>
+  <p class="lede">Eleven describe the same architecture:<br>
     <span class="mono">"LLM proposes, deterministic gates authorise."</span></p>
   <p style="margin-top:30px">That is the baseline now, not a differentiator.
      This project has it too. It is not the claim.</p>
@@ -104,13 +104,13 @@
   <h2>The model has strictly negative authority.</h2>
   <p class="lede">It may shrink a trade or veto it. Nothing else.</p>
   <ul style="margin-top:26px">
-    <li>Thirteen deterministic gates run first; sizing is a fixed formula</li>
+    <li>Fifteen deterministic gates run first; sizing is a fixed formula</li>
     <li>The clamp <strong>multiplies</strong>, never assigns. A model returning 5.0 is treated as 1.0</li>
     <li>It cannot pick a strike, change an expiry, or widen risk</li>
     <li>Timeout, refusal, malformed JSON, NaN: every failure path is a veto</li>
   </ul>
-  <p style="margin-top:26px"><strong>The field splits here.</strong> Several agents
-     fall back to trading deterministically when the model is unreachable.
+  <p style="margin-top:26px"><strong>The field splits here.</strong> Of the 47 other
+     submissions, only six say what happens when their model fails at all.
      This one refuses. Failure degrades to trading less, never to trading
      unsupervised.</p>
   <div class="pg">5</div>
@@ -153,10 +153,10 @@
   <div class="tag">Evidence</div>
   <h2>Not a screenshot. A reproducible artefact.</h2>
   <div class="grid" id="stats">
-    <div class="card"><div class="k">Considered</div><div class="v">357</div><div class="n">candidates evaluated</div></div>
-    <div class="card"><div class="k">Cleared gates</div><div class="v">230</div><div class="n">passed all thirteen</div></div>
-    <div class="card"><div class="k">Credit captured</div><div class="v">96%</div><div class="n">broker-verified</div></div>
-    <div class="card"><div class="k">Lost to execution</div><div class="v">$26</div><div class="n">the number nobody else has</div></div>
+    <div class="card"><div class="k">Considered</div><div class="v">693</div><div class="n">candidates evaluated</div></div>
+    <div class="card"><div class="k">Cleared gates</div><div class="v">428</div><div class="n">passed all fifteen</div></div>
+    <div class="card"><div class="k">Credit captured</div><div class="v">97.9%</div><div class="n">broker-verified</div></div>
+    <div class="card"><div class="k">Lost to execution</div><div class="v">$41</div><div class="n">the number nobody else has</div></div>
   </div>
   <p style="margin-top:34px"><span class="mono">data/proof.json</span> carries
      every fill, the mid it was priced against, the credit received, per-bucket
@@ -198,3 +198,5 @@
 
 
 <!-- evidence sha256 e5bfd5355165ad4f -->
+
+<!-- evidence sha256 7fb0712d87d404e1 -->

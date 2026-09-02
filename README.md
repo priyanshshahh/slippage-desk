@@ -4,7 +4,7 @@
 
 An autonomous options income agent for the Alpaca AI Trading Agents
 Hackathon. It sells short-dated, defined-risk credit spreads on SPY, QQQ and
-IWM behind thirteen deterministic gates, and it scores every fill against the
+IWM behind fifteen deterministic gates, and it scores every fill against the
 mid it was priced at.
 
 An autonomous options agent for the Alpaca AI Trading Agents Hackathon.
@@ -22,10 +22,11 @@ The claim is this: **on a four-session horizon, execution quality is the
 same order of magnitude as the entire strategy edge, and nobody measures
 it.**
 
-A 15-delta credit spread on SPY earns roughly $35 per contract at a 50%
-profit take. Crossing the bid/ask on entry and exit costs $10 to $20 of
-that. So an agent that picks the right strike and then hands half its edge
-to the spread has not made money, it has made work. Every agent in this
+A 0.24-delta credit spread on SPY collects about $78 per contract on a
+$5-wide vertical, and the bid/ask it crosses on entry and again on exit is
+a material fraction of that. So an agent that picks the right strike and
+then hands the credit back to the spread has not made money, it has made
+work. Every agent in this
 field optimises *what* to trade. This one also learns *whether it can
 actually get filled at the price its edge assumed*.
 
@@ -68,13 +69,13 @@ vertical, so maximum loss is known and capped before submission.
 - Underlyings: SPY and QQQ, chosen for penny-wide quotes and daily expiries
 - Structure: put credit spreads, call credit spreads, and iron condors
 - Tenor: 0 to 2 days to expiry
-- Short leg: 0.10 to 0.22 delta, targeting 0.15
-- Exit: 50% of credit captured, or 2x credit as a stop, or forced flat at
+- Short leg: 0.18 to 0.30 delta, targeting 0.24
+- Exit: 40% of credit captured, or 2x credit as a stop, or forced flat at
   15:45 ET to avoid pin and assignment risk
 
 ## Risk gates
 
-Thirteen deterministic checks run before any order. Each returns a named,
+Fifteen deterministic checks run before any order. Each returns a named,
 logged verdict, and all must allow.
 
 | Gate | Blocks when |

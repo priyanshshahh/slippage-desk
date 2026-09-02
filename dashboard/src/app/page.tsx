@@ -176,7 +176,7 @@ export default async function Page() {
             />
             <Stat
               label="Credit captured"
-              value={econ.ratio == null ? "—" : `${(econ.ratio * 100).toFixed(0)}%`}
+              value={econ.ratio == null ? "-" : `${(econ.ratio * 100).toFixed(0)}%`}
               note={`across ${econ.fills} fill${econ.fills === 1 ? "" : "s"}${econ.brokerVerified ? ", broker-verified" : ""}`}
             />
             <Stat
