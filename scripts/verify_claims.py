@@ -42,6 +42,13 @@ FORBIDDEN = [
     # (not this list) caught it.
     (r"\b(?:any|most|some) entrants?\b", "refers to other entries"),
     (r"\bentrants? (?:claim|claiming|skip)\b", "refers to other entries"),
+    # A superiority claim doesn't need to say "other" to imply comparison.
+    # "nobody measures it" and "every agent in this field" both sat in
+    # README.md, the first thing GitHub shows, until a manual sweep caught
+    # them; neither matched anything above.
+    (r"\bnobody measures\b", "implicit superiority claim"),
+    (r"\bevery (?:agent|entrant|team) in this (?:field|hackathon)\b",
+     "refers to other entries"),
 ]
 
 
@@ -133,6 +140,13 @@ def main() -> int:
         # SUBMISSION.md shipped "24 contracts" against a proof that says 23,
         # in the one document a judge reads first.
         ("contracts filled", r"\b(\d+) contracts\b", str(ec["contracts"])),
+        # "428 cleared every risk gate" and "20 traded" sat in SOCIAL.md for a
+        # day: a gate-clearance count proof.json has never recorded, and a
+        # stale fill count, both phrased just differently enough that neither
+        # the considered-check nor the ban list above caught them.
+        ("orders filled (traded/cleared)",
+         r"\b(\d[\d,]{0,4})\s+(?:cleared every (?:risk )?gate|actually traded|traded\b)",
+         str(t["orders_filled"])),
     ]
 
     problems: list[str] = []

@@ -7,7 +7,9 @@ Tag **@lablabai** and **@AlpacaHQ** on X. Tag **lablab.ai** and **Alpaca** on
 LinkedIn. Judged on quality *and* engagement.
 
 **Rule: never post a number you cannot reconcile against the account.**
-Every figure below was verified on 2026-08-31.
+Every figure below is verified against `data/proof.json` as of the final
+run (2026-09-03, sha256 `9c8222b4...`). Re-check before posting if you
+trade again after this was written.
 
 ---
 
@@ -51,15 +53,14 @@ filled at the price its edge assumed.
 
 Live right now:
 1,798 candidates considered
-428 cleared every risk gate
-20 actually traded
+25 cleared every gate and filled
 98.6% of theoretical credit captured
 
 That last number is verified against Alpaca's own activity log, not
 my bookkeeping. Anyone with the account ID can reproduce it.
 
-Most agents optimise WHAT to trade.
-This one learns whether it can actually get the price.
+Optimising WHAT to trade is the easy half.
+This one also learns whether it can actually get the price.
 ```
 
 ### LinkedIn version
@@ -89,14 +90,14 @@ of the edge.
 Put plainly: an agent that picks the right strike and then hands half its
 edge to the spread has not made money. It has made work.
 
-So I built one that measures the thing nobody measures. Every fill is scored
+So I built one that measures the thing that usually goes unmeasured. Every fill is scored
 against the mid it was priced at. It keeps a capture ratio per (underlying,
 tenor, delta band, time of day) bucket, refuses the buckets where it has
 historically surrendered too much credit, and uses the same memory to decide
 how far to cross on the next order.
 
-Currently live on a paper account: 1,798 candidates considered, 428 cleared
-every risk gate, 20 traded, 98.6% of theoretical credit captured. That capture
+Currently live on a paper account: 1,798 candidates considered, 25 cleared
+every gate and filled, 98.6% of theoretical credit captured. That capture
 figure comes from Alpaca's own activity log rather than my own bookkeeping,
 so anyone holding the account ID can reproduce it independently.
 
@@ -110,8 +111,8 @@ Built with Claude Code. Repo and live dashboard in comments.
 #AlgorithmicTrading #AI #Options #Hackathon
 ```
 
-**Why this one is first:** it opens with a claim nobody can dismiss (you read
-all 27), lands a counterintuitive finding, and every number is reconcilable.
+**Why this one is first:** it opens with a claim that is hard to dismiss,
+lands a counterintuitive finding, and every number is reconcilable.
 That is what gets reshared in this niche. Progress updates are not.
 
 ---

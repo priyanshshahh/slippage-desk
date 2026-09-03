@@ -4,13 +4,8 @@
 
 An autonomous options income agent for the Alpaca AI Trading Agents
 Hackathon. It sells short-dated, defined-risk credit spreads on SPY, QQQ and
-IWM behind fifteen deterministic gates, and it scores every fill against the
-mid it was priced at.
-
-An autonomous options agent for the Alpaca AI Trading Agents Hackathon.
-It sells short-dated, defined-risk credit spreads on liquid index ETFs,
-behind a deterministic risk layer that a language model can veto but never
-overrule.
+IWM behind fifteen deterministic gates that a language model can veto but
+never overrule, and it scores every fill against the mid it was priced at.
 
 ## The core design claim
 
@@ -19,16 +14,15 @@ allowed anywhere near a live account. This project has it, and it is not
 the claim.
 
 The claim is this: **on a four-session horizon, execution quality is the
-same order of magnitude as the entire strategy edge, and nobody measures
-it.**
+same order of magnitude as the entire strategy edge, and it is rarely
+measured.**
 
 A 0.24-delta credit spread on SPY collects about $83 per contract on a
 $5-wide vertical, and the bid/ask it crosses on entry and again on exit is
 a material fraction of that. So an agent that picks the right strike and
 then hands the credit back to the spread has not made money, it has made
-work. Every agent in this
-field optimises *what* to trade. This one also learns *whether it can
-actually get filled at the price its edge assumed*.
+work. Picking *what* to trade is table stakes. This one also learns
+*whether it can actually get filled at the price its edge assumed*.
 
 `engine/execution_quality.py` scores every fill against the mid it was
 priced at, keeps a shrunk capture ratio per
@@ -66,8 +60,11 @@ selling out-of-the-money premium on a liquid underlying produces many
 small, high-probability outcomes. Every position is a defined-risk
 vertical, so maximum loss is known and capped before submission.
 
-- Underlyings: SPY and QQQ, chosen for penny-wide quotes and daily expiries
-- Structure: put credit spreads, call credit spreads, and iron condors
+- Underlyings: SPY, QQQ and IWM, chosen for penny-wide quotes and daily
+  expiries. IWM's chain is thinner; the `quote_width` and `crossable` gates
+  reject anything untradeable there rather than risk a bad fill.
+- Structure: put credit spreads and call credit spreads. Both legs of every
+  spread are covered inside one `mleg` order.
 - Tenor: 0 to 2 days to expiry
 - Short leg: 0.18 to 0.30 delta, targeting 0.24
 - Exit: 40% of credit captured, or 2x credit as a stop, or forced flat at
