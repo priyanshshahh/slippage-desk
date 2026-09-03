@@ -23,7 +23,7 @@ plans. Most entrants skip the last two. Do not.
 > what crossing the spread cost to act on it.
 > **This desk measures whether its executions were good.**"
 
-*On screen:* the arithmetic, big. $5.19 edge per contract vs $1.78 lost to execution.
+*On screen:* the arithmetic, big. $5.30 edge per contract vs $1.20 lost to execution.
 
 **Do not open with architecture.** Open with the arithmetic that makes the
 architecture necessary.
@@ -90,9 +90,9 @@ Open `data/proof.json`.
 > edited later."
 
 Say these out loud, they are the ones in data/proof.json:
-**693 considered, 20 spreads filled across 23 contracts,
-$1,906 of credit at mid, $1,865 actually captured, $41 surrendered to execution,
-97.9% capture, sha256 over the payload.**
+**1,798 considered, 25 spreads filled across 32 contracts,
+$2,690 of credit at mid, $2,651 actually captured, $38 surrendered to execution,
+98.6% capture, sha256 over the payload.**
 
 ---
 

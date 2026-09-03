@@ -22,7 +22,7 @@ The claim is this: **on a four-session horizon, execution quality is the
 same order of magnitude as the entire strategy edge, and nobody measures
 it.**
 
-A 0.24-delta credit spread on SPY collects about $81 per contract on a
+A 0.24-delta credit spread on SPY collects about $83 per contract on a
 $5-wide vertical, and the bid/ask it crosses on entry and again on exit is
 a material fraction of that. So an agent that picks the right strike and
 then hands the credit back to the spread has not made money, it has made

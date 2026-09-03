@@ -36,13 +36,13 @@ The hard half is what crossing the spread cost you to act on it.
 
 On a 4-day horizon that second number IS the game:
 
-A 0.24-delta credit spread pays $32.43 on a win.
-The stop costs $81.09.
+A 0.24-delta credit spread pays $33.14 on a win.
+The stop costs $82.84.
 Breakeven win rate: 71.4%
 Delta-implied OTM rate: 76%
 
-Your entire edge is 4.6 percentage points, worth $5.19 a contract.
-Crossing the bid/ask cost $1.78 of that. 34% of the edge.
+Your entire edge is 4.6 percentage points, worth $5.30 a contract.
+Crossing the bid/ask cost $1.20 of that. 23% of the edge.
 
 So I built an agent that scores every fill against the mid it was
 priced at, learns its capture ratio per (symbol, tenor, delta,
@@ -50,10 +50,10 @@ time-of-day) bucket, and refuses the buckets where it cannot get
 filled at the price its edge assumed.
 
 Live right now:
-693 candidates considered
+1,798 candidates considered
 428 cleared every risk gate
 20 actually traded
-97.9% of theoretical credit captured
+98.6% of theoretical credit captured
 
 That last number is verified against Alpaca's own activity log, not
 my bookkeeping. Anyone with the account ID can reproduce it.
@@ -80,10 +80,10 @@ the execution was good means scoring every fill against the mid it was
 priced at, and almost nothing does that by default.
 
 On a four-session horizon, that distinction is the entire game. A 0.24-delta
-defined-risk credit spread pays about $32.43 on a win against a $81.09 stop.
+defined-risk credit spread pays about $33.14 on a win against a $82.84 stop.
 The breakeven win rate is 71.4%. A 0.24 short delta implies a 76% chance of
 finishing out of the money. So the edge is 4.6 percentage points, worth
-$5.19 a contract, and crossing the bid/ask cost $1.78 of that, or 34%
+$5.30 a contract, and crossing the bid/ask cost $1.20 of that, or 23%
 of the edge.
 
 Put plainly: an agent that picks the right strike and then hands half its
@@ -95,8 +95,8 @@ tenor, delta band, time of day) bucket, refuses the buckets where it has
 historically surrendered too much credit, and uses the same memory to decide
 how far to cross on the next order.
 
-Currently live on a paper account: 693 candidates considered, 428 cleared
-every risk gate, 20 traded, 97.9% of theoretical credit captured. That capture
+Currently live on a paper account: 1,798 candidates considered, 428 cleared
+every risk gate, 20 traded, 98.6% of theoretical credit captured. That capture
 figure comes from Alpaca's own activity log rather than my own bookkeeping,
 so anyone holding the account ID can reproduce it independently.
 
