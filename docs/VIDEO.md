@@ -4,8 +4,8 @@
 4:00 is the safe target. Record the screen at 1920x1080.
 
 **Structure the rubric rewards** (lablab Presentation criteria, 5-Excellent):
-problem, solution, value proposition, competitive differentiation, and future
-plans. Most entrants skip the last two. Do not.
+problem, solution, value proposition, differentiation, and future plans.
+Differentiation and future plans are easy to leave out. Do not.
 
 ---
 
@@ -82,7 +82,7 @@ Show a real `mleg` order going out on the CLI and the fill coming back.
 Open `data/proof.json`.
 
 > "I'm not going to claim the strategy is profitable. Four sessions can't
-> establish that for anyone here, and anyone claiming it is reading noise.
+> establish that. Treating this window as one would be reading noise, not signal.
 >
 > Here's what I will claim, and here's the file. Every fill, the mid it was priced
 > against, the credit actually received, per-bucket capture, every bucket the

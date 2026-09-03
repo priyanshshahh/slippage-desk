@@ -36,6 +36,12 @@ FORBIDDEN = [
     (r"\bevery other agent\b", "compares against the field"),
     (r"\bthe field (?:splits|opens|does|is)\b", "characterises the field"),
     (r"\bcompetitors?\b", "names competitors"),
+    # "other entrant/team/agent" was already banned; this catches the same
+    # claim phrased without "other", e.g. "any entrant claiming otherwise is
+    # reading noise", which sat in WRITEUP.md for a day before a manual sweep
+    # (not this list) caught it.
+    (r"\b(?:any|most|some) entrants?\b", "refers to other entries"),
+    (r"\bentrants? (?:claim|claiming|skip)\b", "refers to other entries"),
 ]
 
 

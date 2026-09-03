@@ -27,7 +27,7 @@ An options income agent that measures its own execution. It scores every fill ag
 
 ## Long description
 
-*(405 words. Opens with the arithmetic rather than the architecture, because
+*(408 words. Opens with the arithmetic rather than the architecture, because
 the arithmetic is what makes the architecture necessary.)*
 
 ```
@@ -43,7 +43,7 @@ The new part: every fill is scored against the mid it was priced at. The desk ho
 
 Alpaca's three surfaces have separate jobs. The CLI submits multi-leg orders and verifies the book. The SDK pulls chains with greeks. The MCP server feeds read-only research to the advisor, launched with trading toolsets stripped so research physically cannot place an order.
 
-Broker-verified, not backtested: 25 spreads across 32 contracts, $2,651 captured of $2,690 theoretical, $38 surrendered to execution, 98.6% capture, and 1,798 candidates considered. Every figure regenerates from a sha256-signed artifact, and a 170-agent adversarial audit found and fixed 26 defects.
+Broker-verified, not backtested: 25 spreads across 32 contracts, $2,651 captured of $2,690 theoretical, $38 surrendered to execution, 98.6% capture, and 1,798 candidates considered. Every figure regenerates from a sha256-signed artifact, checked mechanically before every commit by `scripts/verify_claims.py` and `scripts/check_submission.py`, both in the repo.
 
 Four sessions is not a track record and this claims no predictive edge. It claims the desk knows exactly what its execution cost, per fill, and can show the receipts.
 ```

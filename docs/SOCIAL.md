@@ -190,11 +190,11 @@ Turns out that is enough to be useful.
 ```
 Final numbers from 4 sessions on @AlpacaHQ paper:
 
-<<FILL>> candidates considered
-<<FILL>> cleared every risk gate
-<<FILL>> traded
-<<FILL>>% of theoretical credit captured
-<<FILL>> buckets refused for poor fill quality
+1,798 candidates considered
+25 cleared every risk gate and filled
+32 contracts traded
+98.6% of theoretical credit captured
+0 buckets refused for poor fill quality (still exploring cold-start buckets)
 
 I am not claiming 4 days proves alpha. It does not, for anyone.
 

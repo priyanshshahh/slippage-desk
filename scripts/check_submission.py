@@ -79,8 +79,21 @@ def main() -> int:
     check("long count stated", bool(m) and int(m.group(1)) == words,
           f"doc says {m.group(1) if m else 'nothing'}, actual {words}")
 
-    # No requirement is met by a field that still holds a placeholder.
-    holes = re.findall(r"`(TODO|TBD|xxx+|<[^`>]+>)`", text, re.I)
+    # No requirement is met by a field that still holds a placeholder. This
+    # used to scan SUBMISSION.md alone, and its own pattern couldn't even see
+    # `<<FILL>>` (a double angle bracket isn't `<[^`>]+>`). Both holes let six
+    # placeholders sit in the required one-page write-up until this caught
+    # them by grep instead: scan every doc that ships, and widen the pattern.
+    other_docs = {
+        "docs/WRITEUP.md": ROOT / "docs" / "WRITEUP.md",
+        "docs/SOCIAL.md": ROOT / "docs" / "SOCIAL.md",
+    }
+    hole_pat = r"`?(TODO|TBD|xxx+|<<[^>]*>>|<[^`<>]+>)`?"
+    holes = re.findall(hole_pat, text, re.I)
+    for label, path in other_docs.items():
+        if path.exists():
+            found = re.findall(hole_pat, path.read_text(), re.I)
+            holes += [f"{label}: {h}" for h in found]
     check("no placeholders", not holes, ", ".join(holes) if holes else "none")
 
     cover = ROOT / "docs" / "cover.png"

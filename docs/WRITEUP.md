@@ -105,8 +105,8 @@ and live submission raises `SignNotVerified` until an operator sets it.
 
 ## What we claim, and what we do not
 
-We do not claim the strategy is profitable. Four sessions cannot establish that
-for anyone in this hackathon, and any entrant claiming otherwise is reading noise.
+We do not claim the strategy is profitable. Four sessions cannot establish that,
+and treating this window as one would be reading noise, not signal.
 
 We claim the agent measured its own execution quality and acted on it, and we ship
 the evidence: `scripts/proof.py` emits `data/proof.json` with every fill, the mid
@@ -116,11 +116,11 @@ record cannot be quietly edited after the fact.
 
 **Results from the competition window:**
 
-- Candidates considered: `<<FILL>>`
-- Orders filled: `<<FILL>>`
-- Aggregate capture ratio: `<<FILL>>`
-- Given up to execution: `<<FILL>>`
-- Buckets vetoed by the execution gate: `<<FILL>>`
-- P&L: `<<FILL>>`
+- Candidates considered: `1,798`
+- Orders filled: `25`
+- Aggregate capture ratio: `98.6%`
+- Given up to execution: `$38.50`
+- Buckets vetoed by the execution gate: `0`
+- P&L: `-$472.38` on $100,000 (`-0.47%`), book flat, no open positions
 
 *Built with Claude Code (Anthropic).*
