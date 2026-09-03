@@ -165,11 +165,20 @@ def main() -> int:
                 f"  {rel}: claims a gate-clearance count. data/proof.json does "
                 f"not record one, so it cannot be verified and drifts silently")
 
-    for rel in DOCS + ["scripts/build_film.py", "scripts/build_narration.py",
-                       "scripts/build_deck.py"]:
-        f = ROOT / rel
-        if not f.exists():
-            continue
+    # Every shipped text, not just the docs. The comparison ban was originally
+    # scoped to docs plus three build scripts, and a comparative claim sat in
+    # engine/assignment.py's module docstring the whole time. The repo is
+    # public, so a docstring is as published as a README.
+    swept = [ROOT / rel for rel in DOCS]
+    for sub in ("engine", "agent", "scripts"):
+        swept += sorted((ROOT / sub).rglob("*.py"))
+    swept += sorted((ROOT / "dashboard" / "src").rglob("*.tsx"))
+    swept += sorted((ROOT / "dashboard" / "src").rglob("*.ts"))
+    swept.append(ROOT / "README.md")
+    for f in swept:
+        if not f.exists() or f.name == "verify_claims.py":
+            continue                      # this file defines the patterns
+        rel = f.relative_to(ROOT)
         body = f.read_text()
         for pattern, why in FORBIDDEN:
             for m in re.finditer(pattern, body, re.I):

@@ -1,8 +1,8 @@
 """Early-assignment risk, which is the hazard this strategy actually has.
 
-Every other agent in this hackathon gates on entry logic and position size.
-None of them mention assignment. That is the largest real-world risk in
-short-dated short options and it is not hypothetical:
+Entry logic and position sizing are the obvious controls, and neither one
+touches this risk at all. Early assignment is the largest real-world hazard
+in short-dated short options, and it is not hypothetical:
 
 A short call goes in-the-money. An ex-dividend date falls before expiry.
 Capturing the dividend is now worth more to the holder than the remaining

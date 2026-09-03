@@ -145,7 +145,7 @@ reporting:
   enabled: true
   # No new entries after this instant. Positions already open keep running
   # under the normal profit-take, stop and force-close rules.
-  no_new_entries_after: '2026-09-03T15:45:00-04:00'
+  no_new_entries_after: '2026-09-03T09:45:00-04:00'
   # Close everything still open at this instant, regardless of expiry. Set
   # an hour before the deadline so a failed close has time to retry.
   flatten_all_at: '2026-09-04T10:00:00-04:00'
