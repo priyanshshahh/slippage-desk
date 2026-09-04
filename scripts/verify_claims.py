@@ -87,6 +87,7 @@ def main() -> int:
     # config nor a single fill. scripts/proof.py now derives it; these checks
     # make sure no deliverable restates it from memory again.
     ec = proof.get("economics") or {}
+    acct = proof.get("account") or {}
     if not ec:
         raise SystemExit("data/proof.json has no economics block; run scripts.proof")
     cost_per_contract = t["given_up_to_execution_usd"] / ec["contracts"]
@@ -199,6 +200,15 @@ def main() -> int:
         ("writeup: buckets vetoed",
          r"Buckets vetoed by the execution gate:\s*`(\d+)`",
          str(t["vetoed_by_execution_gate"])),
+        # P&L is judged first and was the one headline figure still typed by
+        # hand. proof.json now carries it, so it is checked like the rest.
+        # Magnitudes are compared, with the sign left to the surrounding prose.
+        ("writeup: P&L dollars",
+         r"P&L:\s*`-?\$([\d,]+\.\d\d)`",
+         f"{abs(acct.get('pnl_usd') or 0):,.2f}"),
+        ("writeup: P&L percent",
+         r"P&L:[^\n]*?\(`-?([\d.]+)%`\)",
+         f"{abs(acct.get('pnl_pct') or 0):.2f}"),
     ]
 
     fix = "--fix" in sys.argv

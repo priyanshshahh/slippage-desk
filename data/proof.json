@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T04:21:54.031904+00:00",
+  "generated_at": "2026-09-04T05:03:04.331202+00:00",
   "claim": "The agent measures the fraction of theoretical credit it actually captures, per (underlying, tenor, delta, time-of-day) bucket, and refuses buckets whose shrunk capture ratio falls below the configured floor.",
   "config": {
     "min_capture_ratio": 0.6,
@@ -1614,5 +1614,12 @@
     "timeframe": "1D",
     "note": "1H rejected: 28/35 points fell outside 50% of the broker's base_value; fell back to daily"
   },
-  "sha256": "28bcecd23ae4146923c36153eb2d7a0ec66899e0ff3f1a544f7656721975bce5"
+  "account": {
+    "equity_usd": 99545.92,
+    "base_usd": 100000.0,
+    "pnl_usd": -454.08,
+    "pnl_pct": -0.454,
+    "open_positions": 8
+  },
+  "sha256": "c5365e7416f7022cd294f68a4da1d08db9a39f5c6ad5c2fa4e7cb6edab8eb5c3"
 }

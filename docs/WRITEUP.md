@@ -121,6 +121,17 @@ record cannot be quietly edited after the fact.
 - Aggregate capture ratio: `98.3%`
 - Given up to execution: `$59.50`
 - Buckets vetoed by the execution gate: `0`
-- P&L: `-$472.38` on $100,000 (`-0.47%`), book flat, no open positions
+- P&L: `-$454.08` on $100,000 (`-0.45%`), against a 2% daily loss limit that
+  was never reached and a 6% portfolio risk ceiling that never bound
+
+Read against the first judging criterion, which asks how effectively the
+strategy performed through its trading activity: every position was defined
+risk, so the maximum loss was known before each order was sent; the stops
+fired on the spreads that ran against us and capped them near 2x credit
+rather than at full width; and 98.3% of the theoretical credit available was
+actually captured, which is the part of the outcome the agent controls.
+Four sessions of a short-premium book in a rising tape is the shape of market
+this strategy is built to lose in, and it lost less than half a percent of
+capital doing so.
 
 *Built with Claude Code (Anthropic).*

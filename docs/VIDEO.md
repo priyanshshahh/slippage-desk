@@ -3,9 +3,27 @@
 **Format:** MP4. Hard max 5:00. The rubric scores under 3:00 as "Limited", so
 4:00 is the safe target. Record the screen at 1920x1080.
 
-**Structure the rubric rewards** (lablab Presentation criteria, 5-Excellent):
-problem, solution, value proposition, differentiation, and future plans.
-Differentiation and future plans are easy to leave out. Do not.
+**The four judged criteria, verbatim from the submission page:**
+
+1. **P&L Performance.** "The trading performance of the submitted agent in
+   the Alpaca paper trading environment. Judges will consider the project's
+   P&L and how effectively the strategy performs through its trading
+   activity."
+2. **Technology Implementation.** How effectively the project uses Alpaca's
+   Trading API, MCP server, CLI and other required technologies.
+3. **Creativity & Originality.** Concept, trading strategy, agent behaviour.
+4. **Presentation & Execution.** How clearly it communicates the idea,
+   demonstrates the agent in action, and presents the reasoning behind the
+   strategy and its results.
+
+This file previously described the criteria as "problem, solution, value
+proposition, differentiation, future plans", which is a generic presentation
+template, not this hackathon's rubric. That error got quoted back as a reason
+P&L would not be scored. It is scored, and it is listed first. Correcting it
+here because a stale rubric shapes every decision downstream of it.
+
+The video must therefore do more than explain the idea: it has to show the
+agent trading and account honestly for the result it produced.
 
 ---
 
