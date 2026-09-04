@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.slippagedesk.supervisor</string>
+
+  <!-- The supervisor keeps the agent alive. This keeps the supervisor alive.
+       Until now it was a bash loop started by hand from a terminal, so it
+       died with the session that launched it, and it did exactly that on
+       2026-09-02, leaving the agent unsupervised for hours. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>scripts/supervise.sh</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/priyansh/slippage-desk</string>
+
+  <!-- Start at login, and restart if it ever exits for any reason. -->
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+
+  <!-- Do not hammer on a persistent failure, e.g. missing credentials. -->
+  <key>ThrottleInterval</key>
+  <integer>60</integer>
+
+  <key>StandardOutPath</key>
+  <string>/Users/priyansh/slippage-desk/logs/launchd.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/priyansh/slippage-desk/logs/launchd.log</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+</dict>
+</plist>
