@@ -27,7 +27,11 @@ from scripts.build_film import scenes
 # Piper, a neural TTS running locally. lessac-medium is the clearest of the
 # general-purpose English voices at this size and does not sound like a
 # screen reader, which is the whole reason for moving off macOS `say`.
-VOICE_MODEL = "en_US-lessac-medium"
+# Two voices, used for a reason rather than for variety. The narrator carries
+# the argument; the advisor's own quoted reasoning is spoken by a second voice,
+# because it is a different speaker: the model talking, not the presenter.
+VOICE_MODEL = "en_US-ryan-high"        # narrator
+VOICE_QUOTE = "en_US-lessac-medium"    # the advisor, quoted
 VOICE_DIR = pathlib.Path(__file__).resolve().parent.parent / ".voices"
 SENTENCE_SILENCE = 0.35     # seconds of rest at each full stop
 LEAD_IN = 0.4               # the plate is trimmed to the first scene, so this
@@ -83,16 +87,22 @@ def spoken(p: dict) -> list[str]:
         "bucket has historically given up too much credit, it stops trading it, "
         "and the same memory decides how far to cross on the next order.",
 
-        # 4 the real refusal, 36s
-        "This is one real candidate, replayed from the decision journal. "
-        "Sixteen checks run in order, cheapest first, and every one of them "
-        "passed. The market was open. The credit cleared the floor. The delta "
-        "sat inside the band. Risk was defined and the position was sized. "
-        "Then the advisor was asked, last, and it refused. "
-        "That is the entire governance model in one record. The gates decide "
-        "what is permissible, the model can only shrink a trade or veto it, and "
-        "every failure path returns the same veto. A model that is unreachable "
-        "means this desk trades less, never worse.",
+        # 4 the real refusal, 36s. Two voices: the narrator sets the record up,
+        # then the advisor's own logged reasoning is read in a second voice,
+        # because it is a different speaker.
+        [(VOICE_MODEL,
+          "This is one real candidate, replayed from the decision journal. "
+          "Sixteen checks ran in order, cheapest first, and every one of them "
+          "passed. The market was open. The credit cleared the floor. The delta "
+          "sat inside the band. Risk was defined and the position was sized. "
+          "Then the advisor was asked, last, and it refused. In its own words:"),
+         (VOICE_QUOTE,
+          "Spot seven fifteen twenty sits only zero point eight percent below "
+          "the seven twenty one short strike, after a one point two percent "
+          "down day, and the credit does not pay for a two day gamma gap."),
+         (VOICE_MODEL,
+          "The gates decide what is permissible. The model can only shrink a "
+          "trade or veto it, and every failure path returns that same veto.")],
 
         # 5 alpaca surfaces, 26s
         "Alpaca appears three times, with deliberately separate jobs. "
@@ -150,7 +160,8 @@ def _humanize(text: str) -> str:
     return text
 
 
-def synth(text: str, length_scale: float, dest: pathlib.Path) -> float:
+def synth(text: str, length_scale: float, dest: pathlib.Path,
+          model: str = VOICE_MODEL) -> float:
     """Speak `text` with Piper at the given pace, returning its duration.
 
     macOS `say` was the previous engine. Its only usable English voice on
@@ -164,7 +175,7 @@ def synth(text: str, length_scale: float, dest: pathlib.Path) -> float:
     the [[slnc]] markers `say` needed.
     """
     subprocess.run(
-        [sys.executable, "-m", "piper", "-m", VOICE_MODEL,
+        [sys.executable, "-m", "piper", "-m", model,
          "--data-dir", str(VOICE_DIR),
          "--length-scale", f"{length_scale:.3f}",
          "--sentence-silence", str(SENTENCE_SILENCE),
@@ -186,10 +197,38 @@ def fit(text: str, budget: float, dest: pathlib.Path) -> tuple[float, float]:
     rarely has to leave the natural end of the range.
     """
     for scale in (1.10, 1.05, 1.00, 0.96, 0.92, 0.88, 0.84, 0.80):
-        dur = synth(text, scale, dest)
+        dur = _speak(text, scale, dest)
         if dur <= budget - 0.35:
             return dur, scale
     return dur, scale
+
+
+def _speak(text, length_scale: float, dest: pathlib.Path) -> float:
+    """Render one narration block, which may switch voices partway through.
+
+    A block is either a string, spoken by the narrator, or a list of
+    (model, text) pairs rendered in order and joined. The join is a plain
+    concatenation of same-rate WAVs, so no resampling artefact is introduced
+    at the seam.
+    """
+    if isinstance(text, str):
+        return synth(text, length_scale, dest)
+
+    segs = []
+    for i, (model, part) in enumerate(text):
+        seg = dest.with_name(f"{dest.stem}_{i}.wav")
+        synth(part, length_scale, seg, model=model)
+        segs.append(seg)
+    lst = dest.with_suffix(".txt")
+    lst.write_text("".join(f"file '{s.name}'\n" for s in segs))
+    subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0",
+                    "-i", str(lst), "-c", "copy", str(dest)],
+                   check=True, capture_output=True)
+    out = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=nw=1:nk=1", str(dest)],
+        check=True, capture_output=True, text=True)
+    return float(out.stdout.strip())
 
 
 def main() -> int:
@@ -223,11 +262,18 @@ def main() -> int:
     # that finishes early leaves a pause rather than dragging the rest forward.
     total = LEAD_IN + cursor + 4.0
     inputs, filters = [], [f"anullsrc=r=44100:cl=stereo:d={total:.2f}[bed]"]
+    # The silent bed is ffmpeg input 0 and the spoken segments are inputs
+    # 1..N, so a segment's stream index is n+1. Referencing [n:a] here made
+    # input 0 (the bed) stand in for the first block, shifted every other
+    # block onto the following scene, and dropped the last block entirely:
+    # the film played each slide narrated by the one before it, with 49
+    # seconds of dead air. The bed is likewise [0:a], not a [bed] label,
+    # which nothing in this graph defines.
     for n, (start, seg, _) in enumerate(parts):
         inputs += ["-i", str(seg)]
-        filters.append(f"[{n}:a]adelay={int(start * 1000)}|{int(start * 1000)},"
+        filters.append(f"[{n + 1}:a]adelay={int(start * 1000)}|{int(start * 1000)},"
                        f"aresample=44100[a{n}]")
-    mix = "[bed]" + "".join(f"[a{n}]" for n in range(len(parts)))
+    mix = "[0:a]" + "".join(f"[a{n}]" for n in range(len(parts)))
     # loudnorm because the raw mix sat around -19.6 dB mean, which plays
     # quiet on a laptop speaker. -16 LUFS is the usual target for speech.
     filters.append(f"{mix}amix=inputs={len(parts) + 1}:normalize=0:"
