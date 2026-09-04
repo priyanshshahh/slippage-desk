@@ -142,10 +142,14 @@ reporting:
   # before a cutoff and flattens the book so the reported figure is settled.
   # It is exactly what an operator does before an audit. Both fields are
   # nullable: set either to null to disable that half.
-  enabled: true
-  # No new entries after this instant. Positions already open keep running
-  # under the normal profit-take, stop and force-close rules.
-  no_new_entries_after: '2026-09-04T10:00:00-04:00'
-  # Close everything still open at this instant, regardless of expiry. Set
-  # an hour before the deadline so a failed close has time to retry.
-  flatten_all_at: '2026-09-04T10:00:00-04:00'
+  # Off for ongoing operation. This block exists for a reporting moment: it
+  # stops new entries and flattens the book so a figure read at a fixed
+  # wall-clock instant is settled rather than a mark on an open position.
+  # The hackathon submission was that moment, on 2026-09-04. Left enabled
+  # with cutoffs in the past it silently refuses every entry forever, which
+  # is exactly what it did until this line changed.
+  #
+  # To use it again, set enabled: true and put both timestamps in the future.
+  enabled: false
+  no_new_entries_after: null
+  flatten_all_at: null

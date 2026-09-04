@@ -15,6 +15,29 @@
 cd "$(dirname "$0")/.." || exit 1
 mkdir -p logs
 
+# Credentials. This script previously relied on whoever launched it having
+# already sourced .env, which is true from a terminal and false under launchd,
+# cron, or a login item. Unattended operation means loading them here.
+if [ -f .env ]; then
+  set -a && . ./.env && set +a
+else
+  echo "FATAL: .env not found in $(pwd); the agent cannot authenticate" >&2
+  exit 1
+fi
+
+# Logs are append-only and this runs for months. Rotate at 20MB, keeping one
+# previous file, so the volume cannot fill the way it did twice this week.
+rotate() {
+  for f in logs/agent.log logs/supervisor.log; do
+    [ -f "$f" ] || continue
+    sz=$(stat -f %z "$f" 2>/dev/null || echo 0)
+    if [ "$sz" -gt 20971520 ]; then
+      mv "$f" "$f.1"
+      log "rotated $f at $((sz / 1048576))MB"
+    fi
+  done
+}
+
 PY="./.venv/bin/python"
 PIDFILE="logs/agent.pid"
 RESTARTS=0
@@ -56,6 +79,7 @@ while true; do
   if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
     age=$(log_age)
     if [ "$age" -lt "$STALE_AFTER" ]; then
+      rotate
       sleep 30
       continue
     fi
