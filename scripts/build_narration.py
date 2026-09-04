@@ -139,8 +139,34 @@ def spoken(p: dict) -> list[str]:
     ]
 
 
+def _humanize(text: str) -> str:
+    """Insert the pauses a person would take, which `say` will not.
+
+    What makes synthetic narration sound synthetic is mostly rhythm, not
+    timbre: the engine runs sentences together at a metronomic pace and never
+    lets a number land. `say` accepts inline [[slnc ms]] commands, so the
+    text gets a short rest after each sentence, a shorter one at a clause
+    break, and a beat before a figure so the listener has time to hear it.
+
+    Durations are deliberately modest. Long pauses read as a stall, and the
+    per-scene budget in fit() has to absorb whatever this adds.
+    """
+    import re as _re
+    # A beat before a dollar figure or a percentage, where the ear needs it.
+    text = _re.sub(r"(?<=[a-z,]) (\$[\d,]|\d+(?:\.\d+)? percent)",
+                   r" [[slnc 120]] \1", text)
+    # Sentence ends only. Comma rests were tried at 90ms and cost too much:
+    # a scene's budget is fixed, so every pause is paid for by speaking the
+    # words faster, and three scenes were pushed to 215-228 wpm. Racing
+    # between pauses sounds worse than not pausing at all, so the rests are
+    # spent where they carry the most meaning: the full stop.
+    text = _re.sub(r"([.?!]) ", r"\1 [[slnc 300]] ", text)
+    return text
+
+
 def say_to_aiff(text: str, rate: int, dest: pathlib.Path) -> float:
-    subprocess.run(["say", "-v", VOICE, "-r", str(rate), "-o", str(dest), text],
+    subprocess.run(["say", "-v", VOICE, "-r", str(rate), "-o", str(dest),
+                    _humanize(text)],
                    check=True, capture_output=True)
     out = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",

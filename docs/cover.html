@@ -32,11 +32,18 @@
      and the gap between them, which is the only thing four sessions can prove. */
   .panel { border: 1px solid #27272a; border-radius: 14px; padding: 34px 32px;
            background: #0e0e11; position: relative; }
-  .bar { height: 15px; border-radius: 3px; background: #1f1f23; margin-top: 10px;
-         overflow: hidden; }
-  .bar > i { display: block; height: 100%; border-radius: 3px; }
+  /* One bar, two layers: the whole edge underneath, the share execution took
+     drawn over it in amber. Two near-equal bars (98.3% beside 100%) showed a
+     picture of no difference, which is the opposite of the point. */
+  .bar { height: 22px; border-radius: 4px; background: #1f1f23; margin-top: 10px;
+         overflow: hidden; position: relative; }
+  .bar > i { display: block; height: 100%; border-radius: 4px; }
+  .bar > b { position: absolute; left: 0; top: 0; height: 100%;
+             border-radius: 4px 0 0 4px; background: #fbbf24; }
   .bar.mid > i { background: #3f3f46; }
   .bar.cap > i { background: #4ade80; }
+  .c2 span { font-family: ui-monospace, Menlo, monospace; color: #d4d4d8; }
+  .c2 .amtg { color: #4ade80; }
   .lbl { display: flex; justify-content: space-between; align-items: baseline;
          font-size: 12px; letter-spacing: .13em; text-transform: uppercase;
          color: #8b8b94; }
@@ -72,19 +79,24 @@
   </div>
 
   <div class="panel">
-    <div class="lbl"><span>Credit at mid</span>
-                     <span class="amt" id="x-theoretical">$3,446</span></div>
-    <div class="bar mid"><i style="width:100%"></i></div>
-
-    <div class="lbl" style="margin-top:24px"><span>Actually captured</span>
-                     <span class="amt g" id="x-captured">$3,386</span></div>
-    <div class="bar cap"><i id="x-barwidth" style="width:98.3%"></i></div>
+    <div class="k" style="margin-bottom:8px">Edge on one contract</div>
+    <div class="lbl"><span>Theoretical</span>
+                     <span class="amt" id="x-edge">$5.04</span></div>
+    <div class="bar mid"><i style="width:100%"></i>
+      <b id="x-eatenwidth" style="width:27%"></b></div>
+    <div class="lbl" style="margin-top:12px">
+      <span style="color:#fbbf24">Taken crossing the spread</span>
+      <span class="amt" style="color:#fbbf24" id="x-cost">$1.38</span></div>
 
     <div class="gap">
-      <div class="k">Surrendered to execution</div>
-      <div class="n" id="x-lost">$60</div>
-      <div class="c2">The number that decides whether a strategy
-                      this thin makes money.</div>
+      <div class="k">Share of the edge lost to execution</div>
+      <div class="n" id="x-eaten">27%</div>
+      <div class="c2">Measured per fill against the mid it was priced at,
+        never assumed. Across the book,
+        <span id="x-lost">$60</span> of
+        <span id="x-theoretical">$3,446</span> quoted, leaving
+        <span class="amtg" id="x-captured">$3,386</span> kept, a
+        <span id="x-barwidth" style="width:98.3%">98.3</span>% capture ratio.</div>
     </div>
   </div>
 

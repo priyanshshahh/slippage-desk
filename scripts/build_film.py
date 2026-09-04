@@ -37,7 +37,7 @@ def scenes(p: dict) -> list[dict]:
              h="Slippage Desk",
              sub="The options agent that measures its own execution."),
 
-        dict(t=20, kind="stats",
+        dict(t=26, kind="stats",
              kicker="The problem, as arithmetic",
              h="A credit spread is a thin trade by construction.",
              rows=[("A 0.24-delta spread collects",
@@ -53,7 +53,7 @@ def scenes(p: dict) -> list[dict]:
              note=f"The entire edge is {ec['edge_points']} percentage points. "
                   f"${ec['expected_per_contract_usd']:.2f} a contract."),
 
-        dict(t=18, kind="punch",
+        dict(t=23, kind="punch",
              kicker="Where that edge goes",
              big=f"Crossing the bid/ask cost ${cost:.2f} a contract.",
              accent=f"{eaten}% of the entire edge.",
@@ -61,7 +61,7 @@ def scenes(p: dict) -> list[dict]:
                   "term, and it is the one thing four sessions can actually "
                   "measure."),
 
-        dict(t=18, kind="punch",
+        dict(t=23, kind="punch",
              kicker="What usually goes unmeasured",
              big="A strategy log says whether the decision was right.",
              accent="It says nothing about what the fill cost.",
@@ -81,7 +81,7 @@ def scenes(p: dict) -> list[dict]:
                  "day. Buckets that fill readily hold out for mid. Buckets "
                  "that do not, pay up or get skipped."),
 
-        dict(t=28, kind="stats",
+        dict(t=32, kind="stats",
              kicker="Fifteen deterministic gates",
              h="The model cannot open a trade.",
              rows=[("Advisor returns", "multiplier [0,1] + veto", ""),
@@ -102,7 +102,7 @@ def scenes(p: dict) -> list[dict]:
                   "research physically cannot place an order. Execution never "
                   "goes through a subprocess."),
 
-        dict(t=28, kind="stats",
+        dict(t=30, kind="stats",
              kicker="The evidence, not a backtest",
              h="Sourced from Alpaca's own activity log.",
              rows=[("Candidates considered", f"{t['candidates_considered']:,}", ""),

@@ -50,7 +50,18 @@ def stamp_cover(proof: dict, n_gates: int) -> None:
     """Write the measured numbers into every id="x-*" slot on the cover."""
     t, bv = proof["totals"], proof["broker_verification"]
     capture = bv["broker_capture_ratio"] or t["aggregate_capture_ratio"] or 0
+    # Per-contract economics. The capture bars are accurate but not legible:
+    # 98.3% against 100% renders as two bars of the same length, so the cover
+    # was illustrating its own thesis with a picture of no difference. The
+    # same fact stated per contract is stark, because $1.38 out of $5.04 is a
+    # quarter of the edge and looks like a quarter of the edge.
+    ec = proof["economics"]
+    cost_per_contract = t["given_up_to_execution_usd"] / ec["contracts"]
+    eaten_pct = cost_per_contract / ec["expected_per_contract_usd"] * 100
     values = {
+        "x-edge": f"${ec['expected_per_contract_usd']:.2f}",
+        "x-cost": f"${cost_per_contract:.2f}",
+        "x-eaten": f"{eaten_pct:.0f}%",
         "x-capture": f"{capture * 100:.1f}%",
         "x-spreads": str(bv["paired_spreads"]),
         "x-gates": str(n_gates),
@@ -69,6 +80,12 @@ def stamp_cover(proof: dict, n_gates: int) -> None:
     )
     if n != 1:
         raise SystemExit(f"cover.html: expected one x-barwidth slot, found {n}")
+    # The share of the per-contract edge that execution took, drawn to scale.
+    html, n = re.subn(
+        r'(id="x-eatenwidth" style="width:)[^%]*(%)', rf"\g<1>{eaten_pct:.0f}\g<2>", html
+    )
+    if n != 1:
+        raise SystemExit(f"cover.html: expected one x-eatenwidth slot, found {n}")
     COVER.write_text(html)
 
 
