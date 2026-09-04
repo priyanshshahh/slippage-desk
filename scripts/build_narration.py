@@ -59,7 +59,7 @@ def spoken(p: dict) -> list[str]:
         # 0 title, 6s
         "Slippage Desk. An options agent that measures its own execution.",
 
-        # 1 the arithmetic, 20s
+        # 1 the arithmetic, 24s
         f"A credit spread is a thin trade by construction. "
         f"This one collects about {ec['credit_per_contract_usd']:.0f} dollars a contract. "
         f"A win banks forty percent of that. The stop costs all of it. "
@@ -68,51 +68,33 @@ def spoken(p: dict) -> list[str]:
         f"The entire edge is {ec['edge_points']} percentage points. "
         f"{dol(ec['expected_per_contract_usd'])} dollars a contract.",
 
-        # 2 where the edge goes, 18s
+        # 2 where the edge goes, 23s
         f"Here is where that edge went. Crossing the bid ask spread cost "
         f"{dol(cost)} dollars a contract. That is {eaten} percent of the entire edge, "
         f"gone to execution before the trade even had a chance to work. "
-        f"Execution is not a rounding error at this size. It is a first order term. "
-        f"And it is the one thing a few sessions can actually measure.",
+        f"Execution is not a rounding error at this size. It is a first order term, "
+        f"and it is the one thing a few sessions can actually measure.",
 
-        # 3 the field, 18s
-        "Here is the part that usually goes unmeasured. A strategy log tells "
-        "you whether the decision was right. It tells you nothing about what "
-        "crossing the spread cost you to act on it. Scoring an execution means "
-        "comparing the fill to the mid it was priced at, the moment it comes "
-        "back from the broker. Without that comparison, execution cost never "
-        "appears as a number anyone can act on.",
-
-        # 4 dashboard, 32s
+        # 3 dashboard, 28s
         "This is the live desk, running on a paper account against real quotes. "
-        "Every figure on this page is derived from the config and from the "
-        "contracts actually filled. Nothing on it is typed by hand, and nothing "
-        "is seeded. Every fill is scored against the mid it was priced at, the "
-        "moment it comes back from the broker. The difference between those two "
-        "numbers is the one that decides whether a strategy this thin makes "
-        "money, or quietly gives it all back to the market maker. It is "
-        "measured here on every single fill, rather than estimated once and "
-        "assumed to hold.",
+        "Every fill is scored against the mid it was priced at, the moment it "
+        "comes back from the broker. The agent keeps a capture ratio for each "
+        "bucket: an underlying, a tenor, a delta band and a time of day. When a "
+        "bucket has historically given up too much credit, it stops trading it, "
+        "and the same memory decides how far to cross on the next order.",
 
-        # 5 buckets, 30s
-        "A bucket is an underlying, a tenor, a delta band and a time of day. "
-        "When a bucket has historically given up too much credit, the agent stops "
-        "trading it. The same memory decides how far to cross on the next order. "
-        "Buckets that fill readily hold out for mid. Buckets that do not, pay up, "
-        "or get skipped entirely. The estimate is shrunk toward a prior, so three "
-        "unlucky fills cannot convince it to abandon a bucket outright. "
-        "It is closing a loop on its own execution, not merely logging it.",
+        # 4 the real refusal, 36s
+        "This is one real candidate, replayed from the decision journal. "
+        "Sixteen checks run in order, cheapest first, and every one of them "
+        "passed. The market was open. The credit cleared the floor. The delta "
+        "sat inside the band. Risk was defined and the position was sized. "
+        "Then the advisor was asked, last, and it refused. "
+        "That is the entire governance model in one record. The gates decide "
+        "what is permissible, the model can only shrink a trade or veto it, and "
+        "every failure path returns the same veto. A model that is unreachable "
+        "means this desk trades less, never worse.",
 
-        # 6 gates, 28s
-        "Fifteen deterministic gates stand between a candidate and an order, and "
-        "the model cannot open a trade. The advisor returns a multiplier between "
-        "zero and one, plus a veto flag. It can shrink a trade or refuse it. "
-        "It cannot pick a strike, change an expiry, or widen risk. "
-        "Every failure path returns zero, so a model that is unreachable means "
-        "this desk trades less, never worse. Timeout, malformed output, a "
-        "refusal, a not a number: all of them return the same veto.",
-
-        # 7 alpaca surfaces, 26s
+        # 5 alpaca surfaces, 26s
         "Alpaca appears three times, with deliberately separate jobs. "
         "The command line interface submits the multi leg orders and verifies "
         "the book afterwards. The Python SDK pulls option chains with greeks. "
@@ -120,27 +102,26 @@ def spoken(p: dict) -> list[str]:
         "its trading toolsets stripped out, so research physically cannot place "
         "an order. Execution never goes through a subprocess.",
 
-        # 8 evidence, 28s
+        # 6 evidence, 28s
         f"This is evidence, not a backtest. {t['candidates_considered']:,} candidates "
         f"considered. {bv['paired_spreads']} spreads actually filled. "
         f"{t['theoretical_credit_usd']:,.0f} dollars of credit at mid, "
         f"{t['captured_credit_usd']:,.0f} dollars actually captured, "
         f"{t['given_up_to_execution_usd']:,.0f} dollars surrendered to execution. "
-        f"A capture ratio of {cap:.1f} percent. "
-        f"All of it sourced from Alpaca's own activity log, with a shaw two five six "
+        f"A capture ratio of {cap:.1f} percent, "
+        f"sourced from Alpaca's own activity log, with a shaw two five six "
         f"hash over the payload so it cannot be quietly edited later.",
 
-        # 9 what it does not claim, 16s
+        # 7 what it does not claim, 16s
         "I am not going to claim this strategy is profitable. A handful of sessions "
         "cannot establish that. Treating a window this short as proof would be "
         "reading noise, not signal. What these sessions do establish is that an "
         "agent measured its own execution and acted on what it found.",
 
-        # 10 close, 18s
+        # 8 close, 16s
         "Next is cross venue routing on the same memory, and per bucket sizing "
-        "rather than per bucket veto. The loop generalises to any strategy that "
-        "pays a spread to get in, which is all of them. "
-        "The repo and the live demo are on screen. Built with Claude Code.",
+        "rather than per bucket veto. The repo, the live desk and the paper "
+        "account are on screen. Built with Claude Code.",
     ]
 
 

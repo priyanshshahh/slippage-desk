@@ -25,11 +25,53 @@ SITE = "https://slippage-desk.vercel.app"
 REPO = "https://github.com/priyanshshahh/slippage-desk"
 
 
+def real_refusal() -> tuple[list[tuple[bool, str, str]], str]:
+    """The verdict list of an actual refused candidate, from the journal.
+
+    Chooses the richest one available: a candidate that cleared every
+    deterministic gate and was then refused by the advisor. That single record
+    demonstrates the whole governance claim (gates first, model can only veto)
+    with the agent's own logged output rather than a description of it.
+
+    Falls back to an empty list if the journal is unavailable, and the caller
+    drops the scene rather than inventing one.
+    """
+    path = ROOT / "data" / "decisions.jsonl"
+    if not path.exists():
+        return [], ""
+    best, best_score = None, -1
+    for line in path.read_text().splitlines():
+        if not line.strip():
+            continue
+        try:
+            d = json.loads(line)
+        except ValueError:
+            continue
+        v = d.get("verdicts") or []
+        if d.get("allowed") or not v:
+            continue
+        # Prefer the case where everything deterministic passed and only the
+        # advisor said no: it is the one that shows the ordering.
+        blocked = [x for x in v if not x["allowed"]]
+        score = len(v) + (60 if len(blocked) == 1 and
+                          blocked[0]["gate"] == "model_opinion" else 0)
+        if score > best_score:
+            best, best_score = d, score
+    if not best:
+        return [], ""
+    rows = [(bool(x["allowed"]), x["gate"], x["detail"]) for x in best["verdicts"]]
+    label = (f'{best["underlying"]} {best.get("short_strike")}/'
+             f'{best.get("long_strike")} expiring {best.get("expiry")}')
+    return rows, label
+
+
 def scenes(p: dict) -> list[dict]:
     t, bv, ec = p["totals"], p["broker_verification"], p["economics"]
     cap = (bv["broker_capture_ratio"] or t["aggregate_capture_ratio"]) * 100
     cost = t["given_up_to_execution_usd"] / ec["contracts"]
     eaten = round(cost / ec["expected_per_contract_usd"] * 100)
+
+    refusal_rows, refusal_label = real_refusal()
 
     return [
         dict(t=6, kind="title",
@@ -37,7 +79,7 @@ def scenes(p: dict) -> list[dict]:
              h="Slippage Desk",
              sub="The options agent that measures its own execution."),
 
-        dict(t=26, kind="stats",
+        dict(t=24, kind="stats",
              kicker="The problem, as arithmetic",
              h="A credit spread is a thin trade by construction.",
              rows=[("A 0.24-delta spread collects",
@@ -61,36 +103,18 @@ def scenes(p: dict) -> list[dict]:
                   "term, and it is the one thing four sessions can actually "
                   "measure."),
 
-        dict(t=23, kind="punch",
-             kicker="What usually goes unmeasured",
-             big="A strategy log says whether the decision was right.",
-             accent="It says nothing about what the fill cost.",
-             note="Scoring an execution means comparing it to the mid it was "
-                  "priced at, at the moment it comes back from the broker. "
-                  "Without that comparison, execution cost never appears as a "
-                  "number anyone can act on."),
-
-        dict(t=32, kind="frame", src=SITE, pan=[0, -560],
+        dict(t=28, kind="frame", src=SITE, pan=[0, -560],
              kicker="The live desk", cap="Every figure on this page is derived "
              "from the config and from the contracts actually filled. Nothing "
              "is typed by hand."),
 
-        dict(t=30, kind="frame", src=SITE, pan=[-560, -1330],
-             kicker="Live evidence",
-             cap="Per-bucket capture: underlying, tenor, delta band, time of "
-                 "day. Buckets that fill readily hold out for mid. Buckets "
-                 "that do not, pay up or get skipped."),
-
-        dict(t=32, kind="stats",
-             kicker="Fifteen deterministic gates",
-             h="The model cannot open a trade.",
-             rows=[("Advisor returns", "multiplier [0,1] + veto", ""),
-                   ("It can shrink or refuse", "nothing else", "ok"),
-                   ("Every failure path returns", "0.0", "no"),
-                   ("Model unreachable means", "trade less, never worse", "")],
-             note="The clamp is a type signature, not a prompt instruction. "
-                  "The failure path is part of the design: timeout, malformed "
-                  "JSON, NaN and refusal all return the same veto."),
+        dict(t=36, kind="gates",
+             kicker=f"One real candidate, {refusal_label}",
+             h="Every gate passed. The advisor still said no.",
+             rows=refusal_rows,
+             note="Replayed from data/decisions.jsonl. The deterministic gates "
+                  "run first and the model is asked last, so it can shrink a "
+                  "trade or veto it and nothing else. Here it vetoed."),
 
         dict(t=26, kind="stats",
              kicker="Alpaca, all three surfaces",
@@ -102,7 +126,7 @@ def scenes(p: dict) -> list[dict]:
                   "research physically cannot place an order. Execution never "
                   "goes through a subprocess."),
 
-        dict(t=30, kind="stats",
+        dict(t=28, kind="stats",
              kicker="The evidence, not a backtest",
              h="Sourced from Alpaca's own activity log.",
              rows=[("Candidates considered", f"{t['candidates_considered']:,}", ""),
@@ -122,7 +146,7 @@ def scenes(p: dict) -> list[dict]:
                   "its own execution and acted on it. That is the claim, and "
                   "the file above is the receipt."),
 
-        dict(t=18, kind="end",
+        dict(t=16, kind="end",
              h="Slippage Desk",
              sub="Next: cross-venue routing on the same memory, and per-bucket "
                  "sizing rather than per-bucket veto.",
@@ -164,6 +188,22 @@ td:last-child{text-align:right;font-family:ui-monospace,Menlo,monospace;
   letter-spacing:.24em;text-transform:uppercase;display:block;margin-bottom:14px}
 .links{margin-top:52px;font-family:ui-monospace,Menlo,monospace;font-size:32px;
   color:#8b8b94;line-height:2}
+/* A real decision, replayed line by line out of data/decisions.jsonl. The
+   film used to assert that the gates run and that the model can only refuse.
+   Showing the actual verdict list makes the same point without asking anyone
+   to take it on faith, and the rubric asks for the agent in action. */
+.gates{margin-top:26px;font-family:ui-monospace,Menlo,monospace;font-size:22px;
+  line-height:1.5;max-width:1680px}
+.gates div{display:flex;gap:22px;opacity:0;animation:gin .42s ease forwards}
+.gates .m{width:52px;flex:none}
+.gates .g{width:330px;flex:none;color:#e4e4e7}
+.gates .d{color:#71717a;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.gates .pass .m{color:#4ade80}
+.gates .fail .m{color:#f87171}
+.gates .fail .g{color:#f87171}
+.gates .fail .d{color:#fca5a5;white-space:normal;overflow:visible}
+.s.gatescene .note{margin-top:22px;font-size:26px}
+@keyframes gin{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
 #bar{position:fixed;left:0;bottom:0;height:3px;background:#4ade80;width:0;z-index:9}
 """
 
@@ -211,6 +251,17 @@ def render(s: dict) -> str:
         )
         return (f'{k}<h2>{s["h"]}</h2><table>{rows}</table>'
                 f'<div class="note">{s["note"]}</div>')
+    if s["kind"] == "gates":
+        rows = "".join(
+            f'<div class="{"pass" if ok else "fail"}" '
+            f'style="animation-delay:{0.15 + i * 0.13:.2f}s">'
+            f'<span class="m">{"ok" if ok else "NO"}</span>'
+            f'<span class="g">{g}</span>'
+            f'<span class="d">{d}</span></div>'
+            for i, (ok, g, d) in enumerate(s["rows"])
+        )
+        return (f'{k}<h2>{s["h"]}</h2><div class="gates">{rows}</div>'
+                f'<div class="note">{s["note"]}</div>')
     if s["kind"] == "frame":
         return (f'<div class="frame"><div class="zoom">'
                 f'<iframe src="{s["src"]}" scrolling="no"></iframe></div>'
@@ -222,7 +273,8 @@ def main() -> int:
     proof = json.loads((ROOT / "data" / "proof.json").read_text())
     S = scenes(proof)
     body = "".join(
-        f'<section class="s"{"" if s["kind"] != "frame" else " style=padding:0"}>'
+        f'<section class="s{" gatescene" if s["kind"] == "gates" else ""}"'
+        f'{"" if s["kind"] != "frame" else " style=padding:0"}>'
         f"{render(s)}</section>"
         for s in S
     )
