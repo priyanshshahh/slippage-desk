@@ -136,7 +136,25 @@ def main() -> int:
         ("edge points", r"edge is\s+(\d+(?:\.\d)?)\s+percentage points", str(ec["edge_points"])),
         ("credit per contract", r"about \$(\d+) per contract", f"{ec['credit_per_contract_usd']:.0f}"),
         ("expected per contract", r"worth\s+\$(\d+\.\d\d)\s+a contract", f"{ec['expected_per_contract_usd']:.2f}"),
-        ("share of edge eaten", r"(\d+)% of the edge", str(eaten)),
+        # \s+ rather than a literal space: these sentences are hard-wrapped in
+        # the markdown, and "23%\nof the edge" slid past the old pattern while
+        # its twin on an unwrapped line was corrected, leaving 23% and 27% in
+        # the same document.
+        # Every gap here is \s+, not a literal space. The first attempt only
+        # loosened the gap before "of", and slides.html wraps between "of" and
+        # "the", so the deck kept saying 23% while the verifier reported all
+        # claims agreeing. A check that passes on stale copy is worse than no
+        # check, because it is trusted.
+        ("share of edge eaten", r"(\d+)%\s+of\s+the\s+edge", str(eaten)),
+        ("cost per contract",
+         r"cost\s+\$(\d+\.\d\d)\s+of that",
+         f"{cost_per_contract:.2f}"),
+        ("cost per contract (alt phrasing)",
+         r"\$(\d+\.\d\d)\s+lost to execution",
+         f"{cost_per_contract:.2f}"),
+        ("edge per contract (alt phrasing)",
+         r"\$(\d+\.\d\d)\s+edge per contract",
+         f"{ec['expected_per_contract_usd']:.2f}"),
         # SUBMISSION.md shipped "24 contracts" against a proof that says 23,
         # in the one document a judge reads first.
         ("contracts filled", r"\b(\d+) contracts\b", str(ec["contracts"])),
@@ -147,20 +165,77 @@ def main() -> int:
         ("orders filled (traded/cleared)",
          r"\b(\d[\d,]{0,4})\s+(?:cleared every (?:risk )?gate|actually traded|traded\b)",
          str(t["orders_filled"])),
+        # The headline sentence in SUBMISSION.md and VIDEO.md packs five
+        # figures into one line: "25 spreads across 43 contracts, $2,651
+        # captured of $2,690 theoretical, $60 surrendered, 98.6% capture".
+        # Only contracts and the surrendered dollars had checks, so a --fix
+        # run left new and old numbers sitting in the same sentence, which
+        # reads worse than uniformly stale copy.
+        ("spreads filled",
+         r"\b(\d[\d,]{0,4}) spreads?\s+(?:filled|across)\b",
+         str(bv["paired_spreads"])),
+        ("captured credit",
+         r"\$(\d[\d,]*)\s+(?:actually captured|captured of)",
+         f"{t['captured_credit_usd']:,.0f}"),
+        ("theoretical credit",
+         r"\$(\d[\d,]*)\s+(?:of credit at mid|theoretical)",
+         f"{t['theoretical_credit_usd']:,.0f}"),
+        ("capture percent (bare)",
+         r"\b(\d{2}(?:\.\d)?)% (?:capture|of theoretical)\b",
+         f"{capture * 100:.1f}"),
+        # WRITEUP.md's results block writes label first, value second, in
+        # backticks. Every check above expects the opposite order, so the
+        # required one-page write-up carried a whole stale results table that
+        # no check could see.
+        ("writeup: considered",
+         r"Candidates considered:\s*`([\d,]+)`", f"{t['candidates_considered']:,}"),
+        ("writeup: orders filled",
+         r"Orders filled:\s*`([\d,]+)`", f"{t['orders_filled']:,}"),
+        ("writeup: capture ratio",
+         r"Aggregate capture ratio:\s*`([\d.]+)%`", f"{capture * 100:.1f}"),
+        ("writeup: given up",
+         r"Given up to execution:\s*`\$([\d,.]+)`",
+         f"{t['given_up_to_execution_usd']:,.2f}"),
+        ("writeup: buckets vetoed",
+         r"Buckets vetoed by the execution gate:\s*`(\d+)`",
+         str(t["vetoed_by_execution_gate"])),
     ]
 
+    fix = "--fix" in sys.argv
     problems: list[str] = []
+    fixed: list[str] = []
     for rel in DOCS:
         p = ROOT / rel
         if not p.exists():
             continue
         text = p.read_text()
+        # (start, end, expected, label, line) for group(1) of every stale claim
+        spans: list[tuple[int, int, str, str, int]] = []
         for label, pattern, expected in checks:
             for m in re.finditer(pattern, text, re.I):
                 got = m.group(1)
                 if got.lower() != expected.lower():
                     line = text[: m.start()].count("\n") + 1
                     problems.append(f"  {rel}:{line}  {label}: found {got!r}, source says {expected!r}")
+                    spans.append((m.start(1), m.end(1), expected, label, line))
+
+        # Rewriting is opt-in. Each regex already locates the exact digits it
+        # checked, so the fix overwrites that span and nothing else: no
+        # reflowing prose, no second guess about which "25" on a line was
+        # meant. Applied back to front so earlier offsets stay valid, and
+        # overlapping matches are skipped rather than corrupting each other.
+        if fix and spans:
+            spans.sort(key=lambda s: s[0], reverse=True)
+            new = text
+            floor = len(text) + 1
+            for start, end, expected, label, line in spans:
+                if end > floor:
+                    continue
+                new = new[:start] + expected + new[end:]
+                floor = start
+                fixed.append(f"  {rel}:{line}  {label} -> {expected!r}")
+            if new != text:
+                p.write_text(new)
 
     # Em dashes are banned in every artifact this project ships.
     for rel in DOCS:
@@ -206,9 +281,19 @@ def main() -> int:
                 problems.append(
                     f"  {rel}:{line}  comparative claim {m.group(0)!r}: {why}")
 
+    if fixed:
+        print(f"\nREWROTE {len(fixed)} stale figure(s) from data/proof.json\n")
+        print("\n".join(fixed))
+        print("\nRe-run without --fix to confirm, and read the diff before "
+              "committing: this edits digits, it cannot fix prose that has "
+              "gone stale around them.")
+        return 1
+
     if problems:
         print(f"\nDRIFT: {len(problems)} claim(s) disagree with source\n")
         print("\n".join(problems))
+        if not fix:
+            print("\n(scripts.verify_claims --fix rewrites the numeric ones)")
         return 1
     print(f"\nall claims across {len(DOCS)} deliverables agree with source")
     return 0

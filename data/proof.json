@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-09-02T20:20:58.240340+00:00",
+  "generated_at": "2026-09-04T04:21:54.031904+00:00",
   "claim": "The agent measures the fraction of theoretical credit it actually captures, per (underlying, tenor, delta, time-of-day) bucket, and refuses buckets whose shrunk capture ratio falls below the configured floor.",
   "config": {
     "min_capture_ratio": 0.6,
     "min_samples_to_veto": 3
   },
   "totals": {
-    "candidates_considered": 1798,
-    "orders_filled": 25,
+    "candidates_considered": 2368,
+    "orders_filled": 36,
     "vetoed_by_execution_gate": 0,
-    "theoretical_credit_usd": 2689.5,
-    "captured_credit_usd": 2651.0,
-    "given_up_to_execution_usd": 38.5,
-    "aggregate_capture_ratio": 0.9857
+    "theoretical_credit_usd": 3445.5,
+    "captured_credit_usd": 3386.0,
+    "given_up_to_execution_usd": 59.5,
+    "aggregate_capture_ratio": 0.9827
   },
   "buckets": [
     {
@@ -127,13 +127,13 @@
     },
     {
       "bucket": "QQQ:dte1:d0.25:midday",
-      "submitted": 1,
-      "filled": 1,
-      "samples": 1,
-      "raw_capture": 1.0,
-      "shrunk_capture": 0.9,
-      "fill_rate": 0.8333,
-      "aggressiveness": 0.2
+      "submitted": 7,
+      "filled": 4,
+      "samples": 4,
+      "raw_capture": 0.999,
+      "shrunk_capture": 0.9493,
+      "fill_rate": 0.6111,
+      "aggressiveness": 0.389
     },
     {
       "bucket": "QQQ:dte2:d0.20:close",
@@ -187,13 +187,13 @@
     },
     {
       "bucket": "SPY:dte1:d0.25:midday",
-      "submitted": 1,
-      "filled": 1,
-      "samples": 1,
-      "raw_capture": 1.0145,
-      "shrunk_capture": 0.9048,
-      "fill_rate": 0.8333,
-      "aggressiveness": 0.2
+      "submitted": 6,
+      "filled": 3,
+      "samples": 3,
+      "raw_capture": 0.9863,
+      "shrunk_capture": 0.9318,
+      "fill_rate": 0.5625,
+      "aggressiveness": 0.438
     },
     {
       "bucket": "SPY:dte1:d0.30:midday",
@@ -248,19 +248,307 @@
   ],
   "economics": {
     "note": "Derived from config.yaml and from the broker-verified fills, not hand-entered. Win and loss follow the exit rules in agent/loop.py.",
-    "contracts": 32,
-    "credit_per_contract_usd": 82.84,
-    "win_usd": 33.14,
-    "loss_usd": 82.84,
+    "contracts": 43,
+    "credit_per_contract_usd": 78.74,
+    "win_usd": 31.5,
+    "loss_usd": 78.74,
     "breakeven_win_rate": 0.7143,
     "delta_implied_otm_rate": 0.76,
     "edge_points": 4.6,
-    "expected_per_contract_usd": 5.3
+    "expected_per_contract_usd": 5.04
   },
   "fills": [],
   "broker_verification": {
     "note": "Sourced from Alpaca's own activity log and portfolio history, not from this repository's bookkeeping. Reproducible by anyone holding the paper account ID.",
     "fill_activities": [
+      {
+        "symbol": "SPY260904C00782000",
+        "side": "sell",
+        "qty": "3",
+        "price": "0.05",
+        "transaction_time": "2026-09-03T17:21:56.415088Z",
+        "order_id": "3937c4a4-1323-45d0-9f4b-7d8a0b1551a4",
+        "fill_group": "20260903132156415"
+      },
+      {
+        "symbol": "SPY260904C00777000",
+        "side": "buy",
+        "qty": "3",
+        "price": "0.4",
+        "transaction_time": "2026-09-03T17:21:56.415084Z",
+        "order_id": "646f6731-268a-49d3-8e91-ec53cabec301",
+        "fill_group": "20260903132156415"
+      },
+      {
+        "symbol": "SPY260904C00782000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.1",
+        "transaction_time": "2026-09-03T16:45:26.672493Z",
+        "order_id": "ea80c00f-9805-4758-8142-1c95a66944e2",
+        "fill_group": "20260903124526672"
+      },
+      {
+        "symbol": "SPY260904C00777000",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.68",
+        "transaction_time": "2026-09-03T16:45:26.672487Z",
+        "order_id": "cbe12f0d-a88e-454e-ac38-fd666d543c44",
+        "fill_group": "20260903124526672"
+      },
+      {
+        "symbol": "SPY260904C00782000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.1",
+        "transaction_time": "2026-09-03T16:43:29.584886Z",
+        "order_id": "b8a2ed30-002a-4acc-b4c1-1898d9d84d26",
+        "fill_group": "20260903124329584"
+      },
+      {
+        "symbol": "SPY260904C00777000",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.67",
+        "transaction_time": "2026-09-03T16:43:29.584885Z",
+        "order_id": "949cac6a-285c-442f-ae07-2051a3dfadc3",
+        "fill_group": "20260903124329584"
+      },
+      {
+        "symbol": "SPY260904C00777000",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.7",
+        "transaction_time": "2026-09-03T16:41:59.615933Z",
+        "order_id": "e4be40e1-7b33-4556-83d3-f31836b5d108",
+        "fill_group": "20260903124159615"
+      },
+      {
+        "symbol": "SPY260904C00782000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.1",
+        "transaction_time": "2026-09-03T16:41:59.615939Z",
+        "order_id": "aec97350-376b-418e-ade6-8936ef1b462b",
+        "fill_group": "20260903124159615"
+      },
+      {
+        "symbol": "QQQ260904C00726000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.24",
+        "transaction_time": "2026-09-03T16:36:48.486231Z",
+        "order_id": "54767d65-10d3-47e6-84ca-5255e357d2a1",
+        "fill_group": "20260903123648486"
+      },
+      {
+        "symbol": "QQQ260904C00721000",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "1.06",
+        "transaction_time": "2026-09-03T16:36:48.486228Z",
+        "order_id": "fc561e0f-3b59-4b02-ac66-6696d61c4b26",
+        "fill_group": "20260903123648486"
+      },
+      {
+        "symbol": "SPY260904C00781000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.11",
+        "transaction_time": "2026-09-03T16:31:26.771089Z",
+        "order_id": "9f108d59-aa88-418c-951c-58ab23b84829",
+        "fill_group": "20260903123126771"
+      },
+      {
+        "symbol": "SPY260904C00776000",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.74",
+        "transaction_time": "2026-09-03T16:31:26.771085Z",
+        "order_id": "08f1ed8e-e69a-46ee-a5cb-e8c0511d0fce",
+        "fill_group": "20260903123126771"
+      },
+      {
+        "symbol": "SPY260904C00776000",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.75",
+        "transaction_time": "2026-09-03T16:26:22.473967Z",
+        "order_id": "c648e30b-2fd3-4a90-98a8-09176b208a5f",
+        "fill_group": "20260903122622473"
+      },
+      {
+        "symbol": "SPY260904C00781000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.11",
+        "transaction_time": "2026-09-03T16:26:22.473979Z",
+        "order_id": "af9768b1-72f8-452d-8290-02884812fa70",
+        "fill_group": "20260903122622473"
+      },
+      {
+        "symbol": "QQQ260904C00727000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.22",
+        "transaction_time": "2026-09-03T16:24:38.778925Z",
+        "order_id": "5c0b82a9-369d-47df-9382-0be3b5eb6507",
+        "fill_group": "20260903122438778"
+      },
+      {
+        "symbol": "QQQ260904C00722000",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.91",
+        "transaction_time": "2026-09-03T16:24:38.778919Z",
+        "order_id": "cc616365-2d7e-461b-adda-acaac7816e03",
+        "fill_group": "20260903122438778"
+      },
+      {
+        "symbol": "QQQ260904C00727000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.22",
+        "transaction_time": "2026-09-03T16:23:15.091234Z",
+        "order_id": "d88bdd66-3882-4d24-b2c7-2a54f7f9d868",
+        "fill_group": "20260903122315091"
+      },
+      {
+        "symbol": "QQQ260904C00722000",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.92",
+        "transaction_time": "2026-09-03T16:23:15.09123Z",
+        "order_id": "f60cc0bf-76a0-4159-90fc-7ec56fb5cf63",
+        "fill_group": "20260903122315091"
+      },
+      {
+        "symbol": "QQQ260904C00722000",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.98",
+        "transaction_time": "2026-09-03T16:21:32.365969Z",
+        "order_id": "304a5ed0-8981-49e4-99e3-e414e6a7c7e5",
+        "fill_group": "20260903122132365"
+      },
+      {
+        "symbol": "QQQ260904C00727000",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.23",
+        "transaction_time": "2026-09-03T16:21:32.365973Z",
+        "order_id": "0132c920-2bd1-4ad3-85c4-0a06fd49e8db",
+        "fill_group": "20260903122132365"
+      },
+      {
+        "symbol": "QQQ260904C00727500",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.22",
+        "transaction_time": "2026-09-03T16:19:59.621017Z",
+        "order_id": "080d6f04-4624-42af-bca0-dff54da5b73a",
+        "fill_group": "20260903121959621"
+      },
+      {
+        "symbol": "QQQ260904C00722500",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.92",
+        "transaction_time": "2026-09-03T16:19:59.621016Z",
+        "order_id": "11e4b80a-c163-4451-bc06-8fa2d979e5ef",
+        "fill_group": "20260903121959621"
+      },
+      {
+        "symbol": "QQQ260904C00722500",
+        "side": "sell_short",
+        "qty": "1",
+        "price": "0.88",
+        "transaction_time": "2026-09-03T16:16:51.190271Z",
+        "order_id": "6452733b-bb78-44e8-a2df-da347c04b18e",
+        "fill_group": "20260903121651190"
+      },
+      {
+        "symbol": "QQQ260904C00727500",
+        "side": "buy",
+        "qty": "1",
+        "price": "0.21",
+        "transaction_time": "2026-09-03T16:16:51.190277Z",
+        "order_id": "f4f19174-33a9-472d-856f-a5c789942566",
+        "fill_group": "20260903121651190"
+      },
+      {
+        "symbol": "QQQ260904C00714000",
+        "side": "buy",
+        "qty": "7",
+        "price": "2.98",
+        "transaction_time": "2026-09-03T13:41:37.387323Z",
+        "order_id": "b11af630-0f23-41bb-bdbe-e5515c182982",
+        "fill_group": "20260903094137387"
+      },
+      {
+        "symbol": "QQQ260904C00719000",
+        "side": "sell",
+        "qty": "7",
+        "price": "1.07",
+        "transaction_time": "2026-09-03T13:41:37.387327Z",
+        "order_id": "a9003331-fb14-4a6e-94c4-39a8b0ed8d93",
+        "fill_group": "20260903094137387"
+      },
+      {
+        "symbol": "SPY260903C00768000",
+        "side": "buy",
+        "qty": "1",
+        "price": "1.56",
+        "transaction_time": "2026-09-03T13:32:21.958183Z",
+        "order_id": "02918ca1-705d-4066-b36f-d3799fc56c74",
+        "fill_group": "20260903093221958"
+      },
+      {
+        "symbol": "SPY260903C00773000",
+        "side": "sell",
+        "qty": "1",
+        "price": "0.07",
+        "transaction_time": "2026-09-03T13:32:21.9582Z",
+        "order_id": "ce429fa4-bc85-4092-adb2-74f4fbf67075",
+        "fill_group": "20260903093221958"
+      },
+      {
+        "symbol": "SPY260903C00768000",
+        "side": "buy",
+        "qty": "1",
+        "price": "1.56",
+        "transaction_time": "2026-09-03T13:32:21.834485Z",
+        "order_id": "02918ca1-705d-4066-b36f-d3799fc56c74",
+        "fill_group": "20260903093221834"
+      },
+      {
+        "symbol": "SPY260903C00773000",
+        "side": "sell",
+        "qty": "1",
+        "price": "0.07",
+        "transaction_time": "2026-09-03T13:32:21.834489Z",
+        "order_id": "ce429fa4-bc85-4092-adb2-74f4fbf67075",
+        "fill_group": "20260903093221834"
+      },
+      {
+        "symbol": "SPY260903C00772000",
+        "side": "sell",
+        "qty": "5",
+        "price": "0.12",
+        "transaction_time": "2026-09-03T13:30:12.516718Z",
+        "order_id": "0c532521-7cc8-47f8-809d-cf580c1618a8",
+        "fill_group": "20260903093012516"
+      },
+      {
+        "symbol": "SPY260903C00767000",
+        "side": "buy",
+        "qty": "5",
+        "price": "1.98",
+        "transaction_time": "2026-09-03T13:30:12.516716Z",
+        "order_id": "56eec331-e5c2-442d-b8ce-9e464b8cb7a9",
+        "fill_group": "20260903093012516"
+      },
       {
         "symbol": "SPY260903C00773000",
         "side": "buy",
@@ -838,10 +1126,10 @@
         "fill_group": "20260831134249497"
       }
     ],
-    "paired_spreads": 25,
-    "broker_net_credit_usd": 2651.0,
-    "broker_theoretical_usd": 2689.5,
-    "broker_capture_ratio": 0.9857,
+    "paired_spreads": 36,
+    "broker_net_credit_usd": 3386.0,
+    "broker_theoretical_usd": 3445.5,
+    "broker_capture_ratio": 0.9827,
     "spreads": [
       {
         "fill_group": "20260831134743138",
@@ -1142,6 +1430,138 @@
         "credit_at_mid": 0.69,
         "capture_ratio": 1.0145,
         "at": "2026-09-02T17:44:22.02116Z"
+      },
+      {
+        "fill_group": "20260903121651190",
+        "short": "QQQ260904C00722500",
+        "short_price": "0.88",
+        "long": "QQQ260904C00727500",
+        "long_price": "0.21",
+        "contracts": 1,
+        "credit_received": 0.67,
+        "credit_at_mid": 0.69,
+        "capture_ratio": 0.971,
+        "at": "2026-09-03T16:16:51.190271Z"
+      },
+      {
+        "fill_group": "20260903121959621",
+        "short": "QQQ260904C00722500",
+        "short_price": "0.92",
+        "long": "QQQ260904C00727500",
+        "long_price": "0.22",
+        "contracts": 1,
+        "credit_received": 0.7,
+        "credit_at_mid": 0.72,
+        "capture_ratio": 0.9722,
+        "at": "2026-09-03T16:19:59.621016Z"
+      },
+      {
+        "fill_group": "20260903122132365",
+        "short": "QQQ260904C00722000",
+        "short_price": "0.98",
+        "long": "QQQ260904C00727000",
+        "long_price": "0.23",
+        "contracts": 1,
+        "credit_received": 0.75,
+        "credit_at_mid": 0.75,
+        "capture_ratio": 1.0,
+        "at": "2026-09-03T16:21:32.365969Z"
+      },
+      {
+        "fill_group": "20260903122315091",
+        "short": "QQQ260904C00722000",
+        "short_price": "0.92",
+        "long": "QQQ260904C00727000",
+        "long_price": "0.22",
+        "contracts": 1,
+        "credit_received": 0.7,
+        "credit_at_mid": 0.77,
+        "capture_ratio": 0.9091,
+        "at": "2026-09-03T16:23:15.09123Z"
+      },
+      {
+        "fill_group": "20260903122438778",
+        "short": "QQQ260904C00722000",
+        "short_price": "0.91",
+        "long": "QQQ260904C00727000",
+        "long_price": "0.22",
+        "contracts": 1,
+        "credit_received": 0.69,
+        "credit_at_mid": 0.69,
+        "capture_ratio": 1.0,
+        "at": "2026-09-03T16:24:38.778919Z"
+      },
+      {
+        "fill_group": "20260903122622473",
+        "short": "SPY260904C00776000",
+        "short_price": "0.75",
+        "long": "SPY260904C00781000",
+        "long_price": "0.11",
+        "contracts": 1,
+        "credit_received": 0.64,
+        "credit_at_mid": 0.69,
+        "capture_ratio": 0.9275,
+        "at": "2026-09-03T16:26:22.473967Z"
+      },
+      {
+        "fill_group": "20260903123126771",
+        "short": "SPY260904C00776000",
+        "short_price": "0.74",
+        "long": "SPY260904C00781000",
+        "long_price": "0.11",
+        "contracts": 1,
+        "credit_received": 0.63,
+        "credit_at_mid": 0.68,
+        "capture_ratio": 0.9265,
+        "at": "2026-09-03T16:31:26.771085Z"
+      },
+      {
+        "fill_group": "20260903123648486",
+        "short": "QQQ260904C00721000",
+        "short_price": "1.06",
+        "long": "QQQ260904C00726000",
+        "long_price": "0.24",
+        "contracts": 1,
+        "credit_received": 0.82,
+        "credit_at_mid": 0.8,
+        "capture_ratio": 1.025,
+        "at": "2026-09-03T16:36:48.486228Z"
+      },
+      {
+        "fill_group": "20260903124159615",
+        "short": "SPY260904C00777000",
+        "short_price": "0.7",
+        "long": "SPY260904C00782000",
+        "long_price": "0.1",
+        "contracts": 1,
+        "credit_received": 0.6,
+        "credit_at_mid": 0.59,
+        "capture_ratio": 1.0169,
+        "at": "2026-09-03T16:41:59.615933Z"
+      },
+      {
+        "fill_group": "20260903124329584",
+        "short": "SPY260904C00777000",
+        "short_price": "0.67",
+        "long": "SPY260904C00782000",
+        "long_price": "0.1",
+        "contracts": 1,
+        "credit_received": 0.57,
+        "credit_at_mid": 0.58,
+        "capture_ratio": 0.9828,
+        "at": "2026-09-03T16:43:29.584885Z"
+      },
+      {
+        "fill_group": "20260903124526672",
+        "short": "SPY260904C00777000",
+        "short_price": "0.68",
+        "long": "SPY260904C00782000",
+        "long_price": "0.1",
+        "contracts": 1,
+        "credit_received": 0.58,
+        "credit_at_mid": 0.6,
+        "capture_ratio": 0.9667,
+        "at": "2026-09-03T16:45:26.672487Z"
       }
     ],
     "excluded_non_agent_fills": [
@@ -1170,180 +1590,29 @@
   },
   "equity_curve": [
     {
-      "t": 1787837400,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787841000,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787844600,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787848200,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787851800,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787855400,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787859000,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787923800,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787927400,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787931000,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787934600,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787938200,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787941800,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1787945400,
-      "equity": 0,
-      "pl": -100000
-    },
-    {
-      "t": 1788183000,
+      "t": 1787961600,
       "equity": 100000,
       "pl": 0
     },
     {
-      "t": 1788186600,
-      "equity": 100000,
-      "pl": 0
+      "t": 1788220800,
+      "equity": 99671.88,
+      "pl": -328.12
     },
     {
-      "t": 1788190200,
-      "equity": 100000,
-      "pl": 0
+      "t": 1788307200,
+      "equity": 100973.12,
+      "pl": 1301.24
     },
     {
-      "t": 1788193800,
-      "equity": 100000,
-      "pl": 0
-    },
-    {
-      "t": 1788197400,
-      "equity": 100000,
-      "pl": 0
-    },
-    {
-      "t": 1788201000,
-      "equity": 100004.58,
-      "pl": 4.58
-    },
-    {
-      "t": 1788204600,
-      "equity": 99986.32,
-      "pl": -13.68
-    },
-    {
-      "t": 1788269400,
-      "equity": 100719.88,
-      "pl": 733.56
-    },
-    {
-      "t": 1788273000,
-      "equity": 100673.88,
-      "pl": 687.56
-    },
-    {
-      "t": 1788276600,
-      "equity": 100691.88,
-      "pl": 705.56
-    },
-    {
-      "t": 1788280200,
-      "equity": 100696.2,
-      "pl": 709.88
-    },
-    {
-      "t": 1788283800,
-      "equity": 100802.56,
-      "pl": 816.24
-    },
-    {
-      "t": 1788287400,
-      "equity": 100932.56,
-      "pl": 946.24
-    },
-    {
-      "t": 1788291000,
-      "equity": 100959.2,
-      "pl": 972.88
-    },
-    {
-      "t": 1788355800,
-      "equity": 100993.12,
-      "pl": 33.92
-    },
-    {
-      "t": 1788359400,
-      "equity": 100708.12,
-      "pl": -251.08
-    },
-    {
-      "t": 1788363000,
-      "equity": 100523.12,
-      "pl": -436.08
-    },
-    {
-      "t": 1788366600,
-      "equity": 100788.12,
-      "pl": -171.08
-    },
-    {
-      "t": 1788370200,
-      "equity": 100828.12,
-      "pl": -131.08
-    },
-    {
-      "t": 1788373800,
-      "equity": 100696.12,
-      "pl": -263.08
-    },
-    {
-      "t": 1788377400,
-      "equity": 100614.12,
-      "pl": -345.08
+      "t": 1788393600,
+      "equity": 100563.32,
+      "pl": -409.8
     }
   ],
-  "sha256": "9c8222b40cdf6238e28411b22e62596cb682de44bfcb26ce4dae63ae589dfa22"
+  "equity_curve_source": {
+    "timeframe": "1D",
+    "note": "1H rejected: 28/35 points fell outside 50% of the broker's base_value; fell back to daily"
+  },
+  "sha256": "28bcecd23ae4146923c36153eb2d7a0ec66899e0ff3f1a544f7656721975bce5"
 }

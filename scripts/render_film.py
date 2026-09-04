@@ -46,7 +46,11 @@ PORT = 9333
 FPS = 30
 LEAD_IN = 1.2          # must match the setTimeout in build_film.py's JS
 TAIL = 1.5             # let the last scene sit before the cut
-MIN_FREE_GB = 2.0
+# 2.0 was set right after the buffering version filled the volume at frame
+# 2,832 of 4,809. The streaming version never holds more than one JPEG, so
+# peak disk is the ~20MB output plus Chrome's throwaway profile. Half a gig
+# is honest headroom for that; more than that was cargo-culted fear.
+MIN_FREE_GB = 0.5
 
 
 def runtime_seconds() -> int:

@@ -9,7 +9,7 @@ evaluation window that is close to noise: nobody, in this field or outside it,
 can establish strategy edge from four days of paper trading.
 
 Something else is measurable in four days, and it is not small. A 0.24-delta
-credit spread on SPY collects about $83 per contract on a $5-wide vertical,
+credit spread on SPY collects about $79 per contract on a $5-wide vertical,
 and the bid/ask it crosses on entry and again on exit is a material
 fraction of that. **Execution
 slippage is the same order of magnitude as the entire strategy edge**, which
@@ -116,10 +116,10 @@ record cannot be quietly edited after the fact.
 
 **Results from the competition window:**
 
-- Candidates considered: `1,798`
-- Orders filled: `25`
-- Aggregate capture ratio: `98.6%`
-- Given up to execution: `$38.50`
+- Candidates considered: `2,368`
+- Orders filled: `36`
+- Aggregate capture ratio: `98.3%`
+- Given up to execution: `$59.50`
 - Buckets vetoed by the execution gate: `0`
 - P&L: `-$472.38` on $100,000 (`-0.47%`), book flat, no open positions
 

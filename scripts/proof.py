@@ -122,7 +122,35 @@ def build() -> dict:
             "fill_group": str(a.get("id", "")).split("::")[0],
         })
 
-    hist = cli.portfolio_history(period="1W", timeframe="1H")
+    # The hourly series is preferred for resolution, but it cannot be trusted
+    # blindly: on this paper account 28 of 35 1H points came back at almost
+    # exactly 200000 against a base_value of 100000, double the real equity,
+    # while the same window at 1D was correct. Shipping that inside a file
+    # called proof.json would have put an equity curve ending at $199,544 next
+    # to a P&L claim of minus four hundred dollars.
+    #
+    # So the series is validated against the broker's own base_value and falls
+    # back to 1D when it disagrees. Which timeframe was used, and why, is
+    # recorded in the artifact rather than left for a reader to infer.
+    def _implausible(h: dict) -> int:
+        """Points more than 50% away from the account's stated base value."""
+        base = float(h.get("base_value") or 0) or None
+        if not base:
+            return 0
+        return sum(1 for v in (h.get("equity") or [])
+                   if v is not None and not (0.5 * base <= float(v) <= 1.5 * base))
+
+    hist = cli.portfolio_history(period="1W", timeframe="1H") or {}
+    equity_timeframe = "1H"
+    equity_note = "hourly series, validated against the broker's base_value"
+    bad = _implausible(hist)
+    if bad:
+        total = len(hist.get("equity") or []) or 1
+        hist = cli.portfolio_history(period="1W", timeframe="1D") or {}
+        equity_timeframe = "1D"
+        equity_note = (f"1H rejected: {bad}/{total} points fell outside 50% of "
+                       f"the broker's base_value; fell back to daily")
+
     equity_curve = []
     ts, eq, pl = hist.get("timestamp", []), hist.get("equity", []), hist.get("profit_loss", [])
     for i, t in enumerate(ts or []):
@@ -278,6 +306,7 @@ def build() -> dict:
             ),
         },
         "equity_curve": equity_curve,
+        "equity_curve_source": {"timeframe": equity_timeframe, "note": equity_note},
     }
 
     # Hash the payload so any later edit is detectable.

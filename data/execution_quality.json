@@ -13,10 +13,12 @@
     "captures": []
   },
   "SPY:dte1:d0.25:midday": {
-    "submitted": 1,
-    "filled": 1,
+    "submitted": 6,
+    "filled": 3,
     "captures": [
-      1.0145
+      1.0145,
+      0.9275,
+      1.0169
     ]
   },
   "QQQ:dte2:d0.25:midday": {
@@ -30,10 +32,13 @@
     ]
   },
   "QQQ:dte1:d0.25:midday": {
-    "submitted": 1,
-    "filled": 1,
+    "submitted": 7,
+    "filled": 4,
     "captures": [
-      1.0
+      1.0,
+      0.971,
+      1.0,
+      1.025
     ]
   },
   "SPY:dte1:d0.20:midday": {

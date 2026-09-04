@@ -56,6 +56,18 @@ def test_exit_rules(cfg: dict) -> None:
     s = sample_spread(tomorrow)
     midday = datetime.now(ET).replace(hour=12, minute=0)
 
+    # These assertions are about profit-take, stop and force-close only, so
+    # the reporting freeze is switched off for them. It is tested on its own
+    # in test_reporting_freeze, against pinned timestamps.
+    #
+    # Without this the verdict depended on the calendar: `midday` is built
+    # from the real clock, so once the date rolled past config's
+    # flatten_all_at every case here returned reporting_flatten, and the file
+    # started failing on deadline morning having passed the day before.
+    import copy
+    cfg = copy.deepcopy(cfg)
+    cfg["reporting"] = {"enabled": False}
+
     # Thresholds come from config so the test follows the configuration
     # rather than encoding one moment of it. Entry credit is 0.90.
     take = float(cfg["exit"]["profit_take_pct"])
