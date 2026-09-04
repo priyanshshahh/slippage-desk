@@ -59,9 +59,9 @@
      invisible unless you score every fill against the mid it was priced at.</p>
   <table>
     <tr><td>A win banks</td>
-        <td class="mono ok" style="text-align:right">+$32.43</td></tr>
+        <td class="mono ok" style="text-align:right">+$31.50</td></tr>
     <tr><td>The stop costs</td>
-        <td class="mono no" style="text-align:right">−$81.09</td></tr>
+        <td class="mono no" style="text-align:right">−$78.74</td></tr>
     <tr><td>Breakeven win rate</td>
         <td class="mono" style="text-align:right">71.4%</td></tr>
     <tr><td>Delta-implied OTM rate</td>
@@ -170,6 +170,29 @@
 </section>
 
 <section class="s">
+  <div class="tag">Result</div>
+  <h2>What the account actually did.</h2>
+  <table>
+    <tr><td>P&amp;L over the competition window</td>
+        <td class="mono no" style="text-align:right">-$454.08</td></tr>
+    <tr><td>As a share of starting capital</td>
+        <td class="mono no" style="text-align:right">-0.45%</td></tr>
+    <tr><td>Against a daily loss limit of</td>
+        <td class="mono" style="text-align:right">2.00%</td></tr>
+    <tr><td>Theoretical credit captured</td>
+        <td class="mono ok" style="text-align:right">98.3%</td></tr>
+  </table>
+  <p style="margin-top:26px">Every position was defined risk, so the maximum
+     loss was known before each order was sent. The stops closed the losers
+     near 2x credit rather than at full width, the daily loss limit was never
+     reached, and the portfolio risk ceiling never bound.</p>
+  <p class="lede" style="margin-top:24px">A short-premium book in a rising tape
+     is the market this strategy is built to lose in. It lost under half a
+     percent doing it.</p>
+  <div class="pg">9</div>
+</section>
+
+<section class="s">
   <div class="tag">Honesty</div>
   <h2>What we claim, and what we don't.</h2>
   <p class="lede">We do not claim the strategy is profitable. Four sessions
@@ -183,20 +206,23 @@
     <div class="muted" style="font-style:normal;font-size:15px;margin-top:12px">
       The advisor, declining a trade the gates had approved.</div>
   </div>
-  <div class="pg">9</div>
+  <div class="pg">10</div>
 </section>
 
 <section class="s">
   <h1 style="font-size:46px">Slippage Desk</h1>
-  <p class="lede" style="margin-top:24px">Most agents optimise what to trade.<br>
+  <p class="lede" style="margin-top:24px">Choosing what to trade is the easy half.<br>
      This one learns whether it can get the price.</p>
   <p class="mono muted" style="margin-top:40px;font-size:17px">
     github.com/priyanshshahh/slippage-desk<br>
-    dashboard-theta-lemon-36.vercel.app<br>
+    slippage-desk.vercel.app<br>
     Alpaca paper account PA343VC6LL3T
   </p>
+  <p class="muted" style="margin-top:26px;font-size:15px">Next: cross-venue
+     routing on the same memory, and per-bucket sizing rather than
+     per-bucket veto.</p>
   <p class="muted" style="margin-top:34px;font-size:15px">Built with Claude Code.</p>
-  <div class="pg">10</div>
+  <div class="pg">11</div>
 </section>
 
 
@@ -229,6 +255,10 @@
 <!-- evidence sha256 ad74190ac81b284d -->
 
 <!-- evidence sha256 28bcecd23ae41469 -->
+
+<!-- evidence sha256 7994fb9b756efda7 -->
+
+<!-- evidence sha256 7994fb9b756efda7 -->
 
 <!-- evidence sha256 7994fb9b756efda7 -->
 

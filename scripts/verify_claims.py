@@ -131,6 +131,14 @@ def main() -> int:
         ("spread width", r"\$(\d+)-wide", f"{float(cfg('spread_width')):.0f}"),
         # Cover/deck stat cells. These are label/value pairs, and a transposed
         # pair (gates 13, surfaces 15) shipped on the cover image once.
+        # Table cells put the label and the value in separate <td>s, so every
+        # pattern that expects them adjacent is blind to a deck table. Slide 2
+        # carried +$32.43 and -$81.09 against a proof saying 31.50 and 78.74,
+        # and the run reported all claims agreeing.
+        ("deck: win per contract",
+         r"A win banks</td>\s*<td[^>]*>\+?\$(\d+\.\d\d)", f"{ec['win_usd']:.2f}"),
+        ("deck: stop cost",
+         r"The stop costs</td>\s*<td[^>]*>[\u2212-]?\$(\d+\.\d\d)", f"{ec['loss_usd']:.2f}"),
         ("gates stat cell", r"Deterministic gates</div><div class=\"v\">(\d+)<", str(n_gates)),
         ("surfaces stat cell", r"Alpaca surfaces</div><div class=\"v\">(\d+)<", "3"),
         # Spelled-out numbers hid from every check above, so a wrong figure
