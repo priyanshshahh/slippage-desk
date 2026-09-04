@@ -44,7 +44,7 @@ The new part: every fill is scored against the mid it was priced at. The desk ho
 
 Alpaca's three surfaces have separate jobs. The CLI submits multi-leg orders and verifies the book. The SDK pulls chains with greeks. The MCP server feeds read-only research to the advisor, launched with trading toolsets stripped so it physically cannot place an order.
 
-Broker-verified, not backtested: 36 spreads across 43 contracts, $3,386 captured of $3,446 theoretical, $60 surrendered to execution, 98.3% capture, 2,368 candidates considered. Result: -$454.08 (-0.45%), with the 2% daily loss limit never reached and defined risk on every position. Every figure regenerates from a sha256-signed artifact.
+Broker-verified, not backtested: 36 spreads across 43 contracts, $3,386 captured of $3,446 theoretical, $60 surrendered to execution, 98.3% capture, 2,368 candidates considered. Result: -$332.62 (-0.33%), with the 2% daily loss limit never reached and defined risk on every position. Every figure regenerates from a sha256-signed artifact.
 ```
 
 ---
@@ -66,7 +66,7 @@ Two scripts in the repo enforce that, and both run clean on the committed tree:
   python -m scripts.check_submission
     validates the package itself: field lengths, cover ratio, video duration and audio, and that every submitted URL returns 200 with no credentials attached.
 
-On the result. The account finished at $-454.08, -0.45% of $100,000. Four sessions cannot establish whether a strategy is profitable, and this submission does not claim otherwise. What the window does establish is measurable: 2,368 candidates considered, 36 spreads filled across 43 contracts, 98.3% of theoretical credit captured, and $60 surrendered to execution. Every position was defined risk, so maximum loss was known before each order went out. Stops closed the losers near 2x credit rather than at full width, the 2% daily loss limit was never reached, and the portfolio risk ceiling never bound.
+On the result. The account finished at -$332.62, -0.45% of $100,000. Four sessions cannot establish whether a strategy is profitable, and this submission does not claim otherwise. What the window does establish is measurable: 2,368 candidates considered, 36 spreads filled across 43 contracts, 98.3% of theoretical credit captured, and $60 surrendered to execution. Every position was defined risk, so maximum loss was known before each order went out. Stops closed the losers near 2x credit rather than at full width, the 2% daily loss limit was never reached, and the portfolio risk ceiling never bound.
 
 Worth opening first: engine/execution_quality.py, the capture-ratio loop that is the original part; engine/risk.py, the fifteen deterministic gates; and data/decisions.jsonl, every candidate considered including the refusals, which are the evidence the risk layer does real work.
 

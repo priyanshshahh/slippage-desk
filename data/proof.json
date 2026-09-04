@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-04T05:18:04.581337+00:00",
+  "generated_at": "2026-09-04T14:16:05.734906+00:00",
   "claim": "The agent measures the fraction of theoretical credit it actually captures, per (underlying, tenor, delta, time-of-day) bucket, and refuses buckets whose shrunk capture ratio falls below the configured floor.",
   "config": {
     "min_capture_ratio": 0.6,
@@ -261,6 +261,78 @@
   "broker_verification": {
     "note": "Sourced from Alpaca's own activity log and portfolio history, not from this repository's bookkeeping. Reproducible by anyone holding the paper account ID.",
     "fill_activities": [
+      {
+        "symbol": "QQQ260904C00727000",
+        "side": "sell",
+        "qty": "3",
+        "price": "0.05",
+        "transaction_time": "2026-09-04T14:13:41.202512Z",
+        "order_id": "b4f08375-fd8f-46a7-b058-da5438ef0508",
+        "fill_group": "20260904101341202"
+      },
+      {
+        "symbol": "QQQ260904C00722000",
+        "side": "buy",
+        "qty": "3",
+        "price": "0.69",
+        "transaction_time": "2026-09-04T14:13:41.202509Z",
+        "order_id": "ec5fdc4c-e36f-4e22-bc70-6e692e00fee4",
+        "fill_group": "20260904101341202"
+      },
+      {
+        "symbol": "QQQ260904C00722500",
+        "side": "buy",
+        "qty": "2",
+        "price": "0.54",
+        "transaction_time": "2026-09-04T14:13:41.191918Z",
+        "order_id": "cbbbcf06-97c8-46a6-b5ba-d52cda276277",
+        "fill_group": "20260904101341191"
+      },
+      {
+        "symbol": "QQQ260904C00727500",
+        "side": "sell",
+        "qty": "2",
+        "price": "0.04",
+        "transaction_time": "2026-09-04T14:13:41.191921Z",
+        "order_id": "0397b20c-f1ec-4d1f-bf4c-2d8330029f25",
+        "fill_group": "20260904101341191"
+      },
+      {
+        "symbol": "QQQ260904C00721000",
+        "side": "buy",
+        "qty": "1",
+        "price": "1.92",
+        "transaction_time": "2026-09-04T13:58:38.706483Z",
+        "order_id": "463bb6c1-69e1-4737-b752-12f96d4b8011",
+        "fill_group": "20260904095838706"
+      },
+      {
+        "symbol": "QQQ260904C00726000",
+        "side": "sell",
+        "qty": "1",
+        "price": "0.22",
+        "transaction_time": "2026-09-04T13:58:38.706488Z",
+        "order_id": "89042d4f-1edd-4d33-917f-29f73f3d0808",
+        "fill_group": "20260904095838706"
+      },
+      {
+        "symbol": "SPY260904C00781000",
+        "side": "sell",
+        "qty": "2",
+        "price": "0.02",
+        "transaction_time": "2026-09-04T13:43:18.387207Z",
+        "order_id": "ac18f0f2-2717-45e4-8db1-63cbd1b35b04",
+        "fill_group": "20260904094318387"
+      },
+      {
+        "symbol": "SPY260904C00776000",
+        "side": "buy",
+        "qty": "2",
+        "price": "0.15",
+        "transaction_time": "2026-09-04T13:43:18.387204Z",
+        "order_id": "03d8f8c8-abdf-44f2-883d-49bd574661f7",
+        "fill_group": "20260904094318387"
+      },
       {
         "symbol": "SPY260904C00782000",
         "side": "sell",
@@ -1590,11 +1662,6 @@
   },
   "equity_curve": [
     {
-      "t": 1787961600,
-      "equity": 100000,
-      "pl": 0
-    },
-    {
       "t": 1788220800,
       "equity": 99671.88,
       "pl": -328.12
@@ -1608,18 +1675,23 @@
       "t": 1788393600,
       "equity": 100563.32,
       "pl": -409.8
+    },
+    {
+      "t": 1788480000,
+      "equity": 99657.78,
+      "pl": -905.54
     }
   ],
   "equity_curve_source": {
     "timeframe": "1D",
-    "note": "1H rejected: 28/35 points fell outside 50% of the broker's base_value; fell back to daily"
+    "note": "1H rejected: 29/36 points fell outside 50% of the broker's base_value; fell back to daily"
   },
   "account": {
-    "equity_usd": 99545.92,
+    "equity_usd": 99667.38,
     "base_usd": 100000.0,
-    "pnl_usd": -454.08,
-    "pnl_pct": -0.454,
-    "open_positions": 8
+    "pnl_usd": -332.62,
+    "pnl_pct": -0.333,
+    "open_positions": 0
   },
-  "sha256": "7994fb9b756efda72ab52ac340de522a9f33b4338a2bde4529b2e5e742bb318d"
+  "sha256": "d54b4205b105d64b6ba9a5b87578b1df792b9200621c9db0ae48ce454ad98aa7"
 }

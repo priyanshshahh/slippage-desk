@@ -121,7 +121,7 @@ record cannot be quietly edited after the fact.
 - Aggregate capture ratio: `98.3%`
 - Given up to execution: `$59.50`
 - Buckets vetoed by the execution gate: `0`
-- P&L: `-$454.08` on $100,000 (`-0.45%`), against a 2% daily loss limit that
+- P&L: `-$332.62` on $100,000 (`-0.33%`), against a 2% daily loss limit that
   was never reached and a 6% portfolio risk ceiling that never bound
 
 Read against the first judging criterion, which asks how effectively the
