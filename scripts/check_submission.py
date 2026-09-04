@@ -25,6 +25,10 @@ from engine.config import ROOT
 
 SUB = ROOT / "docs" / "SUBMISSION.md"
 SHORT_LIMIT = 255
+SHORT_MIN = 50              # the form rejects anything shorter
+LONG_LIMIT = 2000           # form maximum, counted in characters
+LONG_MIN = 600              # form minimum
+TITLE_LIMIT = 50
 VIDEO_MIN, VIDEO_MAX = 180.0, 300.0
 
 rows: list[tuple[str, bool, str]] = []
@@ -68,16 +72,31 @@ def main() -> int:
     text = SUB.read_text()
 
     short = fenced(text, "## Short description")
-    check("short description", len(short) <= SHORT_LIMIT,
-          f"{len(short)}/{SHORT_LIMIT} chars")
+    # The form enforces a floor as well as a ceiling on both fields, and a
+    # 50-character cap on the title. Only the ceilings were checked before.
+    title = ""
+    tm = re.search(r"## Project title\s*\n+\*\*(.+?)\*\*", text)
+    if tm:
+        title = tm.group(1).strip()
+    check("title length", 5 <= len(title) <= TITLE_LIMIT,
+          f"{len(title)}/{TITLE_LIMIT} chars: {title!r}")
+    check("short description", SHORT_MIN <= len(short) <= SHORT_LIMIT,
+          f"{len(short)}/{SHORT_LIMIT} chars (min {SHORT_MIN})")
     m = re.search(r"\((\d+) / 255 characters\)", text)
     check("short count stated", bool(m) and int(m.group(1)) == len(short),
           f"doc says {m.group(1) if m else 'nothing'}, actual {len(short)}")
 
-    words = len(fenced(text, "## Long description").split())
-    m = re.search(r"\*\((\d+) words", text)
-    check("long count stated", bool(m) and int(m.group(1)) == words,
-          f"doc says {m.group(1) if m else 'nothing'}, actual {words}")
+    # The lablab form limits the long description by CHARACTERS, not words.
+    # This checked a word count for days while the copy sat at 3,015
+    # characters against a 2,000 cap, which the form would have rejected or
+    # silently truncated mid-sentence. A margin is kept below the cap because
+    # a textarea may count newlines as \r\n.
+    long_d = fenced(text, "## Long description").strip()
+    check("long description length", LONG_MIN <= len(long_d) <= LONG_LIMIT,
+          f"{len(long_d)}/{LONG_LIMIT} chars (min {LONG_MIN})")
+    m = re.search(r"\*\((\d+) characters", text)
+    check("long count stated", bool(m) and int(m.group(1)) == len(long_d),
+          f"doc says {m.group(1) if m else 'nothing'}, actual {len(long_d)}")
 
     # No requirement is met by a field that still holds a placeholder. This
     # used to scan SUBMISSION.md alone, and its own pattern couldn't even see

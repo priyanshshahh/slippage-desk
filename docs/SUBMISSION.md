@@ -27,28 +27,24 @@ An options income agent that measures its own execution. It scores every fill ag
 
 ## Long description
 
-*(496 words. Opens with the arithmetic rather than the architecture, because
+*(1971 characters, inside the form's 2000 limit. Opens with the arithmetic rather than the architecture, because
 the arithmetic is what makes the architecture necessary. Closes on the P&L,
 because that is the first thing the rubric scores.)*
 
 ```
-A defined-risk credit spread is a thin trade by construction. This desk collects about $79 per contract on a $5-wide vertical, and the bid/ask it crosses on entry and again on exit is a material fraction of that. Execution here is not a rounding error, it is a first-order term. An agent that picks the right strike and then hands the credit back to the spread has not made money, it has made work.
+A defined-risk credit spread is a thin trade. This desk collects about $79 per contract on a $5-wide vertical, and the bid/ask it crosses on entry and exit is a material fraction of that. Execution here is not a rounding error, it is a first-order term.
 
-Slippage is usually handled as a pre-trade filter: reject the quote if it looks too wide, then assume the fill lands near the mid. That never tells you what you actually got. Slippage Desk scores the fill itself, and then trades on the answer.
+Slippage is usually handled as a pre-trade filter: reject wide quotes, then assume the fill lands near mid. That never tells you what you actually got. Slippage Desk scores the fill itself, then trades on the answer.
 
-It sells 0 to 2 DTE credit spreads on SPY, QQQ and IWM behind fifteen deterministic gates: delta band, credit-to-width floor, quote width, crossability, same-expiry pairing, defined risk, portfolio and per-symbol dollar caps, position and daily trade caps, equity floor, daily loss limit, an entry window that hard-stops before the close, and an early-assignment check reading live corporate actions.
+It sells 0 to 2 DTE credit spreads on SPY, QQQ and IWM behind fifteen deterministic gates: delta band, credit-to-width floor, quote width, crossability, same-expiry pairing, defined risk, portfolio and per-symbol caps, position and daily trade caps, equity floor, daily loss limit, an entry window, and an early-assignment check reading live corporate actions.
 
-The advisor's authority is a type signature, not a prompt instruction: it returns a multiplier clamped to [0, 1] plus a veto flag, so it cannot open a trade, widen risk or overturn a gate. Every failure path returns 0.0, so an unreachable model trades less, never worse.
+The advisor's authority is a type signature, not a prompt: it returns a multiplier clamped to [0, 1] plus a veto flag, so it cannot open a trade, widen risk or overturn a gate. Every failure path returns 0.0, so an unreachable model trades less, never worse.
 
-The new part: every fill is scored against the mid it was priced at. The desk holds a shrunk capture ratio per (underlying, tenor, delta band, time of day) bucket, ranks candidates by capture-adjusted credit rather than quoted credit, and uses that memory to set how far to cross next time. Buckets that fill readily hold out for mid. Buckets that do not, pay up or get skipped.
+The new part: every fill is scored against the mid it was priced at. The desk holds a shrunk capture ratio per (underlying, tenor, delta band, time of day) bucket, ranks candidates by capture-adjusted credit, and uses that memory to set how far to cross next time.
 
-Alpaca's three surfaces have separate jobs. The CLI submits multi-leg orders and verifies the book. The SDK pulls chains with greeks. The MCP server feeds read-only research to the advisor, launched with trading toolsets stripped so research physically cannot place an order.
+Alpaca's three surfaces have separate jobs. The CLI submits multi-leg orders and verifies the book. The SDK pulls chains with greeks. The MCP server feeds read-only research to the advisor, launched with trading toolsets stripped so it physically cannot place an order.
 
-Broker-verified, not backtested: 36 spreads across 43 contracts, $3,386 captured of $3,446 theoretical, $60 surrendered to execution, 98.3% capture, and 2,368 candidates considered. Every figure regenerates from a sha256-signed artifact, checked mechanically before every commit by `scripts/verify_claims.py` and `scripts/check_submission.py`, both in the repo.
-
-Result over the competition window: -$454.08 on $100,000, or -0.45%, with the 2% daily loss limit never reached and the 6% portfolio risk ceiling never binding. Every position was defined risk, so maximum loss was known before each order went out; stops capped the losers near 2x credit rather than at full width; and 98.3% of available theoretical credit was actually captured. A short-premium book in a rising tape is the market this strategy is built to lose in, and it lost under half a percent doing it.
-
-Four sessions is not a track record and this claims no predictive edge. It claims the desk knows exactly what its execution cost, per fill, and can show the receipts.
+Broker-verified, not backtested: 36 spreads across 43 contracts, $3,386 captured of $3,446 theoretical, $60 surrendered to execution, 98.3% capture, 2,368 candidates considered. Result: -$454.08 (-0.45%), with the 2% daily loss limit never reached and defined risk on every position. Every figure regenerates from a sha256-signed artifact.
 ```
 
 ---
