@@ -117,7 +117,7 @@ def scenes(p: dict) -> list[dict]:
         dict(t=16, kind="punch",
              kicker="What this does not claim",
              big="Four sessions cannot establish that a strategy is profitable.",
-             accent="For anyone in this hackathon.",
+             accent="Not from a window this short.",
              note="What four sessions can establish is that an agent measured "
                   "its own execution and acted on it. That is the claim, and "
                   "the file above is the receipt."),

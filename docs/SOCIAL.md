@@ -101,8 +101,8 @@ every gate and filled, 98.3% of theoretical credit captured. That capture
 figure comes from Alpaca's own activity log rather than my own bookkeeping,
 so anyone holding the account ID can reproduce it independently.
 
-Four days cannot prove a strategy is profitable. Anyone claiming otherwise
-from this window is reading noise. But four days can prove an agent measured
+Four days cannot prove a strategy is profitable. Treating a window this
+short as proof is reading noise. But four days can prove an agent measured
 its own execution and acted on what it found, and that is the claim I am
 making.
 

@@ -24,7 +24,12 @@ import sys
 from engine.config import ROOT
 from scripts.build_film import scenes
 
-VOICE = "Samantha"          # the most natural of the installed system voices
+# Piper, a neural TTS running locally. lessac-medium is the clearest of the
+# general-purpose English voices at this size and does not sound like a
+# screen reader, which is the whole reason for moving off macOS `say`.
+VOICE_MODEL = "en_US-lessac-medium"
+VOICE_DIR = pathlib.Path(__file__).resolve().parent.parent / ".voices"
+SENTENCE_SILENCE = 0.35     # seconds of rest at each full stop
 LEAD_IN = 0.4               # the plate is trimmed to the first scene, so this
                             # only lets its 0.7s fade finish before the voice
 OUT_AUDIO = ROOT / "docs" / "narration.m4a"
@@ -127,8 +132,8 @@ def spoken(p: dict) -> list[str]:
 
         # 9 what it does not claim, 16s
         "I am not going to claim this strategy is profitable. A handful of sessions "
-        "cannot establish that, for anyone in this hackathon, and anyone claiming "
-        "otherwise is reading noise. What these sessions do establish is that an "
+        "cannot establish that. Treating a window this short as proof would be "
+        "reading noise, not signal. What these sessions do establish is that an "
         "agent measured its own execution and acted on what it found.",
 
         # 10 close, 18s
@@ -164,10 +169,26 @@ def _humanize(text: str) -> str:
     return text
 
 
-def say_to_aiff(text: str, rate: int, dest: pathlib.Path) -> float:
-    subprocess.run(["say", "-v", VOICE, "-r", str(rate), "-o", str(dest),
-                    _humanize(text)],
-                   check=True, capture_output=True)
+def synth(text: str, length_scale: float, dest: pathlib.Path) -> float:
+    """Speak `text` with Piper at the given pace, returning its duration.
+
+    macOS `say` was the previous engine. Its only usable English voice on
+    this machine is Samantha (everything else installed is a novelty voice),
+    and it stays recognisably synthetic no matter how the pacing is tuned.
+    Piper is a neural TTS that runs entirely offline: no account, no API key,
+    no per-character billing, and the model sits in .voices/ beside the repo.
+
+    Pace is `--length-scale`, where larger is slower, rather than words per
+    minute. Sentence rests are native (`--sentence-silence`), which replaces
+    the [[slnc]] markers `say` needed.
+    """
+    subprocess.run(
+        [sys.executable, "-m", "piper", "-m", VOICE_MODEL,
+         "--data-dir", str(VOICE_DIR),
+         "--length-scale", f"{length_scale:.3f}",
+         "--sentence-silence", str(SENTENCE_SILENCE),
+         "-f", str(dest)],
+        input=text, text=True, check=True, capture_output=True)
     out = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries", "format=duration",
          "-of", "default=nw=1:nk=1", str(dest)],
@@ -175,17 +196,19 @@ def say_to_aiff(text: str, rate: int, dest: pathlib.Path) -> float:
     return float(out.stdout.strip())
 
 
-def fit(text: str, budget: float, dest: pathlib.Path) -> tuple[float, int]:
+def fit(text: str, budget: float, dest: pathlib.Path) -> tuple[float, float]:
     """Speak `text` so it lands inside `budget` seconds.
 
-    Starts at a natural pace and only speeds up if it has to, because a
-    narration that races is worse than one that runs a beat short.
+    Starts a shade slower than the model's default and only compresses if it
+    has to, because a narration that races is worse than one that runs a beat
+    short. The scene durations in build_film.py were widened precisely so this
+    rarely has to leave the natural end of the range.
     """
-    for rate in (172, 180, 188, 196, 205, 215, 228, 240):
-        dur = say_to_aiff(text, rate, dest)
+    for scale in (1.10, 1.05, 1.00, 0.96, 0.92, 0.88, 0.84, 0.80):
+        dur = synth(text, scale, dest)
         if dur <= budget - 0.35:
-            return dur, rate
-    return dur, rate
+            return dur, scale
+    return dur, scale
 
 
 def main() -> int:
@@ -204,14 +227,14 @@ def main() -> int:
     parts, cursor, over = [], 0.0, 0
 
     for i, (sc, text) in enumerate(zip(S, lines)):
-        seg = tmp / f"{i:02d}.aiff"
-        dur, rate = fit(text, sc["t"], seg)
+        seg = tmp / f"{i:02d}.wav"
+        dur, scale = fit(text, sc["t"], seg)
         start = LEAD_IN + cursor
         flag = ""
         if dur > sc["t"] - 0.35:
             flag, over = "  ! OVERRUNS", over + 1
         print(f"  scene {i:>2}  budget {sc['t']:>4}s  speech {dur:>6.2f}s  "
-              f"rate {rate}{flag}")
+              f"pace {scale:.2f}{flag}")
         parts.append((start, seg, dur))
         cursor += sc["t"]
 

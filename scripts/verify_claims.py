@@ -47,6 +47,15 @@ FORBIDDEN = [
     # README.md, the first thing GitHub shows, until a manual sweep caught
     # them; neither matched anything above.
     (r"\bnobody measures\b", "implicit superiority claim"),
+    # build_narration.py still spoke "for anyone in this hackathon, and anyone
+    # claiming otherwise is reading noise" long after that sentence was cut
+    # from the write-up and the deck. Narration is the hardest copy to audit,
+    # because it ships as audio inside the video where no reader will spot it,
+    # and none of the patterns above matched this phrasing.
+    (r"\banyone (?:in this hackathon|claiming otherwise)\b",
+     "characterises other entries"),
+    (r"\b(?:for|by) anyone in this (?:field|hackathon)\b",
+     "characterises other entries"),
     (r"\bevery (?:agent|entrant|team) in this (?:field|hackathon)\b",
      "refers to other entries"),
 ]

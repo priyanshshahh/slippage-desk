@@ -12,3 +12,6 @@ node_modules/
 bin/alpaca
 bin/LICENSE
 bin/README.md
+
+# Piper voice model (63MB binary, downloaded by scripts/build_narration.py)
+.voices/
