@@ -38,10 +38,32 @@ fi
 
 log "started, watching the agent"
 
+# A hung agent is alive by every test this loop used to apply. On 2026-09-04
+# the chain fetch blocked on a reset connection twice and the process sat
+# idle, once for 44 minutes, while kill -0 kept reporting it healthy. A loop
+# that is not polling manages no exits, so a stop or the reporting flatten
+# would never fire. Liveness is therefore progress in the log, not existence
+# of a pid: if agent.log has not been written to in STALE_AFTER seconds, the
+# agent is treated as dead and replaced.
+STALE_AFTER=300
+
+log_age() {
+  [ -f logs/agent.log ] || { echo 999999; return; }
+  echo $(( $(date +%s) - $(stat -f %m logs/agent.log) ))
+}
+
 while true; do
   if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-    sleep 30
-    continue
+    age=$(log_age)
+    if [ "$age" -lt "$STALE_AFTER" ]; then
+      sleep 30
+      continue
+    fi
+    log "agent pid $(cat "$PIDFILE") alive but silent for ${age}s, restarting"
+    kill "$(cat "$PIDFILE")" 2>/dev/null
+    sleep 3
+    kill -9 "$(cat "$PIDFILE")" 2>/dev/null
+    sleep 1
   fi
 
   RESTARTS=$((RESTARTS + 1))

@@ -6,6 +6,7 @@ ticks of slippage on entry and exit is not a good spread.
 """
 from __future__ import annotations
 
+import concurrent.futures
 import re
 from dataclasses import dataclass
 from datetime import date, datetime
@@ -14,6 +15,10 @@ from alpaca.data.requests import OptionChainRequest
 from alpaca.data.enums import OptionsFeed
 
 from engine.client import option_data, options_feed
+
+
+class ChainError(RuntimeError):
+    """A chain could not be retrieved. Callers treat this as one bad poll."""
 
 OCC = re.compile(r"^(?P<root>[A-Z]+)(?P<exp>\d{6})(?P<cp>[CP])(?P<strike>\d{8})$")
 
@@ -72,6 +77,38 @@ def _feed() -> OptionsFeed:
     return OptionsFeed.OPRA if options_feed() == "opra" else OptionsFeed.INDICATIVE
 
 
+CHAIN_TIMEOUT_S = 45.0
+
+
+def _chain_with_deadline(req: OptionChainRequest) -> dict:
+    """Fetch a chain, but never block the poll loop indefinitely.
+
+    The SDK call carries no timeout of its own. On 2026-09-04 the agent hung
+    twice, both times immediately after the connection was reset mid-fetch:
+    silent for 44 minutes on the first occasion and 11 on the second, with the
+    process alive and idle. A hung loop manages no exits, so a stop or the
+    reporting flatten would simply never fire, which is the one failure this
+    project cannot absorb on submission day.
+
+    The work runs on a worker thread and the caller gives up at the deadline.
+    A thread cannot be killed, so an abandoned one is left to finish and be
+    discarded; that leaks a thread at worst, where the alternative loses the
+    agent. poll_once already treats an exception as one bad poll and re-reads
+    everything from the broker next time round.
+    """
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    try:
+        fut = pool.submit(option_data().get_option_chain, req)
+        try:
+            return fut.result(timeout=CHAIN_TIMEOUT_S)
+        except concurrent.futures.TimeoutError:
+            raise ChainError(
+                f"option chain fetch exceeded {CHAIN_TIMEOUT_S:.0f}s and was "
+                f"abandoned; the poll will retry") from None
+    finally:
+        pool.shutdown(wait=False)
+
+
 def fetch_chain(
     underlying: str,
     min_dte: int,
@@ -81,7 +118,7 @@ def fetch_chain(
     """Pull the chain for one underlying, restricted to a DTE band."""
     asof = asof or date.today()
     req = OptionChainRequest(underlying_symbol=underlying, feed=_feed())
-    snapshots = option_data().get_option_chain(req)
+    snapshots = _chain_with_deadline(req)
 
     out: list[Contract] = []
     for symbol, snap in snapshots.items():
