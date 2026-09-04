@@ -21,7 +21,14 @@
          color: #8b8b94; margin-bottom: 24px; }
   h1 { font-size: 86px; line-height: .97; letter-spacing: -.035em; }
   .lede { font-size: 27px; color: #d4d4d8; margin-top: 22px; max-width: 22ch; }
-  .row { display: flex; gap: 46px; margin-top: 46px; }
+  /* The stat row read as four floating numbers with a large empty band
+     beneath it. A rule above groups them, and the proof line below closes
+     the column at roughly the same height as the panel opposite. */
+  .rule { height: 1px; background: #27272a; margin-top: 44px; }
+  .row { display: flex; gap: 44px; margin-top: 30px; }
+  .proof { margin-top: 26px; padding-top: 18px; border-top: 1px solid #1c1c20;
+           font-size: 14px; line-height: 1.5; color: #71717a; max-width: 44ch; }
+  .proof b { color: #a1a1aa; font-weight: 500; }
   .k { font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
        color: #8b8b94; margin-bottom: 8px; }
   .v { font-size: 38px; font-variant-numeric: tabular-nums; letter-spacing: -.03em;
@@ -66,6 +73,7 @@
     <div class="tag">Alpaca AI Trading Agents Hackathon</div>
     <h1>Slippage<br>Desk</h1>
     <div class="lede">The options agent that measures its own execution.</div>
+    <div class="rule"></div>
     <div class="row">
       <div><div class="k">Credit captured</div>
            <div class="v g" id="x-capture">98.3%</div></div>
@@ -75,6 +83,10 @@
            <div class="v" id="x-gates">15</div></div>
       <div><div class="k">Alpaca surfaces</div>
            <div class="v" id="x-surfaces">3</div></div>
+    </div>
+    <div class="proof">
+      Broker-verified, not backtested. Every figure regenerates from a
+      <b>sha256-signed artifact</b>.
     </div>
   </div>
 
