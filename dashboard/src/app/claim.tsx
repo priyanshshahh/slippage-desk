@@ -48,7 +48,7 @@ export default function Claim() {
       <div className="mt-3 rounded-lg border border-edge bg-grid px-4 py-3 text-xs leading-relaxed text-foreground/75">
         <strong className="text-foreground">The honest part.</strong> Four
         sessions cannot establish that a strategy is profitable, for anyone in
-        this hackathon. What four sessions <em>can</em> establish is that an
+        a window this short. What four sessions <em>can</em> establish is that an
         agent measured its own execution and acted on it, and every number on
         this page is reconcilable against the paper account ID above, sourced
         from Alpaca&apos;s own activity log rather than our bookkeeping.

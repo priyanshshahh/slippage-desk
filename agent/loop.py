@@ -263,7 +263,7 @@ def build_state(cfg: dict, now_et: datetime) -> PortfolioState:
 def _reporting_cutoff(cfg: dict, key: str, now_et: datetime) -> bool:
     """True once the reporting cutoff named by `key` has passed.
 
-    The hackathon reads this account at a fixed instant, and force_close only
+    A reporting moment reads this account at a fixed instant, and force_close only
     fires on a spread's own expiry day. Without this the submitted P&L would
     be an open position's mark, not a settled figure. See config.yaml
     `reporting`. Unset or unparseable means the cutoff simply does not exist,

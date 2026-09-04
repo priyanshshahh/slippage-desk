@@ -1,6 +1,6 @@
-# One-page write-up
+# Slippage Desk: design notes
 
-*Required by the hackathon: AI logic, risk gates, and Alpaca infrastructure.*
+*How the agent decides, what constrains it, and what the evidence does and does not show.*
 
 ## The problem this agent solves
 
@@ -114,7 +114,7 @@ it was priced against, the credit actually received, per-bucket capture ratios,
 which buckets the execution gate refused, and a sha256 over the payload so the
 record cannot be quietly edited after the fact.
 
-**Results from the competition window:**
+**Results, paper account, four sessions:**
 
 - Candidates considered: `2,368`
 - Orders filled: `36`

@@ -1,6 +1,6 @@
 """Alpaca CLI wrapper.
 
-The hackathon requires the MCP server or the CLI, and the CLI is the better
+Alpaca exposes both an MCP server and a CLI. The CLI is the better
 fit for a long-running agent: it is a single static binary, it emits
 structured JSON on every command, and it is cheap enough to call on a 60
 second loop without the overhead of an MCP session.

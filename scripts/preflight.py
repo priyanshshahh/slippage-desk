@@ -38,7 +38,7 @@ def run() -> int:
              f"account_number={getattr(acct, 'account_number', 'unknown')}")
     )
 
-    # 2. Starting equity must be $100,000 per the hackathon rules.
+    # 2. Starting equity is $100,000, the baseline every figure is measured against.
     equity = float(acct.equity)
     expected = float(cfg["account"]["expected_starting_equity"])
     if abs(equity - expected) < 1.0:

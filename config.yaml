@@ -131,7 +131,7 @@ execution_quality:
   min_samples_to_veto: 3
 
 reporting:
-  # The hackathon reads this account's P&L at a fixed wall-clock moment
+  # A reporting moment reads this account's P&L at a fixed wall-clock moment
   # (2026-09-04 11:00 ET). Force-close only fires on a spread's own expiry
   # day at 15:45, so without this block the submitted number would be a
   # mark-to-market snapshot of an open short-gamma position taken almost
@@ -145,7 +145,7 @@ reporting:
   # Off for ongoing operation. This block exists for a reporting moment: it
   # stops new entries and flattens the book so a figure read at a fixed
   # wall-clock instant is settled rather than a mark on an open position.
-  # The hackathon submission was that moment, on 2026-09-04. Left enabled
+  # The 2026-09-04 submission was one such moment. Left enabled
   # with cutoffs in the past it silently refuses every entry forever, which
   # is exactly what it did until this line changed.
   #

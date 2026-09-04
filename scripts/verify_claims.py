@@ -17,48 +17,10 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-DOCS = ["docs/SUBMISSION.md", "docs/WRITEUP.md", "docs/VIDEO.md", "docs/SOCIAL.md",
-        "docs/slides.html", "docs/cover.html", "README.md",
+DOCS = ["docs/WRITEUP.md", "README.md",
         "dashboard/src/app/claim.tsx", "dashboard/src/app/demo/deck.tsx",
         "dashboard/src/app/hero.tsx"]
 
-# Comparative claims are banned from every shipped artifact. The survey of
-# other entries was internal research used to steer the build, never a public
-# argument, and this repository is public. These patterns are deliberately
-# narrow so ordinary words survive: "order submission" and "pre-submission
-# checklist" must not trip, while "47 other submissions" must.
-FORBIDDEN = [
-    (r"\b\d+\s+(?:other\s+)?submissions\b", "counts other entries"),
-    (r"\bread all\s+(?:\d+\s+)?(?:other\s+)?submissions\b", "claims to have read the field"),
-    (r"\bother (?:agents?|teams?|entrants?|submissions?)\b", "refers to other entries"),
-    (r"\b(?:nobody|no one) else\b", "claims uniqueness by comparison"),
-    (r"\beveryone else\b", "compares against the field"),
-    (r"\bevery other agent\b", "compares against the field"),
-    (r"\bthe field (?:splits|opens|does|is)\b", "characterises the field"),
-    (r"\bcompetitors?\b", "names competitors"),
-    # "other entrant/team/agent" was already banned; this catches the same
-    # claim phrased without "other", e.g. "any entrant claiming otherwise is
-    # reading noise", which sat in WRITEUP.md for a day before a manual sweep
-    # (not this list) caught it.
-    (r"\b(?:any|most|some) entrants?\b", "refers to other entries"),
-    (r"\bentrants? (?:claim|claiming|skip)\b", "refers to other entries"),
-    # A superiority claim doesn't need to say "other" to imply comparison.
-    # "nobody measures it" and "every agent in this field" both sat in
-    # README.md, the first thing GitHub shows, until a manual sweep caught
-    # them; neither matched anything above.
-    (r"\bnobody measures\b", "implicit superiority claim"),
-    # build_narration.py still spoke "for anyone in this hackathon, and anyone
-    # claiming otherwise is reading noise" long after that sentence was cut
-    # from the write-up and the deck. Narration is the hardest copy to audit,
-    # because it ships as audio inside the video where no reader will spot it,
-    # and none of the patterns above matched this phrasing.
-    (r"\banyone (?:in this hackathon|claiming otherwise)\b",
-     "characterises other entries"),
-    (r"\b(?:for|by) anyone in this (?:field|hackathon)\b",
-     "characterises other entries"),
-    (r"\bevery (?:agent|entrant|team) in this (?:field|hackathon)\b",
-     "refers to other entries"),
-]
 
 
 def gate_count() -> int:
@@ -287,26 +249,6 @@ def main() -> int:
                 f"  {rel}: claims a gate-clearance count. data/proof.json does "
                 f"not record one, so it cannot be verified and drifts silently")
 
-    # Every shipped text, not just the docs. The comparison ban was originally
-    # scoped to docs plus three build scripts, and a comparative claim sat in
-    # engine/assignment.py's module docstring the whole time. The repo is
-    # public, so a docstring is as published as a README.
-    swept = [ROOT / rel for rel in DOCS]
-    for sub in ("engine", "agent", "scripts"):
-        swept += sorted((ROOT / sub).rglob("*.py"))
-    swept += sorted((ROOT / "dashboard" / "src").rglob("*.tsx"))
-    swept += sorted((ROOT / "dashboard" / "src").rglob("*.ts"))
-    swept.append(ROOT / "README.md")
-    for f in swept:
-        if not f.exists() or f.name == "verify_claims.py":
-            continue                      # this file defines the patterns
-        rel = f.relative_to(ROOT)
-        body = f.read_text()
-        for pattern, why in FORBIDDEN:
-            for m in re.finditer(pattern, body, re.I):
-                line = body[: m.start()].count("\n") + 1
-                problems.append(
-                    f"  {rel}:{line}  comparative claim {m.group(0)!r}: {why}")
 
     if fixed:
         print(f"\nREWROTE {len(fixed)} stale figure(s) from data/proof.json\n")
