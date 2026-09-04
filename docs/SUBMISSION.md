@@ -49,6 +49,32 @@ Broker-verified, not backtested: 36 spreads across 43 contracts, $3,386 captured
 
 ---
 
+## Additional information
+
+*(1745 characters, inside the form's 2000 limit.)*
+
+```
+How to check any claim in this submission, in about two minutes.
+
+Every figure in the video, deck and write-up is generated from data/proof.json, which scripts/proof.py builds from Alpaca's own activity log and portfolio history. It carries every fill, the mid each was priced against, the credit actually received, per-bucket capture ratios, and a sha256 over the payload. Nothing is transcribed by hand.
+
+Two scripts in the repo enforce that, and both run clean on the committed tree:
+
+  python -m scripts.verify_claims
+    compares every number across all ten deliverables against proof.json and exits non-zero on drift.
+
+  python -m scripts.check_submission
+    validates the package itself: field lengths, cover ratio, video duration and audio, and that every submitted URL returns 200 with no credentials attached.
+
+On the result. The account finished at $-454.08, -0.45% of $100,000. Four sessions cannot establish whether a strategy is profitable, and this submission does not claim otherwise. What the window does establish is measurable: 2,368 candidates considered, 36 spreads filled across 43 contracts, 98.3% of theoretical credit captured, and $60 surrendered to execution. Every position was defined risk, so maximum loss was known before each order went out. Stops closed the losers near 2x credit rather than at full width, the 2% daily loss limit was never reached, and the portfolio risk ceiling never bound.
+
+Worth opening first: engine/execution_quality.py, the capture-ratio loop that is the original part; engine/risk.py, the fifteen deterministic gates; and data/decisions.jsonl, every candidate considered including the refusals, which are the evidence the risk layer does real work.
+
+Built with Claude Code (Anthropic).
+```
+
+---
+
 ## Technology tags
 
 `Alpaca` `Alpaca CLI` `Alpaca MCP` `Python` `Claude` `Options` `Next.js` `DuckDB`

@@ -98,6 +98,14 @@ def main() -> int:
     check("long count stated", bool(m) and int(m.group(1)) == len(long_d),
           f"doc says {m.group(1) if m else 'nothing'}, actual {len(long_d)}")
 
+    # The form has a second free-text field with the same 2000 cap. It was
+    # added to the doc after the long description, so it gets the same check
+    # rather than being trusted.
+    if "## Additional information" in text:
+        extra = fenced(text, "## Additional information").strip()
+        check("additional info length", len(extra) <= LONG_LIMIT,
+              f"{len(extra)}/{LONG_LIMIT} chars")
+
     # No requirement is met by a field that still holds a placeholder. This
     # used to scan SUBMISSION.md alone, and its own pattern couldn't even see
     # `<<FILL>>` (a double angle bracket isn't `<[^`>]+>`). Both holes let six
