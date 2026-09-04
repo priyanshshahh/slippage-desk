@@ -27,11 +27,10 @@ from scripts.build_film import scenes
 # Piper, a neural TTS running locally. lessac-medium is the clearest of the
 # general-purpose English voices at this size and does not sound like a
 # screen reader, which is the whole reason for moving off macOS `say`.
-# Two voices, used for a reason rather than for variety. The narrator carries
-# the argument; the advisor's own quoted reasoning is spoken by a second voice,
-# because it is a different speaker: the model talking, not the presenter.
-VOICE_MODEL = "en_US-ryan-high"        # narrator
-VOICE_QUOTE = "en_US-lessac-medium"    # the advisor, quoted
+# One voice throughout. A second voice was tried for the advisor's quoted
+# reasoning and removed: without an on-screen cue marking the change, it read
+# as a fault in the audio rather than as a quotation.
+VOICE_MODEL = "en_US-ryan-high"
 VOICE_DIR = pathlib.Path(__file__).resolve().parent.parent / ".voices"
 SENTENCE_SILENCE = 0.35     # seconds of rest at each full stop
 LEAD_IN = 0.4               # the plate is trimmed to the first scene, so this
@@ -87,22 +86,19 @@ def spoken(p: dict) -> list[str]:
         "bucket has historically given up too much credit, it stops trading it, "
         "and the same memory decides how far to cross on the next order.",
 
-        # 4 the real refusal, 36s. Two voices: the narrator sets the record up,
-        # then the advisor's own logged reasoning is read in a second voice,
-        # because it is a different speaker.
-        [(VOICE_MODEL,
-          "This is one real candidate, replayed from the decision journal. "
-          "Sixteen checks ran in order, cheapest first, and every one of them "
-          "passed. The market was open. The credit cleared the floor. The delta "
-          "sat inside the band. Risk was defined and the position was sized. "
-          "Then the advisor was asked, last, and it refused. In its own words:"),
-         (VOICE_QUOTE,
-          "Spot seven fifteen twenty sits only zero point eight percent below "
-          "the seven twenty one short strike, after a one point two percent "
-          "down day, and the credit does not pay for a two day gamma gap."),
-         (VOICE_MODEL,
-          "The gates decide what is permissible. The model can only shrink a "
-          "trade or veto it, and every failure path returns that same veto.")],
+        # 4 the real refusal, 36s. One voice throughout: a second voice for the
+        # advisor's quote read as a glitch rather than as a quotation, because
+        # nothing on screen marked the change.
+        "This is one real candidate, replayed from the decision journal. "
+        "Sixteen checks ran in order, cheapest first, and every one of them "
+        "passed. The market was open. The credit cleared the floor. The delta "
+        "sat inside the band. Risk was defined and the position was sized. "
+        "Then the advisor was asked, last, and it refused, because spot sat "
+        "less than one percent below the short strike after a down day, and "
+        "the credit did not pay for a two day gamma gap. "
+        "The gates decide what is permissible. The model can only shrink a "
+        "trade or veto it, and every failure path returns that same veto. "
+        "A model that is unreachable means this desk trades less, never worse.",
 
         # 5 alpaca surfaces, 26s
         "Alpaca appears three times, with deliberately separate jobs. "
